@@ -1,0 +1,72 @@
+[
+  {
+    "_id": {
+      "$oid": "6543210abcdef1234567890a"
+    },
+    "title": "Clean Code: A Handbook of Agile Software Craftsmanship",
+    "author": "Robert C. Martin",
+    "price": 450000,
+    "year": 2008,
+    "category": "Lập trình",
+    "description": "Cuốn sách không thể bỏ qua cho các lập trình viên muốn viết code sạch, dễ bảo trì và chuyên nghiệp. Tác giả chia sẻ những kinh nghiệm hàng chục năm làm việc trong ngành công nghiệp phần mềm.",
+    "quantity": 15,
+    "imageUrl": "/images/clean-code.jpg",
+    "imageFilename": "clean-code.jpg"
+  },
+  {
+    "_id": {
+      "$oid": "6543210abcdef1234567890b"
+    },
+    "title": "The Pragmatic Programmer",
+    "author": "David Thomas, Andrew Hunt",
+    "price": 380000,
+    "year": 1999,
+    "category": "Lập trình",
+    "description": "Một trong những cuốn sách lập trình kinh điển nhất. Cung cấp những tips và tricks thực tiễn giúp bạn trở thành một lập trình viên giỏi hơn.",
+    "quantity": 12,
+    "imageUrl": "/images/pragmatic.jpg",
+    "imageFilename": "pragmatic.jpg"
+  },
+  {
+    "_id": {
+      "$oid": "6543210abcdef1234567890c"
+    },
+    "title": "Design Patterns: Elements of Reusable Object-Oriented Software",
+    "author": "Gang of Four",
+    "price": 520000,
+    "year": 1994,
+    "category": "Lập trình",
+    "description": "Cuốn sách nền tảng về design patterns. Giới thiệu 23 design patterns phổ biến và cách sử dụng chúng để giải quyết các vấn đề trong thiết kế phần mềm.",
+    "quantity": 8,
+    "imageUrl": "/images/design-patterns.jpg",
+    "imageFilename": "design-patterns.jpg"
+  },
+  {
+    "_id": {
+      "$oid": "6543210abcdef1234567890d"
+    },
+    "title": "Spring in Action",
+    "author": "Craig Walls",
+    "price": 480000,
+    "year": 2022,
+    "category": "Lập trình",
+    "description": "Hướng dẫn toàn diện về Spring Framework. Từ cơ bản đến nâng cao, bạn sẽ học được cách sử dụng Spring để xây dựng các ứng dụng web mạnh mẽ.",
+    "quantity": 20,
+    "imageUrl": "/images/spring-in-action.jpg",
+    "imageFilename": "spring-in-action.jpg"
+  },
+  {
+    "_id": {
+      "$oid": "6543210abcdef1234567890e"
+    },
+    "title": "Học Lập Trình Web Với Java Spring Boot",
+    "author": "Nguyễn Văn A",
+    "price": 350000,
+    "year": 2023,
+    "category": "Lập trình",
+    "description": "Cuốn sách hướng dẫn chi tiết cách xây dựng ứng dụng web sử dụng Spring Boot. Phù hợp cho người mới bắt đầu cũng như lập trình viên muốn nâng cao kỹ năng.",
+    "quantity": 25,
+    "imageUrl": "/images/spring-boot-vn.jpg",
+    "imageFilename": "spring-boot-vn.jpg"
+  }
+]

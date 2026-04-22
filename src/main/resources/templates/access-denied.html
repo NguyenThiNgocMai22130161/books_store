@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truy Cập Bị Từ Chối</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
+        }
+        .error-code {
+            font-size: 5rem;
+            font-weight: bold;
+            color: var(--danger-color);
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+        .error-description {
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="navbar-brand">📚 Bài 07 - Authorization</a>
+            <div class="navbar-nav">
+                <a href="/books">Sách</a>
+                <a href="/logout">Đăng Xuất</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="error-container">
+            <div class="error-code">🚫</div>
+            <h1 class="error-message">Truy Cập Bị Từ Chối</h1>
+            <div class="error-description">
+                <p>Bạn không có quyền truy cập vào trang này.</p>
+                <p>Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là một lỗi.</p>
+            </div>
+            <div>
+                <a href="/books" class="btn btn-primary">← Quay Lại</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 Bài 07 - Authorization. Học Spring Security + OAuth2 Google</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,34 @@
+# Application Configuration Example
+# Thay thế YOUR_GOOGLE_CLIENT_ID và YOUR_GOOGLE_CLIENT_SECRET bằng giá trị thực
+
+spring.application.name=NPSang_2714_J2EE-authorization
+
+# MongoDB Configuration
+spring.data.mongodb.uri=mongodb://localhost:27017/NPSang_2714_J2EE_db
+spring.data.mongodb.auto-index-creation=true
+
+# Google OAuth2
+spring.security.oauth2.client.registration.google.client-id=YOUR_GOOGLE_CLIENT_ID
+spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIENT_SECRET
+spring.security.oauth2.client.registration.google.scope=profile,email
+spring.security.oauth2.client.registration.google.redirect-uri=http://localhost:8080/login/oauth2/code/google
+spring.security.oauth2.client.registration.google.client-name=Google
+
+# Server Configuration
+server.port=8080
+server.servlet.context-path=/
+
+# File Upload
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+app.upload.dir=uploads/books
+
+# Thymeleaf
+spring.thymeleaf.cache=false
+spring.thymeleaf.prefix=classpath:/templates/
+spring.thymeleaf.suffix=.html
+
+# Logging
+logging.level.root=INFO
+logging.level.myproject.study.NPSang_2714_J2EE=DEBUG
+logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %msg%n
