@@ -9,14 +9,3 @@ ROLE_User:
 2. Tìm kiếm và lọc sách.
 3. xem chi tiết, thêm vào giỏ hàng.
 4. Thanh toán mặc định, có xem lịch sử mua hàng.
-## 📚 Documentation
-
-All documentation has been organized in the `docs/` folder:
-
-- **Setup Guides:** `docs/setup/`
-- **Development Guides:** `docs/guides/`
-- **API Documentation:** `docs/api/`
-- **Component Backup:** `docs/components-backup/`
-
-**Quick Start:** Read `docs/setup/START_HERE.md`
-
