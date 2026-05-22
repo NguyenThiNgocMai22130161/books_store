@@ -97,4 +97,57 @@ launch.json
 # Bỏ qua file cấu hình chính
 src/main/resources/application.properties
 
+<<<<<<< HEAD
+**/application.properties/bin/
+/target/
+/frontend/node_modules/
+.DS_Store
+
+# ========================================
+# Build folders (added by cleanup script)
+# ========================================
+/bin/
+/target/
+/frontend/node_modules/
+/frontend/dist/
+/frontend/build/
+
+# ========================================
+# IDE
+# ========================================
+/.vscode/
+/.idea/
+*.iml
+*.ipr
+*.iws
+
+# ========================================
+# OS
+# ========================================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ========================================
+# Application properties (sensitive)
+# ========================================
+src/main/resources/application.properties
+!src/main/resources/application.properties.example
+
+# ========================================
+# Logs
+# ========================================
+*.log
+logs/
+
+# ========================================
+# Temporary files
+# ========================================
+*.tmp
+*.temp
+
+=======
 **/application.properties
+>>>>>>> origin/main
