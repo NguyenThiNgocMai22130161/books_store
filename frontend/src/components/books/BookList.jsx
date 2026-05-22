@@ -160,6 +160,24 @@ const BookList = () => {
 
   // Handle add to cart
   const handleAddToCart = async (bookId) => {
+    // Kiểm tra đăng nhập trước
+    if (!user) {
+      // Lưu URL hiện tại để redirect về sau khi đăng nhập
+      const currentUrl = window.location.pathname + window.location.search;
+      sessionStorage.setItem('redirectAfterLogin', currentUrl);
+      
+      setAlert({ 
+        type: 'warning', 
+        message: 'Vui lòng đăng nhập để thêm sách vào giỏ hàng!' 
+      });
+      
+      // Redirect đến trang login sau 1.5 giây
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+      return;
+    }
+    
     console.log('Adding to cart - bookId:', bookId, 'type:', typeof bookId);
     
     try {
@@ -181,10 +199,26 @@ const BookList = () => {
     } catch (error) {
       console.error('Error adding to cart:', error);
       console.error('Error response:', error.response?.data);
-      setAlert({ 
-        type: 'danger', 
-        message: error.response?.data?.error || 'Lỗi khi thêm vào giỏ hàng!' 
-      });
+      
+      // Nếu lỗi 401 (Unauthorized), redirect đến login
+      if (error.response?.status === 401) {
+        const currentUrl = window.location.pathname + window.location.search;
+        sessionStorage.setItem('redirectAfterLogin', currentUrl);
+        
+        setAlert({ 
+          type: 'warning', 
+          message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!' 
+        });
+        
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
+      } else {
+        setAlert({ 
+          type: 'danger', 
+          message: error.response?.data?.error || 'Lỗi khi thêm vào giỏ hàng!' 
+        });
+      }
     }
   };
 
