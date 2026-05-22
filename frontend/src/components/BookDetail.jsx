@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './BookDetail.css';
+import ReviewSection from './ReviewSection';
 
 const BookDetail = () => {
   const { id } = useParams();
@@ -14,6 +15,8 @@ const BookDetail = () => {
   const [addingToCart, setAddingToCart] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [user, setUser] = useState(null);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
   useEffect(() => {
     fetchBookDetail();
@@ -27,9 +30,22 @@ const BookDetail = () => {
       });
       if (response.data.authenticated) {
         setUser(response.data.user);
+        // Kiểm tra wishlist sau khi biết user
+        fetchWishlistStatus();
       }
     } catch (err) {
       console.log('Not authenticated');
+    }
+  };
+
+  const fetchWishlistStatus = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8080/api/wishlist/check/${id}`, {
+        withCredentials: true
+      });
+      setIsWishlisted(res.data.isWishlisted);
+    } catch (err) {
+      // không xử lý — user chưa đăng nhập
     }
   };
 
@@ -51,12 +67,10 @@ const BookDetail = () => {
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
-    
     if (!user) {
       navigate('/login');
       return;
     }
-
     try {
       setAddingToCart(true);
       await axios.post(
@@ -73,15 +87,34 @@ const BookDetail = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa sách này?')) {
+  const handleToggleWishlist = async () => {
+    if (!user) {
+      navigate('/login');
       return;
     }
-
     try {
-      await axios.delete(`http://localhost:8080/api/books/${id}`, {
-        withCredentials: true
-      });
+      setWishlistLoading(true);
+      if (isWishlisted) {
+        await axios.delete(`http://localhost:8080/api/wishlist/${id}`, { withCredentials: true });
+        setIsWishlisted(false);
+        setSuccessMessage('Đã xóa khỏi danh sách yêu thích');
+      } else {
+        await axios.post(`http://localhost:8080/api/wishlist/${id}`, {}, { withCredentials: true });
+        setIsWishlisted(true);
+        setSuccessMessage('Đã thêm vào danh sách yêu thích ❤️');
+      }
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      setError('Không thể cập nhật danh sách yêu thích');
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa sách này?')) return;
+    try {
+      await axios.delete(`http://localhost:8080/api/books/${id}`, { withCredentials: true });
       navigate('/books');
     } catch (err) {
       setError(err.response?.data?.message || 'Không thể xóa sách');
@@ -117,9 +150,7 @@ const BookDetail = () => {
     );
   }
 
-  if (!book) {
-    return null;
-  }
+  if (!book) return null;
 
   return (
     <div>
@@ -201,7 +232,34 @@ const BookDetail = () => {
 
           {/* Details */}
           <div className="card" style={{ padding: '2.5rem' }}>
-            <h1 style={{ marginBottom: '1.5rem', fontSize: '2rem', fontWeight: 800 }}>{book.title}</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem' }}>
+              <h1 style={{ fontSize: '2rem', fontWeight: 800, flex: 1 }}>{book.title}</h1>
+
+              {/* Nút Yêu thích */}
+              {!isAdmin && (
+                <button
+                  onClick={handleToggleWishlist}
+                  disabled={wishlistLoading}
+                  title={isWishlisted ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
+                  style={{
+                    background: isWishlisted ? '#fef2f2' : 'var(--bg-secondary)',
+                    border: `1.5px solid ${isWishlisted ? '#fca5a5' : 'var(--border-color)'}`,
+                    borderRadius: '50%',
+                    width: '46px',
+                    height: '46px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: wishlistLoading ? 'not-allowed' : 'pointer',
+                    fontSize: '1.4rem',
+                    flexShrink: 0,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {wishlistLoading ? '…' : isWishlisted ? '❤️' : '🤍'}
+                </button>
+              )}
+            </div>
 
             <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
               <div style={{ flex: 1 }}>
@@ -253,12 +311,12 @@ const BookDetail = () => {
                 </svg>
                 Quay lại
               </Link>
-              
+
               {!isAdmin && user && (
                 <form onSubmit={handleAddToCart} style={{ display: 'flex', flex: 1, gap: '1rem', alignItems: 'center' }}>
-                  <input 
-                    type="number" 
-                    value={quantity} 
+                  <input
+                    type="number"
+                    value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                     min="1"
                     style={{ width: '80px', padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}
@@ -294,6 +352,10 @@ const BookDetail = () => {
             )}
           </div>
         </div>
+
+        {/* ===== Review Section ===== */}
+        <ReviewSection bookId={id} user={user} />
+
       </div>
 
       <footer className="footer">
