@@ -148,6 +148,4 @@ logs/
 *.tmp
 *.temp
 
-=======
 **/application.properties
->>>>>>> origin/main

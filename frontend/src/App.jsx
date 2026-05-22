@@ -3,36 +3,28 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 
 // Authentication Components
-import Login from './components/Login';
-import Register from './components/Register';
-import UserProfile from './components/UserProfile';
+import { Login, Register, AccessDenied } from './components/auth';
 
 // Book Components
-import BookList from './components/BookList';
-import BookDetail from './components/BookDetail';
-import BookForm from './components/BookForm';
+import { BookList, BookDetail, BookForm } from './components/books';
 
-// Shopping & Order Components
-import Cart from './components/Cart';
-import Checkout from './components/Checkout';
-import PaymentResult from './components/PaymentResult';
-import OrderList from './components/OrderList';
-import OrderDetail from './components/OrderDetail';
+// Cart & Payment Components
+import { Cart, Checkout, PaymentResult } from './components/cart';
+
+// Order Components
+import { OrderList, OrderDetail } from './components/orders';
 
 // Admin Components
-import AdminDashboard from './components/AdminDashboard';
-import AdminUsers from './components/AdminUsers';
+import { AdminDashboard, AdminUsers } from './components/admin';
 
 // Category Components
-import CategoryList from './components/CategoryList';
-import CategoryForm from './components/CategoryForm';
+import { CategoryList, CategoryForm } from './components/categories';
 
-// Error Pages
-import AccessDenied from './components/AccessDenied';
+// User Components
+import { UserProfile } from './components/user';
 
 // Shared Components
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import { Navbar, Footer } from './components/shared';
 
 function App() {
   return (
