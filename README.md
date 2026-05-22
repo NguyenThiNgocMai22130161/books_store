@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 📚 Tiệm Sách - Bookstore Management System
 
 > Hệ thống quản lý cửa hàng sách trực tuyến với Spring Boot + React
