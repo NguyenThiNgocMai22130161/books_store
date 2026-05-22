@@ -1,18 +1,21 @@
 package myproject.study.books_store.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import myproject.study.books_store.model.Role;
+import myproject.study.books_store.model.User;
 import myproject.study.books_store.service.UserService;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-@Controller
-@RequestMapping("/admin")
+@RestController
+@RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
@@ -22,23 +25,34 @@ public class AdminController {
         this.userService = userService;
     }
 
-    @GetMapping
-    public String adminDashboard(Model model) {
-        model.addAttribute("totalUsers", userService.getAllUsers().size());
-        return "admin/dashboard";
+    @GetMapping("/dashboard")
+    public ResponseEntity<?> adminDashboard() {
+        try {
+            Map<String, Object> dashboard = new HashMap<>();
+            dashboard.put("totalUsers", userService.getAllUsers().size());
+            return ResponseEntity.ok(dashboard);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi tải dashboard: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/users")
-    public String manageUsers(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
-        return "admin/users";
+    public ResponseEntity<?> manageUsers() {
+        try {
+            List<User> users = userService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi tải danh sách người dùng: " + e.getMessage()));
+        }
     }
 
-    @PostMapping("/users/{userId}/role")
-    public String updateUserRole(@PathVariable String userId,
-                                 @RequestParam String role,
-                                 RedirectAttributes redirectAttributes) {
+    @PutMapping("/users/{userId}/role")
+    public ResponseEntity<?> updateUserRole(@PathVariable String userId,
+                                           @RequestBody Map<String, String> request) {
         try {
+            String role = request.get("role");
             Set<Role> roles;
             if ("ADMIN".equals(role)) {
                 roles = Set.of(Role.ROLE_USER, Role.ROLE_ADMIN);
@@ -46,43 +60,43 @@ public class AdminController {
                 roles = Set.of(Role.ROLE_USER);
             }
             userService.updateUserRole(userId, roles);
-            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật quyền người dùng thành công!");
+            return ResponseEntity.ok(Map.of("message", "Cập nhật quyền người dùng thành công!"));
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi cập nhật quyền: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Lỗi khi cập nhật quyền: " + e.getMessage()));
         }
-        return "redirect:/admin/users";
     }
 
-    @PostMapping("/users/{userId}/activate")
-    public String activateUser(@PathVariable String userId, RedirectAttributes redirectAttributes) {
+    @PutMapping("/users/{userId}/activate")
+    public ResponseEntity<?> activateUser(@PathVariable String userId) {
         try {
             userService.activateUser(userId);
-            redirectAttributes.addFlashAttribute("successMessage", "Kích hoạt người dùng thành công!");
+            return ResponseEntity.ok(Map.of("message", "Kích hoạt người dùng thành công!"));
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi kích hoạt người dùng!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Lỗi khi kích hoạt người dùng: " + e.getMessage()));
         }
-        return "redirect:/admin/users";
     }
 
-    @PostMapping("/users/{userId}/deactivate")
-    public String deactivateUser(@PathVariable String userId, RedirectAttributes redirectAttributes) {
+    @PutMapping("/users/{userId}/deactivate")
+    public ResponseEntity<?> deactivateUser(@PathVariable String userId) {
         try {
             userService.deactivateUser(userId);
-            redirectAttributes.addFlashAttribute("successMessage", "Vô hiệu hóa người dùng thành công!");
+            return ResponseEntity.ok(Map.of("message", "Vô hiệu hóa người dùng thành công!"));
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi vô hiệu hóa người dùng!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Lỗi khi vô hiệu hóa người dùng: " + e.getMessage()));
         }
-        return "redirect:/admin/users";
     }
 
-    @GetMapping("/users/{userId}/delete")
-    public String deleteUser(@PathVariable String userId, RedirectAttributes redirectAttributes) {
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable String userId) {
         try {
             userService.deleteUser(userId);
-            redirectAttributes.addFlashAttribute("successMessage", "Xóa người dùng thành công!");
+            return ResponseEntity.ok(Map.of("message", "Xóa người dùng thành công!"));
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi xóa người dùng!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Lỗi khi xóa người dùng: " + e.getMessage()));
         }
-        return "redirect:/admin/users";
     }
 }
