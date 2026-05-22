@@ -1,147 +1,135 @@
-package myproject.study.books_store.controller;
+// package myproject.study.books_store.controller;
 
-import jakarta.validation.Valid;
-import myproject.study.books_store.model.Book;
-import myproject.study.books_store.service.BookService;
-import myproject.study.books_store.service.CategoryService;
+// import jakarta.validation.Valid;
+// import myproject.study.books_store.model.Book;
+// import myproject.study.books_store.service.BookService;
+// import myproject.study.books_store.service.CategoryService;
 
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.util.List;
+// import org.springframework.http.HttpStatus;
+// import org.springframework.http.ResponseEntity;
+// import org.springframework.security.access.prepost.PreAuthorize;
+// import org.springframework.validation.BindingResult;
+// import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/books")
-public class BookController {
+// import java.util.HashMap;
+// import java.util.List;
+// import java.util.Map;
 
-    private final BookService bookService;
-    private final CategoryService categoryService;
+// @RestController
+// @RequestMapping("/api/books")
+// public class BookController {
 
-    public BookController(BookService bookService, CategoryService categoryService) {
-        this.bookService = bookService;
-        this.categoryService = categoryService;
-    }
+//     private final BookService bookService;
+//     private final CategoryService categoryService;
 
-    @GetMapping
-    public String listBooks(Model model,
-                           @RequestParam(required = false) String title,
-                           @RequestParam(required = false) String author,
-                           @RequestParam(required = false) String category,
-                           @RequestParam(required = false) Double minPrice,
-                           @RequestParam(required = false) Double maxPrice) {
-        
-        List<Book> books;
-        
-        // Kiểm tra xem có tiêu chí tìm kiếm nào không
-        boolean hasSearchCriteria = (title != null && !title.isEmpty()) || 
-                                   (author != null && !author.isEmpty()) || 
-                                   (category != null && !category.isEmpty()) || 
-                                   (minPrice != null && minPrice > 0) || 
-                                   (maxPrice != null && maxPrice > 0);
-        
-        if (hasSearchCriteria) {
-            // CHỈ ÁP DỤNG FILTER KHI CÓ GIÁ TRỊ HỢP LỆ (> 0)
-            Double effectiveMinPrice = (minPrice != null && minPrice > 0) ? minPrice : null;
-            Double effectiveMaxPrice = (maxPrice != null && maxPrice > 0) ? maxPrice : null;
+//     public BookController(BookService bookService, CategoryService categoryService) {
+//         this.bookService = bookService;
+//         this.categoryService = categoryService;
+//     }
+
+//     @GetMapping
+//     public ResponseEntity<?> listBooks(@RequestParam(required = false) String title,
+//                                       @RequestParam(required = false) String author,
+//                                       @RequestParam(required = false) String category,
+//                                       @RequestParam(required = false) Double minPrice,
+//                                       @RequestParam(required = false) Double maxPrice) {
+//         try {
+//             List<Book> books;
             
-            books = bookService.searchBooks(title, author, category, effectiveMinPrice, effectiveMaxPrice);
+//             boolean hasSearchCriteria = (title != null && !title.isEmpty()) || 
+//                                        (author != null && !author.isEmpty()) || 
+//                                        (category != null && !category.isEmpty()) || 
+//                                        (minPrice != null && minPrice > 0) || 
+//                                        (maxPrice != null && maxPrice > 0);
             
-            // Truyền lại các tiêu chí tìm kiếm để hiển thị trong form
-            // CHỈ TRUYỀN KHI CÓ GIÁ TRỊ HỢP LỆ
-            model.addAttribute("searchTitle", title);
-            model.addAttribute("searchAuthor", author);
-            model.addAttribute("searchCategory", category);
-            model.addAttribute("searchMinPrice", (minPrice != null && minPrice > 0) ? minPrice : null);
-            model.addAttribute("searchMaxPrice", (maxPrice != null && maxPrice > 0) ? maxPrice : null);
-        } else {
-            books = bookService.getAllBooks();
-        }
-        
-        model.addAttribute("books", books);
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "book/list";
-    }
+//             if (hasSearchCriteria) {
+//                 Double effectiveMinPrice = (minPrice != null && minPrice > 0) ? minPrice : null;
+//                 Double effectiveMaxPrice = (maxPrice != null && maxPrice > 0) ? maxPrice : null;
+//                 books = bookService.searchBooks(title, author, category, effectiveMinPrice, effectiveMaxPrice);
+//             } else {
+//                 books = bookService.getAllBooks();
+//             }
+            
+//             Map<String, Object> response = new HashMap<>();
+//             response.put("books", books);
+//             response.put("categories", categoryService.getAllCategories());
+//             response.put("total", books.size());
+            
+//             return ResponseEntity.ok(response);
+//         } catch (Exception e) {
+//             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                     .body(Map.of("error", "Lỗi khi tải danh sách sách: " + e.getMessage()));
+//         }
+//     }
 
-    @GetMapping("/add")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String showAddForm(Model model) {
-        model.addAttribute("book", new Book());
-        model.addAttribute("pageTitle", "Thêm Sách Mới");
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "book/form";
-    }
+//     @PostMapping
+//     @PreAuthorize("hasRole('ADMIN')")
+//     public ResponseEntity<?> createBook(@Valid @RequestBody Book book, BindingResult result) {
+//         if (result.hasErrors()) {
+//             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                     .body(Map.of("error", "Dữ liệu không hợp lệ!", "details", result.getAllErrors()));
+//         }
 
-    @PostMapping("/save")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String saveBook(@Valid @ModelAttribute Book book,
-                          BindingResult result,
-                          Model model,
-                          RedirectAttributes redirectAttributes) {
-        if (result.hasErrors()) {
-            model.addAttribute("pageTitle", book.getId() == null ? "Thêm Sách Mới" : "Sửa Sách");
-            model.addAttribute("categories", categoryService.getAllCategories());
-            return "book/form";
-        }
+//         try {
+//             if (book.getImageUrl() == null || book.getImageUrl().trim().isEmpty()) {
+//                 book.setImageUrl(null);
+//                 book.setImageFilename(null);
+//             } else {
+//                 book.setImageFilename(null);
+//             }
 
-        // Nếu người dùng nhập link ảnh, giữ nguyên; nếu để trống, xóa trường ảnh
-        if (book.getImageUrl() == null || book.getImageUrl().trim().isEmpty()) {
-            book.setImageUrl(null);
-            book.setImageFilename(null);
-        } else {
-            // Không lưu file lên server — chỉ lưu link. imageFilename giữ null.
-            book.setImageFilename(null);
-        }
+//             Book savedBook = bookService.saveBook(book);
+//             return ResponseEntity.status(HttpStatus.CREATED)
+//                     .body(Map.of("message", "Thêm sách thành công!", "book", savedBook));
+//         } catch (Exception e) {
+//             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                     .body(Map.of("error", "Lỗi khi thêm sách: " + e.getMessage()));
+//         }
+//     }
 
-        bookService.saveBook(book);
-        redirectAttributes.addFlashAttribute("successMessage", "Lưu sách thành công!");
-        return "redirect:/books";
-    }
+//     @GetMapping("/{id}")
+//     public ResponseEntity<?> getBook(@PathVariable String id) {
+//         return bookService.getBookById(id)
+//                 .map(book -> ResponseEntity.ok((Object) book))
+//                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                         .body(Map.of("error", "Không tìm thấy sách!")));
+//     }
 
-    @GetMapping("/edit/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String showEditForm(@PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
-        return bookService.getBookById(id)
-                .map(book -> {
-                    model.addAttribute("book", book);
-                    model.addAttribute("pageTitle", "Sửa Sách");
-                    model.addAttribute("categories", categoryService.getAllCategories());
-                    return "book/form";
-                })
-                .orElseGet(() -> {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy sách!");
-                    return "redirect:/books";
-                });
-    }
+//     @PutMapping("/{id}")
+//     @PreAuthorize("hasRole('ADMIN')")
+//     public ResponseEntity<?> updateBook(@PathVariable String id, 
+//                                        @Valid @RequestBody Book book, 
+//                                        BindingResult result) {
+//         if (result.hasErrors()) {
+//             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                     .body(Map.of("error", "Dữ liệu không hợp lệ!", "details", result.getAllErrors()));
+//         }
 
-    @GetMapping("/delete/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String deleteBook(@PathVariable String id, RedirectAttributes redirectAttributes) {
-        bookService.getBookById(id).ifPresent(book -> {
-            bookService.deleteBook(id);
-        });
-        redirectAttributes.addFlashAttribute("successMessage", "Xóa sách thành công!");
-        return "redirect:/books";
-    }
+//         return bookService.getBookById(id)
+//                 .map(existingBook -> {
+//                     book.setId(existingBook.getId());
+//                     if (book.getImageUrl() == null || book.getImageUrl().trim().isEmpty()) {
+//                         book.setImageUrl(null);
+//                         book.setImageFilename(null);
+//                     } else {
+//                         book.setImageFilename(null);
+//                     }
+//                     Book updatedBook = bookService.saveBook(book);
+//                     return ResponseEntity.ok((Object) Map.of("message", "Cập nhật sách thành công!", "book", updatedBook));
+//                 })
+//                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                         .body(Map.of("error", "Không tìm thấy sách!")));
+//     }
 
-    @GetMapping({"/view", "/view/"})
-    public String viewBookNoId(RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn sách để xem chi tiết!");
-        return "redirect:/books";
-    }
-
-    @GetMapping("/view/{id}")
-    public String viewBook(@PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
-        return bookService.getBookById(id)
-                .map(book -> {
-                    model.addAttribute("book", book);
-                    return "book/view";
-                })
-                .orElseGet(() -> {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy sách!");
-                    return "redirect:/books";
-                });
-    }
-}
+//     @DeleteMapping("/{id}")
+//     @PreAuthorize("hasRole('ADMIN')")
+//     public ResponseEntity<?> deleteBook(@PathVariable String id) {
+//         return bookService.getBookById(id)
+//                 .map(book -> {
+//                     bookService.deleteBook(id);
+//                     return ResponseEntity.ok((Object) Map.of("message", "Xóa sách thành công!"));
+//                 })
+//                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                         .body(Map.of("error", "Không tìm thấy sách!")));
+//     }
+// }

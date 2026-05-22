@@ -1,5 +1,6 @@
 package myproject.study.books_store.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,8 +30,10 @@ public class Book {
     private String category;
     
     // Thêm field cho hình ảnh
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
     private String imageFilename;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private Integer quantity = 0;
 

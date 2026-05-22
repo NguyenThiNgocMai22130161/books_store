@@ -1,0 +1,103 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.backup
+release.properties
+dependency-reduced-pom.xml
+.flattened-pom.xml
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Spring Boot
+/out/
+/build/
+.gradle
+gradle-app.setting
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Application config with secrets
+application-*.properties
+application-*.yml
+
+# Upload directory
+uploads/
+uploads/**/*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+mongod.lock
+
+# System files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE settings
+.settings/
+.project
+.classpath
+
+# IntelliJ
+*.iml
+.idea/
+
+# VSCode
+.vscode/
+launch.json
+
+# Security
+*.pem
+*.key
+*.pub
+*.crt
+
+# Others
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.properties
+/target/
+.DS_Store
+*.class
+
+# Bỏ qua file cấu hình chính
+src/main/resources/application.properties
+
+**/application.properties/bin/
+/target/
+/frontend/node_modules/
+.DS_Store
