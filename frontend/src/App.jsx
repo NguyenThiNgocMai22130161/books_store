@@ -1,0 +1,138 @@
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import './App.css';
+
+// Authentication Components
+import Login from './components/Login';
+import Register from './components/Register';
+import UserProfile from './components/UserProfile';
+
+// Book Components
+import BookList from './components/BookList';
+import BookDetail from './components/BookDetail';
+import BookForm from './components/BookForm';
+
+// Shopping & Order Components
+import Cart from './components/Cart';
+import Checkout from './components/Checkout';
+import PaymentResult from './components/PaymentResult';
+import OrderList from './components/OrderList';
+import OrderDetail from './components/OrderDetail';
+
+// Admin Components
+import AdminDashboard from './components/AdminDashboard';
+import AdminUsers from './components/AdminUsers';
+
+// Category Components
+import CategoryList from './components/CategoryList';
+import CategoryForm from './components/CategoryForm';
+
+// Error Pages
+import AccessDenied from './components/AccessDenied';
+
+// Shared Components
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+
+function App() {
+  return (
+    <div className="app">
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Navigate to="/books" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/access-denied" element={<AccessDenied />} />
+
+        {/* Book Routes */}
+        <Route path="/books" element={<><Navbar /><BookList /><Footer /></>} />
+        <Route path="/books/:id" element={<><Navbar /><BookDetail /><Footer /></>} />
+        
+        {/* User Routes */}
+        <Route path="/profile" element={<><Navbar /><UserProfile /><Footer /></>} />
+        <Route path="/cart" element={<><Navbar /><Cart /><Footer /></>} />
+        <Route path="/cart/checkout" element={<><Navbar /><Checkout /><Footer /></>} />
+        <Route path="/cart/payment-result" element={<><Navbar /><PaymentResult /><Footer /></>} />
+        <Route path="/orders" element={<><Navbar /><OrderList /><Footer /></>} />
+        <Route path="/orders/:id" element={<><Navbar /><OrderDetail /><Footer /></>} />
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<><Navbar /><AdminDashboard /><Footer /></>} />
+        <Route path="/admin/users" element={<><Navbar /><AdminUsers /><Footer /></>} />
+        <Route path="/books/add" element={<><Navbar /><BookForm /><Footer /></>} />
+        <Route path="/books/edit/:id" element={<><Navbar /><BookForm /><Footer /></>} />
+        <Route path="/categories" element={<><Navbar /><CategoryList /><Footer /></>} />
+        <Route path="/categories/add" element={<><Navbar /><CategoryForm /><Footer /></>} />
+        <Route path="/categories/edit/:id" element={<><Navbar /><CategoryForm /><Footer /></>} />
+
+        {/* OAuth2 Callback */}
+        <Route path="/oauth2/callback" element={<OAuth2Callback />} />
+
+        {/* 404 Not Found */}
+        <Route path="*" element={<><Navbar /><NotFound /><Footer /></>} />
+      </Routes>
+    </div>
+  );
+}
+
+// OAuth2 Callback Handler
+const OAuth2Callback = () => {
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get('success');
+    
+    if (success === 'true') {
+      // Redirect to books page after successful OAuth2 login
+      window.location.href = '/books';
+    } else {
+      // Redirect to login page with error
+      window.location.href = '/login?error=oauth2_failed';
+    }
+  }, []);
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div className="spinner" style={{ margin: '0 auto 1rem' }}></div>
+        <p>Đang xử lý đăng nhập...</p>
+      </div>
+    </div>
+  );
+};
+
+// 404 Not Found Component
+const NotFound = () => {
+  return (
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column',
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '60vh',
+      padding: '2rem',
+      textAlign: 'center'
+    }}>
+      <h1 style={{ fontSize: '6rem', margin: 0, color: '#EE4D2D' }}>404</h1>
+      <h2 style={{ fontSize: '2rem', margin: '1rem 0' }}>Không tìm thấy trang</h2>
+      <p style={{ fontSize: '1.1rem', color: '#666', marginBottom: '2rem' }}>
+        Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
+      </p>
+      <a 
+        href="/books" 
+        style={{
+          padding: '0.75rem 2rem',
+          backgroundColor: '#EE4D2D',
+          color: 'white',
+          textDecoration: 'none',
+          borderRadius: '4px',
+          fontSize: '1rem',
+          fontWeight: '500'
+        }}
+      >
+        Về trang chủ
+      </a>
+    </div>
+  );
+};
+
+export default App;
