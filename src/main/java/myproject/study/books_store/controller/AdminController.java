@@ -1,21 +1,18 @@
 package myproject.study.books_store.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import myproject.study.books_store.model.Role;
-import myproject.study.books_store.model.User;
 import myproject.study.books_store.service.UserService;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-@RestController
-@RequestMapping("/api/admin")
+@Controller
+@RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
@@ -25,34 +22,23 @@ public class AdminController {
         this.userService = userService;
     }
 
-    @GetMapping("/dashboard")
-    public ResponseEntity<?> adminDashboard() {
-        try {
-            Map<String, Object> dashboard = new HashMap<>();
-            dashboard.put("totalUsers", userService.getAllUsers().size());
-            return ResponseEntity.ok(dashboard);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Lỗi khi tải dashboard: " + e.getMessage()));
-        }
+    @GetMapping
+    public String adminDashboard(Model model) {
+        model.addAttribute("totalUsers", userService.getAllUsers().size());
+        return "admin/dashboard";
     }
 
     @GetMapping("/users")
-    public ResponseEntity<?> manageUsers() {
-        try {
-            List<User> users = userService.getAllUsers();
-            return ResponseEntity.ok(users);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Lỗi khi tải danh sách người dùng: " + e.getMessage()));
-        }
+    public String manageUsers(Model model) {
+        model.addAttribute("users", userService.getAllUsers());
+        return "admin/users";
     }
 
-    @PutMapping("/users/{userId}/role")
-    public ResponseEntity<?> updateUserRole(@PathVariable String userId,
-                                           @RequestBody Map<String, String> request) {
+    @PostMapping("/users/{userId}/role")
+    public String updateUserRole(@PathVariable String userId,
+                                 @RequestParam String role,
+                                 RedirectAttributes redirectAttributes) {
         try {
-            String role = request.get("role");
             Set<Role> roles;
             if ("ADMIN".equals(role)) {
                 roles = Set.of(Role.ROLE_USER, Role.ROLE_ADMIN);
@@ -60,43 +46,43 @@ public class AdminController {
                 roles = Set.of(Role.ROLE_USER);
             }
             userService.updateUserRole(userId, roles);
-            return ResponseEntity.ok(Map.of("message", "Cập nhật quyền người dùng thành công!"));
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật quyền người dùng thành công!");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Lỗi khi cập nhật quyền: " + e.getMessage()));
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi cập nhật quyền: " + e.getMessage());
         }
+        return "redirect:/admin/users";
     }
 
-    @PutMapping("/users/{userId}/activate")
-    public ResponseEntity<?> activateUser(@PathVariable String userId) {
+    @PostMapping("/users/{userId}/activate")
+    public String activateUser(@PathVariable String userId, RedirectAttributes redirectAttributes) {
         try {
             userService.activateUser(userId);
-            return ResponseEntity.ok(Map.of("message", "Kích hoạt người dùng thành công!"));
+            redirectAttributes.addFlashAttribute("successMessage", "Kích hoạt người dùng thành công!");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Lỗi khi kích hoạt người dùng: " + e.getMessage()));
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi kích hoạt người dùng!");
         }
+        return "redirect:/admin/users";
     }
 
-    @PutMapping("/users/{userId}/deactivate")
-    public ResponseEntity<?> deactivateUser(@PathVariable String userId) {
+    @PostMapping("/users/{userId}/deactivate")
+    public String deactivateUser(@PathVariable String userId, RedirectAttributes redirectAttributes) {
         try {
             userService.deactivateUser(userId);
-            return ResponseEntity.ok(Map.of("message", "Vô hiệu hóa người dùng thành công!"));
+            redirectAttributes.addFlashAttribute("successMessage", "Vô hiệu hóa người dùng thành công!");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Lỗi khi vô hiệu hóa người dùng: " + e.getMessage()));
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi vô hiệu hóa người dùng!");
         }
+        return "redirect:/admin/users";
     }
 
-    @DeleteMapping("/users/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable String userId) {
+    @GetMapping("/users/{userId}/delete")
+    public String deleteUser(@PathVariable String userId, RedirectAttributes redirectAttributes) {
         try {
             userService.deleteUser(userId);
-            return ResponseEntity.ok(Map.of("message", "Xóa người dùng thành công!"));
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa người dùng thành công!");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Lỗi khi xóa người dùng: " + e.getMessage()));
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi xóa người dùng!");
         }
+        return "redirect:/admin/users";
     }
 }

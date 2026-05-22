@@ -1,99 +1,84 @@
-// package myproject.study.books_store.controller;
+package myproject.study.books_store.controller;
 
-// import jakarta.validation.Valid;
-// import myproject.study.books_store.model.Category;
-// import myproject.study.books_store.service.CategoryService;
+import jakarta.validation.Valid;
+import myproject.study.books_store.model.Category;
+import myproject.study.books_store.service.CategoryService;
 
-// import org.springframework.http.HttpStatus;
-// import org.springframework.http.ResponseEntity;
-// import org.springframework.security.access.prepost.PreAuthorize;
-// import org.springframework.validation.BindingResult;
-// import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-// import java.util.List;
-// import java.util.Map;
+@Controller
+@RequestMapping("/categories")
+public class CategoryController {
 
-// @RestController
-// @RequestMapping("/api/categories")
-// public class CategoryController {
+    private final CategoryService categoryService;
 
-//     private final CategoryService categoryService;
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
 
-//     public CategoryController(CategoryService categoryService) {
-//         this.categoryService = categoryService;
-//     }
+    @GetMapping
+    public String listCategories(Model model) {
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "category/list";
+    }
 
-//     @GetMapping
-//     public ResponseEntity<?> listCategories() {
-//         try {
-//             List<Category> categories = categoryService.getAllCategories();
-//             return ResponseEntity.ok(categories);
-//         } catch (Exception e) {
-//             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                     .body(Map.of("error", "Lỗi khi tải danh sách danh mục: " + e.getMessage()));
-//         }
-//     }
+    @GetMapping("/add")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String showAddForm(Model model) {
+        model.addAttribute("category", new Category());
+        model.addAttribute("pageTitle", "Thêm Danh Mục Mới");
+        return "category/form";
+    }
 
-//     @PostMapping
-//     @PreAuthorize("hasRole('ADMIN')")
-//     public ResponseEntity<?> createCategory(@Valid @RequestBody Category category, BindingResult result) {
-//         if (result.hasErrors()) {
-//             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                     .body(Map.of("error", "Dữ liệu không hợp lệ!", "details", result.getAllErrors()));
-//         }
+    @PostMapping("/save")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String saveCategory(@Valid @ModelAttribute Category category,
+                              BindingResult result,
+                              Model model,
+                              RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            model.addAttribute("pageTitle", category.getId() == null ? "Thêm Danh Mục Mới" : "Sửa Danh Mục");
+            return "category/form";
+        }
 
-//         try {
-//             Category savedCategory = categoryService.saveCategory(category);
-//             return ResponseEntity.status(HttpStatus.CREATED)
-//                     .body(Map.of("message", "Thêm danh mục thành công!", "category", savedCategory));
-//         } catch (Exception e) {
-//             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                     .body(Map.of("error", "Lỗi khi thêm danh mục: " + e.getMessage()));
-//         }
-//     }
+        categoryService.saveCategory(category);
+        redirectAttributes.addFlashAttribute("successMessage", "Lưu danh mục thành công!");
+        return "redirect:/categories";
+    }
 
-//     @GetMapping("/{id}")
-//     public ResponseEntity<?> getCategory(@PathVariable String id) {
-//         return categoryService.getCategoryById(id)
-//                 .map(category -> ResponseEntity.ok((Object) category))
-//                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                         .body(Map.of("error", "Không tìm thấy danh mục!")));
-//     }
+    @GetMapping("/edit/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String showEditForm(@PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
+        return categoryService.getCategoryById(id)
+                .map(category -> {
+                    model.addAttribute("category", category);
+                    model.addAttribute("pageTitle", "Sửa Danh Mục");
+                    return "category/form";
+                })
+                .orElseGet(() -> {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy danh mục!");
+                    return "redirect:/categories";
+                });
+    }
 
-//     @PutMapping("/{id}")
-//     @PreAuthorize("hasRole('ADMIN')")
-//     public ResponseEntity<?> updateCategory(@PathVariable String id, 
-//                                            @Valid @RequestBody Category category, 
-//                                            BindingResult result) {
-//         if (result.hasErrors()) {
-//             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                     .body(Map.of("error", "Dữ liệu không hợp lệ!", "details", result.getAllErrors()));
-//         }
-
-//         return categoryService.getCategoryById(id)
-//                 .map(existingCategory -> {
-//                     category.setId(existingCategory.getId());
-//                     Category updatedCategory = categoryService.saveCategory(category);
-//                     return ResponseEntity.ok((Object) Map.of("message", "Cập nhật danh mục thành công!", "category", updatedCategory));
-//                 })
-//                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                         .body(Map.of("error", "Không tìm thấy danh mục!")));
-//     }
-
-//     @DeleteMapping("/{id}")
-//     @PreAuthorize("hasRole('ADMIN')")
-//     public ResponseEntity<?> deleteCategory(@PathVariable String id) {
-//         return categoryService.getCategoryById(id)
-//                 .map(category -> {
-//                     if (category.isDefault()) {
-//                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                                 .body((Object) Map.of("error", "Không thể xóa danh mục mặc định!"));
-//                     }
-//                     categoryService.deleteCategory(id);
-//                     return ResponseEntity.ok((Object) Map.of("message", "Xóa danh mục thành công! Các sách trong danh mục này đã được chuyển sang danh mục chưa phân loại."));
-//                 })
-//                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                         .body(Map.of("error", "Không tìm thấy danh mục!")));
-//     }
-// }
+    @GetMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String deleteCategory(@PathVariable String id, RedirectAttributes redirectAttributes) {
+        categoryService.getCategoryById(id).ifPresent(category -> {
+            // Không cho phép xóa danh mục mặc định
+            if (category.isDefault()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Không thể xóa danh mục mặc định!");
+            } else {
+                categoryService.deleteCategory(id);
+                redirectAttributes.addFlashAttribute("successMessage", "Xóa danh mục thành công! Các sách trong danh mục này đã được chuyển sang danh mục chưa phân loại.");
+            }
+        });
+        return "redirect:/categories";
+    }
+}
 
