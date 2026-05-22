@@ -129,13 +129,19 @@ public class BookService {
      * SỬA: Kiểm tra giá trị hợp lệ trước khi filter
      */
     public List<Book> searchBooks(String title, String author, String category, Double minPrice, Double maxPrice) {
+        System.out.println("=== BookService.searchBooks ===");
+        System.out.println("Input - title: " + title + ", author: " + author + ", category: " + category);
+        System.out.println("Input - minPrice: " + minPrice + ", maxPrice: " + maxPrice);
+        
         List<Book> results = getAllBooks();
+        System.out.println("Starting with " + results.size() + " books");
         
         // Lọc theo tên sách
         if (title != null && !title.trim().isEmpty()) {
             results = results.stream()
                     .filter(book -> book.getTitle().toLowerCase().contains(title.toLowerCase()))
                     .collect(Collectors.toList());
+            System.out.println("After title filter: " + results.size() + " books");
         }
         
         // Lọc theo tác giả
@@ -143,6 +149,7 @@ public class BookService {
             results = results.stream()
                     .filter(book -> book.getAuthor().toLowerCase().contains(author.toLowerCase()))
                     .collect(Collectors.toList());
+            System.out.println("After author filter: " + results.size() + " books");
         }
         
         // Lọc theo danh mục
@@ -150,30 +157,37 @@ public class BookService {
             results = results.stream()
                     .filter(book -> book.getCategory() != null && book.getCategory().equals(category))
                     .collect(Collectors.toList());
+            System.out.println("After category filter: " + results.size() + " books");
         }
         
         // Lọc theo giá - SỬA: CHỈ KHI CÓ GIÁ TRỊ HỢP LỆ
         boolean hasValidMinPrice = isValidPrice(minPrice);
         boolean hasValidMaxPrice = isValidPrice(maxPrice);
         
+        System.out.println("Price validation - hasValidMinPrice: " + hasValidMinPrice + ", hasValidMaxPrice: " + hasValidMaxPrice);
+        
         if (hasValidMinPrice && hasValidMaxPrice) {
             // Có cả min và max
             results = results.stream()
                     .filter(book -> book.getPrice() >= minPrice && book.getPrice() <= maxPrice)
                     .collect(Collectors.toList());
+            System.out.println("After price range filter: " + results.size() + " books");
         } else if (hasValidMinPrice) {
             // Chỉ có min
             results = results.stream()
                     .filter(book -> book.getPrice() >= minPrice)
                     .collect(Collectors.toList());
+            System.out.println("After min price filter: " + results.size() + " books");
         } else if (hasValidMaxPrice) {
             // Chỉ có max
             results = results.stream()
                     .filter(book -> book.getPrice() <= maxPrice)
                     .collect(Collectors.toList());
+            System.out.println("After max price filter: " + results.size() + " books");
         }
         // Nếu không có giá trị hợp lệ, bỏ qua filter giá
         
+        System.out.println("Final result: " + results.size() + " books");
         return results;
     }
     

@@ -1,0 +1,273 @@
+/* CategoryForm.css */
+.form-card {
+  background: #FFFFFF;
+  border: 1px solid #EEEEEE;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #757575;
+}
+
+.form-group label .required {
+  color: #E74C3C;
+  margin-left: 0.25rem;
+}
+
+.form-control {
+  width: 100%;
+  background: #F9F9F9;
+  border: 2px solid #EEEEEE;
+  color: #000000;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #EE4D2D;
+  box-shadow: 0 0 0 3px rgba(238, 77, 45, 0.1);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #F9F9F9;
+  border: 1px solid #EEEEEE;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #EE4D2D;
+}
+
+.checkbox-group label {
+  margin: 0;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #000000;
+}
+
+.form-info {
+  background-color: #F9F9F9;
+  border: 1px solid #EEEEEE;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #757575;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #EEEEEE;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background-color: #EE4D2D;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #DC411D;
+}
+
+.btn-primary:disabled {
+  background: #D5D8DC;
+  color: #A0A0A0;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+.btn-secondary {
+  background-color: #999999;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #777777;
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.alert-info {
+  background-color: rgba(238, 77, 45, 0.1);
+  border: 1px solid #EE4D2D;
+  color: #DC411D;
+}
+
+.alert-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.page-header {
+  margin-top: 2rem;
+  border: none;
+  margin-bottom: 0.5rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #000000;
+  margin: 0 0 0.5rem 0;
+}
+
+.text-muted {
+  color: #757575;
+}
+
+.navbar {
+  background: #FFFFFF;
+  border-bottom: 1px solid #EEEEEE;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #000000;
+  text-decoration: none;
+}
+
+.navbar-brand svg {
+  color: #EE4D2D;
+}
+
+.navbar-nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.navbar-nav a {
+  color: #757575;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.navbar-nav a:hover {
+  color: #EE4D2D;
+}
+
+.footer {
+  margin-top: 5rem;
+  padding: 3rem 0;
+  text-align: center;
+  background: #FFFFFF;
+  border-top: 1px solid #EEEEEE;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.footer-links a {
+  color: #757575;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: #EE4D2D;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .form-card {
+    padding: 1.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
