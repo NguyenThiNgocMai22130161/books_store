@@ -97,6 +97,7 @@ launch.json
 # Bỏ qua file cấu hình chính
 src/main/resources/application.properties
 
+<<<<<<< HEAD
 **/application.properties/bin/
 /target/
 /frontend/node_modules/
@@ -146,3 +147,7 @@ logs/
 # ========================================
 *.tmp
 *.temp
+
+=======
+**/application.properties
+>>>>>>> origin/main

@@ -51,8 +51,8 @@ function App() {
         {/* User Routes */}
         <Route path="/profile" element={<><Navbar /><UserProfile /><Footer /></>} />
         <Route path="/cart" element={<><Navbar /><Cart /><Footer /></>} />
-        <Route path="/checkout" element={<><Navbar /><Checkout /><Footer /></>} />
-        <Route path="/payment-result" element={<><Navbar /><PaymentResult /><Footer /></>} />
+        <Route path="/cart/checkout" element={<><Navbar /><Checkout /><Footer /></>} />
+        <Route path="/cart/payment-result" element={<><Navbar /><PaymentResult /><Footer /></>} />
         <Route path="/orders" element={<><Navbar /><OrderList /><Footer /></>} />
         <Route path="/orders/:id" element={<><Navbar /><OrderDetail /><Footer /></>} />
 
