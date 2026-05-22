@@ -21,33 +21,8 @@ public class BookApiController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String author,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice
-    ) {
-        // Log để debug
-        System.out.println("=== BookApiController.getAllBooks ===");
-        System.out.println("title: " + title);
-        System.out.println("author: " + author);
-        System.out.println("category: " + category);
-        System.out.println("minPrice: " + minPrice);
-        System.out.println("maxPrice: " + maxPrice);
-        
-        // Nếu có bất kỳ filter nào, dùng searchBooks
-        if (title != null || author != null || category != null || minPrice != null || maxPrice != null) {
-            System.out.println("Using searchBooks with filters");
-            List<Book> results = bookService.searchBooks(title, author, category, minPrice, maxPrice);
-            System.out.println("Found " + results.size() + " books");
-            return ResponseEntity.ok(results);
-        }
-        // Nếu không có filter, trả về tất cả
-        System.out.println("No filters, returning all books");
-        List<Book> allBooks = bookService.getAllBooks();
-        System.out.println("Total books: " + allBooks.size());
-        return ResponseEntity.ok(allBooks);
+    public ResponseEntity<List<Book>> getAllBooks() {
+        return ResponseEntity.ok(bookService.getAllBooks());
     }
 
     @GetMapping("/{id}")
