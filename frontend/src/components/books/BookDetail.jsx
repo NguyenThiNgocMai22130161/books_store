@@ -53,7 +53,16 @@ const BookDetail = () => {
     e.preventDefault();
     
     if (!user) {
-      navigate('/login');
+      // Lưu URL hiện tại để redirect về sau khi đăng nhập
+      const currentUrl = window.location.pathname;
+      sessionStorage.setItem('redirectAfterLogin', currentUrl);
+      
+      setError('Vui lòng đăng nhập để thêm sách vào giỏ hàng!');
+      
+      // Redirect đến trang login sau 1.5 giây
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
       return;
     }
 
@@ -67,7 +76,19 @@ const BookDetail = () => {
       setSuccessMessage('Đã thêm vào giỏ hàng!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Không thể thêm vào giỏ hàng');
+      // Nếu lỗi 401 (Unauthorized), redirect đến login
+      if (err.response?.status === 401) {
+        const currentUrl = window.location.pathname;
+        sessionStorage.setItem('redirectAfterLogin', currentUrl);
+        
+        setError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!');
+        
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
+      } else {
+        setError(err.response?.data?.message || 'Không thể thêm vào giỏ hàng');
+      }
     } finally {
       setAddingToCart(false);
     }

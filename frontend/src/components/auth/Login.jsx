@@ -79,9 +79,20 @@ const Login = () => {
           success: response.data.message || 'Đăng nhập thành công!'
         });
         
-        // Redirect to books page after 1 second
+        // Kiểm tra xem có URL redirect không
+        const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+        
+        // Redirect sau 1 giây
         setTimeout(() => {
-          navigate('/books');
+          if (redirectUrl) {
+            // Xóa redirect URL khỏi sessionStorage
+            sessionStorage.removeItem('redirectAfterLogin');
+            // Redirect về trang trước đó
+            navigate(redirectUrl);
+          } else {
+            // Mặc định redirect về trang sách
+            navigate('/books');
+          }
         }, 1000);
       }
     } catch (error) {
