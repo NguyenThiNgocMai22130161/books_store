@@ -24,11 +24,14 @@ const Checkout = () => {
         withCredentials: true
       });
       
-      setCartItems(response.data.items || []);
+      console.log('Checkout - Cart response:', response.data);
+      
+      // Backend trả về cartItems, không phải items
+      setCartItems(response.data.cartItems || []);
       setTotal(response.data.total || 0);
       
       // Redirect if cart is empty
-      if (!response.data.items || response.data.items.length === 0) {
+      if (!response.data.cartItems || response.data.cartItems.length === 0) {
         navigate('/cart');
       }
       
