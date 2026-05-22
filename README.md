@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 📚 Tiệm Sách - Bookstore Management System
 
 > Hệ thống quản lý cửa hàng sách trực tuyến với Spring Boot + React
@@ -697,3 +698,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Made with ❤️ by Nguyen Mai**
 
 **Last Updated**: May 22, 2026
+=======
+ROLE_Admin:
+1: thêm, xoá, sửa sản phẩm, đăng xuất.
+2. tìm kiếm và lọc sách.
+3. xem chi tiết, xem hồ sơ cá nhân.
+4. Thêm xoá sửa danh mục, khi xoá danh mục, thì sản phẩm vẫn còn và hiện chỗ thể loại là chưa phân loại.
+5. quản lý người dùng.
+ROLE_User:
+1. Đăng nhập bằng tài khoản google.
+2. Tìm kiếm và lọc sách.
+3. xem chi tiết, thêm vào giỏ hàng.
+4. Thanh toán mặc định, có xem lịch sử mua hàng.
+>>>>>>> origin/main
