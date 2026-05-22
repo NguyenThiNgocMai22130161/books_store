@@ -1,0 +1,202 @@
+/* AccessDenied.css */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-icon {
+  margin-bottom: 1rem;
+  opacity: 0.2;
+  color: #E74C3C;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.05);
+  }
+}
+
+.error-code {
+  font-size: 5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  animation: bounce 1s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.error-message {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #E74C3C;
+  margin-bottom: 1.5rem;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.error-description {
+  color: #666;
+  margin-bottom: 2.5rem;
+  line-height: 1.8;
+  max-width: 500px;
+  animation: fadeIn 0.7s ease-in;
+}
+
+.error-description p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.error-actions {
+  display: flex;
+  gap: 1rem;
+  animation: fadeIn 0.9s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #FF6B35 0%, #EE4D2D 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(238, 77, 45, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 8px 20px rgba(238, 77, 45, 0.4);
+}
+
+.btn-secondary {
+  background: #999999;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #777777;
+}
+
+.navbar {
+  background: #FFFFFF;
+  border-bottom: 1px solid #EEEEEE;
+  padding: 1rem 0;
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #000000;
+  text-decoration: none;
+}
+
+.navbar-brand svg {
+  color: #EE4D2D;
+}
+
+.navbar-nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.navbar-nav a {
+  color: #757575;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.navbar-nav a:hover {
+  color: #EE4D2D;
+}
+
+.footer {
+  margin-top: 5rem;
+  padding: 3rem 0;
+  text-align: center;
+  background: #FFFFFF;
+  border-top: 1px solid #EEEEEE;
+  color: #757575;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .error-code {
+    font-size: 3rem;
+  }
+
+  .error-message {
+    font-size: 1.5rem;
+  }
+
+  .error-description p {
+    font-size: 1rem;
+  }
+
+  .error-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
