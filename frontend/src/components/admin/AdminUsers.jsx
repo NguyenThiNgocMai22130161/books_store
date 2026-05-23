@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AdminUsers.css';
 
@@ -91,23 +91,8 @@ const AdminUsers = () => {
   }
 
   return (
-    <div>
-      <nav className="navbar">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 0 }}>
-          <Link to="/" className="navbar-brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-            User Manager
-          </Link>
-          <div className="navbar-nav">
-            <Link to="/admin">Quay lại Dashboard</Link>
-          </div>
-        </div>
-      </nav>
-
-      <div className="container fade-in">
-        <div className="page-header" style={{ marginTop: '3rem' }}>
+    <div className="container fade-in">
+      <div className="page-header">
           <h1>👥 Danh sách người dùng</h1>
           <p className="text-muted">Tổng cộng: {users.length} tài khoản</p>
         </div>
@@ -220,14 +205,7 @@ const AdminUsers = () => {
             <li>Vô hiệu hóa tài khoản sẽ ngăn chặn người dùng đăng nhập nhưng không xóa dữ liệu của họ.</li>
             <li>Hành động xóa là vĩnh viễn và không thể hoàn tác.</li>
           </ul>
-        </div>
       </div>
-
-      <footer className="footer">
-        <div className="container">
-          <p>© 2026 Admin Panel - Hệ thống quản lý bảo mật nâng cao.</p>
-        </div>
-      </footer>
     </div>
   );
 };

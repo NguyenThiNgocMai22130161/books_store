@@ -8,18 +8,17 @@ const Cart = () => {
   
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
-  const [itemCount, setItemCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
-    fetchCart();
+    fetchCart(true); // Show spinner only on initial load
   }, []);
 
-  const fetchCart = async () => {
+  const fetchCart = async (showSpinner = false) => {
     try {
-      setLoading(true);
+      if (showSpinner) setLoading(true);
       console.log('Fetching cart...');
       
       const response = await axios.get('http://localhost:8080/api/cart', {
@@ -31,7 +30,6 @@ const Cart = () => {
       // Backend trả về cartItems, không phải items
       setCartItems(response.data.cartItems || []);
       setTotal(response.data.total || 0);
-      setItemCount(response.data.itemCount || 0);
       setError('');
       
       console.log('Cart items:', response.data.cartItems);
@@ -43,12 +41,28 @@ const Cart = () => {
       }
       console.error('Error fetching cart:', err);
     } finally {
-      setLoading(false);
+      if (showSpinner) setLoading(false);
     }
   };
 
   const handleUpdateQuantity = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
+
+    // Optimistic Update: Update state instantly for fluid user experience
+    const oldItems = [...cartItems];
+    const oldTotal = total;
+
+    const updatedItems = cartItems.map(item => {
+      if (item.id === itemId) {
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    });
+    setCartItems(updatedItems);
+
+    // Calculate optimistic total
+    const newTotal = updatedItems.reduce((sum, item) => sum + (item.book?.price * item.quantity || 0), 0);
+    setTotal(newTotal);
 
     try {
       console.log('Updating quantity - itemId:', itemId, 'newQuantity:', newQuantity);
@@ -59,13 +73,22 @@ const Cart = () => {
         { withCredentials: true }
       );
       
-      // Refresh cart
-      await fetchCart();
-      setSuccessMessage('Đã cập nhật số lượng');
-      setTimeout(() => setSuccessMessage(''), 2000);
+      // Update navbar count immediately
+      window.dispatchEvent(new Event('cart-updated'));
+
+      // Silent background sync
+      const response = await axios.get('http://localhost:8080/api/cart', {
+        withCredentials: true
+      });
+      setCartItems(response.data.cartItems || []);
+      setTotal(response.data.total || 0);
     } catch (err) {
       console.error('Error updating quantity:', err);
       setError(err.response?.data?.error || 'Không thể cập nhật số lượng');
+      
+      // Rollback to previous state on failure
+      setCartItems(oldItems);
+      setTotal(oldTotal);
     }
   };
 
@@ -74,17 +97,34 @@ const Cart = () => {
       return;
     }
 
+    // Optimistic Update: Remove state instantly
+    const oldItems = [...cartItems];
+    const oldTotal = total;
+
+    const updatedItems = cartItems.filter(item => item.id !== itemId);
+    setCartItems(updatedItems);
+
+    const newTotal = updatedItems.reduce((sum, item) => sum + (item.book?.price * item.quantity || 0), 0);
+    setTotal(newTotal);
+
     try {
       await axios.delete(`http://localhost:8080/api/cart/remove/${itemId}`, {
         withCredentials: true
       });
       
-      // Refresh cart
-      await fetchCart();
-      setSuccessMessage('Đã xóa sản phẩm');
-      setTimeout(() => setSuccessMessage(''), 2000);
+      window.dispatchEvent(new Event('cart-updated'));
+
+      // Silent background sync
+      const response = await axios.get('http://localhost:8080/api/cart', {
+        withCredentials: true
+      });
+      setCartItems(response.data.cartItems || []);
+      setTotal(response.data.total || 0);
     } catch (err) {
       setError(err.response?.data?.message || 'Không thể xóa sản phẩm');
+      // Rollback on failure
+      setCartItems(oldItems);
+      setTotal(oldTotal);
     }
   };
 
@@ -93,17 +133,31 @@ const Cart = () => {
       return;
     }
 
+    // Optimistic Update
+    const oldItems = [...cartItems];
+    const oldTotal = total;
+
+    setCartItems([]);
+    setTotal(0);
+
     try {
       await axios.delete('http://localhost:8080/api/cart/clear', {
         withCredentials: true
       });
       
-      // Refresh cart
-      await fetchCart();
-      setSuccessMessage('Đã xóa toàn bộ giỏ hàng');
-      setTimeout(() => setSuccessMessage(''), 2000);
+      window.dispatchEvent(new Event('cart-updated'));
+
+      // Silent background sync
+      const response = await axios.get('http://localhost:8080/api/cart', {
+        withCredentials: true
+      });
+      setCartItems(response.data.cartItems || []);
+      setTotal(response.data.total || 0);
     } catch (err) {
       setError(err.response?.data?.message || 'Không thể xóa giỏ hàng');
+      // Rollback on failure
+      setCartItems(oldItems);
+      setTotal(oldTotal);
     }
   };
 
@@ -119,32 +173,7 @@ const Cart = () => {
   }
 
   return (
-    <div>
-      <nav className="navbar">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 0 }}>
-          <Link to="/" className="navbar-brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-            Tiệm Sách
-          </Link>
-          <div className="navbar-nav">
-            <Link to="/books">Sách</Link>
-            <Link to="/cart" className="active">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="9" cy="21" r="1"/>
-                <circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-              </svg>
-              Giỏ hàng
-              <span className="cart-badge">{itemCount}</span>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <div className="container">
+    <div className="container">
         <div className="page-header" style={{ marginTop: '2rem' }}>
           <h1>Giỏ hàng của bạn</h1>
           <p className="text-muted">Kiểm tra lại các sản phẩm trước khi thanh toán</p>
@@ -152,21 +181,21 @@ const Cart = () => {
 
         {successMessage && (
           <div className="alert alert-success">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-              <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
+{/*             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"> */}
+{/*               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/> */}
+{/*               <polyline points="22 4 12 14.01 9 11.01"/> */}
+{/*             </svg> */}
             <span>{successMessage}</span>
           </div>
         )}
 
         {error && (
           <div className="alert alert-danger">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="15" x2="9" y1="9" y2="15"/>
-              <line x1="9" x2="15" y1="9" y2="15"/>
-            </svg>
+{/*             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"> */}
+{/*               <circle cx="12" cy="12" r="10"/> */}
+{/*               <line x1="15" x2="9" y1="9" y2="15"/> */}
+{/*               <line x1="9" x2="15" y1="9" y2="15"/> */}
+{/*             </svg> */}
             <span>{error}</span>
           </div>
         )}
@@ -174,7 +203,7 @@ const Cart = () => {
         <div className="cart-container fade-in">
           {cartItems.length === 0 ? (
             <div className="empty-state-cart">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+              <svg xmlns="" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
                 <circle cx="9" cy="21" r="1"/>
                 <circle cx="20" cy="21" r="1"/>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
@@ -240,12 +269,13 @@ const Cart = () => {
                       </button>
                     </div>
 
-                    <div style={{ textAlign: 'right' }}>
+                    <div className="cart-item-remove">
                       <button 
                         onClick={() => handleRemoveItem(item.id)}
-                        style={{ background: 'none', border: 'none', color: '#E74C3C', cursor: 'pointer' }}
+                        className="btn-remove"
+                        title="Xóa khỏi giỏ hàng"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <polyline points="3 6 5 6 21 6"/>
                           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                         </svg>
@@ -281,19 +311,6 @@ const Cart = () => {
             </>
           )}
         </div>
-      </div>
-
-      <footer className="footer" style={{ marginTop: '5rem' }}>
-        <div className="container">
-          <div className="d-flex justify-center gap-3 mb-4">
-            <Link to="/books">Sách</Link>
-            <Link to="/cart">Giỏ hàng</Link>
-            <Link to="/orders">Lịch sử mua hàng</Link>
-            <Link to="/user/profile">Tài khoản</Link>
-          </div>
-          <p>© 2026 Tiệm Sách. Hệ thống giỏ hàng bảo mật.</p>
-        </div>
-      </footer>
     </div>
   );
 };

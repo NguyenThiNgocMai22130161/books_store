@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './CategoryList.css';
 
 const CategoryList = () => {
-  const navigate = useNavigate();
+
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
@@ -63,22 +63,6 @@ const CategoryList = () => {
 
   return (
     <div>
-      <nav className="navbar">
-        <div className="container">
-          <Link to="/" className="navbar-brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-            Tiệm Sách
-          </Link>
-          <div className="navbar-nav">
-            <Link to="/books">Sách</Link>
-            <Link to="/categories" className="active">Danh Mục</Link>
-            <Link to="/login" className="text-muted">Đăng xuất</Link>
-          </div>
-        </div>
-      </nav>
 
       <div className="container">
         <div className="page-header">
@@ -95,13 +79,15 @@ const CategoryList = () => {
                 {categories.length} danh mục | Tổ chức và quản lý các danh mục sách
               </p>
             </div>
-            <Link to="/categories/add" className="btn btn-primary">
+            <Link to="/categories/add" className="btn btn-primary"style={{ maxWidth: '40%' }}
+                                                                  >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="12" y1="5" x2="12" y2="19"/>
                 <line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
               Thêm Danh Mục Mới
             </Link>
+
           </div>
         </div>
 
@@ -201,17 +187,7 @@ const CategoryList = () => {
         )}
       </div>
 
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-links">
-            <Link to="/books">Sách</Link>
-            <Link to="/cart">Giỏ hàng</Link>
-            <Link to="/orders">Lịch sử mua hàng</Link>
-            <Link to="/user/profile">Tài khoản</Link>
-          </div>
-          <p>© 2026 Tiệm Sách. Quản lý danh mục sách.</p>
-        </div>
-      </footer>
+
     </div>
   );
 };

@@ -1,182 +1,181 @@
-/* AdminDashboard.css */
+/* ============================================================
+   AdminDashboard.css — Admin Dashboard
+   ============================================================ */
+
+.admin-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding-bottom: 4rem;
+}
+
+/* ─── Dashboard Stats Grid ─── */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
   margin: 2rem 0;
 }
 
 .dashboard-card {
-  background: #FFFFFF;
-  padding: 2rem;
-  border-radius: 16px;
-  border: 1px solid #EEEEEE;
-  transition: all 0.3s ease;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Decorative circle */
+.dashboard-card::after {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 100px;
+  height: 100px;
+  background: var(--color-primary-light);
+  border-radius: 50%;
+  transition: var(--transition);
 }
 
 .dashboard-card:hover {
-  transform: translateY(-5px);
-  border-color: #EE4D2D;
-  background: rgba(238, 77, 45, 0.05);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.dashboard-card:hover::after {
+  width: 130px;
+  height: 130px;
+  background: var(--color-primary-medium);
 }
 
 .card-icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(238, 77, 45, 0.1);
-  border-radius: 12px;
+  width: 52px; height: 52px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.5rem;
-  color: #EE4D2D;
+  color: var(--color-primary);
+  margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 1;
+  transition: var(--transition);
+}
+
+.dashboard-card:hover .card-icon {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-primary);
 }
 
 .dashboard-card h3 {
-  font-size: 0.9rem;
-  color: #757575;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.1em;
   margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard-card .number {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   font-weight: 800;
-  color: #000000;
-  margin-bottom: 1rem;
+  color: var(--color-text);
+  line-height: 1;
+  margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 1;
 }
 
-.dashboard-card .action-link {
+.action-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #EE4D2D;
+  gap: 0.4rem;
+  color: var(--color-primary);
   text-decoration: none;
+  font-size: 0.85rem;
   font-weight: 600;
-  font-size: 0.9rem;
+  transition: var(--transition-fast);
+  position: relative;
+  z-index: 1;
 }
 
+.action-link:hover {
+  gap: 0.7rem;
+}
+
+/* ─── Quick Actions Panel ─── */
 .quick-actions-panel {
-  background: #FFFFFF;
-  padding: 2rem;
-  border-radius: 16px;
-  border: 1px solid #EEEEEE;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem;
   margin-top: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.quick-actions-panel h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .action-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  margin-top: 1.5rem;
 }
 
 .action-item {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
-  background: #F9F9F9;
-  border-radius: 12px;
-  color: #000000;
+  padding: 1.1rem;
+  background: var(--color-surface-alt);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-secondary);
   text-decoration: none;
-  border: 1px solid #EEEEEE;
-  transition: 0.2s;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.action-item svg {
+  color: var(--color-primary);
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
 }
 
 .action-item:hover {
-  background: #F0F0F0;
-  border-color: #EE4D2D;
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-primary);
 }
 
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
+.action-item:hover svg {
+  transform: scale(1.2) rotate(5deg);
 }
 
-.btn-primary {
-  background: #EE4D2D;
-  color: white;
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .dashboard-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .action-list { grid-template-columns: 1fr 1fr; }
+  .dashboard-card .number { font-size: 2rem; }
 }
 
-.btn-success {
-  background: #10b981;
-  color: white;
-}
-
-.loading-spinner {
-  display: flex;
-  justify-content: center;
-  padding: 3rem;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #EEEEEE;
-  border-top-color: #EE4D2D;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.fade-in {
-  animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.navbar {
-  background: #FFFFFF;
-  border-bottom: 1px solid #EEEEEE;
-  padding: 1rem 0;
-}
-
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #000000;
-  text-decoration: none;
-}
-
-.navbar-nav {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.navbar-nav a {
-  color: #757575;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.text-muted {
-  color: #757575;
-}
-
-.footer {
-  padding: 3rem 0;
-  text-align: center;
-  background: #FFFFFF;
-  border-top: 1px solid #EEEEEE;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+@media (max-width: 480px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .action-list { grid-template-columns: 1fr; }
 }

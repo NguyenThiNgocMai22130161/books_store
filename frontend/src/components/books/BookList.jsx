@@ -7,18 +7,16 @@ const BookList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // ================= STATE =================
-
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [cartItemCount, setCartItemCount] = useState(0);
   const [user, setUser] = useState(null);
 
-  // Wishlist
   const [wishlist, setWishlist] = useState(new Set());
   const [wishlistLoading, setWishlistLoading] = useState(new Set());
 
-  // Filters
+  const [cartItemCount, setCartItemCount] = useState(0);
+
   const [filters, setFilters] = useState({
     title: searchParams.get('title') || '',
     author: searchParams.get('author') || '',
@@ -27,55 +25,41 @@ const BookList = () => {
     maxPrice: searchParams.get('maxPrice') || ''
   });
 
-  // Alert
   const [alert, setAlert] = useState({
     type: null,
     message: null
   });
 
   // ================= EFFECT =================
-
   useEffect(() => {
     fetchBooks();
     fetchCategories();
-    fetchCartCount();
-
     fetchUserProfile().then((u) => {
       if (u) {
         fetchWishlist();
+        fetchCartCount();
       }
     });
   }, [searchParams]);
 
   // ================= FETCH =================
-
   const fetchBooks = async () => {
     setIsLoading(true);
-
     try {
       const params = new URLSearchParams();
 
       Object.keys(filters).forEach((key) => {
-        if (filters[key]) {
-          params.append(key, filters[key]);
-        }
+        if (filters[key]) params.append(key, filters[key]);
       });
 
-      const response = await axios.get(
+      const res = await axios.get(
         `http://localhost:8080/api/books?${params.toString()}`,
-        {
-          withCredentials: true
-        }
+        { withCredentials: true }
       );
 
-      setBooks(response.data || []);
-    } catch (error) {
-      console.error(error);
-
-      setAlert({
-        type: 'danger',
-        message: 'Lỗi tải sách'
-      });
+      setBooks(res.data || []);
+    } catch (err) {
+      setAlert({ type: 'danger', message: 'Lỗi tải sách' });
     } finally {
       setIsLoading(false);
     }
@@ -83,187 +67,132 @@ const BookList = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(
-        'http://localhost:8080/api/categories',
-        {
-          withCredentials: true
-        }
-      );
-
-      setCategories(response.data || []);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const fetchCartCount = async () => {
-    try {
-      const response = await axios.get(
-        'http://localhost:8080/api/cart',
-        {
-          withCredentials: true
-        }
-      );
-
-      setCartItemCount(response.data.itemCount || 0);
-    } catch (error) {
-      console.error(error);
+      const res = await axios.get('http://localhost:8080/api/categories', {
+        withCredentials: true
+      });
+      setCategories(res.data || []);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const fetchUserProfile = async () => {
     try {
-      const response = await axios.get(
-        'http://localhost:8080/api/auth/profile',
-        {
-          withCredentials: true
-        }
-      );
-
-      setUser(response.data);
-
-      return response.data;
-    } catch (error) {
+      const res = await axios.get('http://localhost:8080/api/auth/profile', {
+        withCredentials: true
+      });
+      setUser(res.data);
+      return res.data;
+    } catch {
       return null;
     }
   };
 
   const fetchWishlist = async () => {
     try {
-      const response = await axios.get(
-        'http://localhost:8080/api/wishlist',
-        {
-          withCredentials: true
-        }
-      );
+      const res = await axios.get('http://localhost:8080/api/wishlist', {
+        withCredentials: true
+      });
 
-      setWishlist(
-        new Set(
-          (response.data || []).map((item) => item.bookId)
-        )
-      );
-    } catch (error) {
-      console.error(error);
+      setWishlist(new Set((res.data || []).map(i => i.bookId)));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchCartCount = async () => {
+    try {
+      const res = await axios.get('http://localhost:8080/api/cart', {
+        withCredentials: true
+      });
+
+      setCartItemCount(res.data?.itemCount || 0);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   // ================= WISHLIST =================
-
   const handleToggleWishlist = async (e, bookId) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (!user) {
-      setAlert({
-        type: 'warning',
-        message: 'Vui lòng đăng nhập'
-      });
-
+      setAlert({ type: 'warning', message: 'Vui lòng đăng nhập' });
       return;
     }
 
     if (wishlistLoading.has(bookId)) return;
 
-    setWishlistLoading((prev) => new Set(prev).add(bookId));
+    setWishlistLoading(prev => new Set(prev).add(bookId));
 
     try {
       if (wishlist.has(bookId)) {
         await axios.delete(
           `http://localhost:8080/api/wishlist/${bookId}`,
-          {
-            withCredentials: true
-          }
+          { withCredentials: true }
         );
 
-        setWishlist((prev) => {
+        setWishlist(prev => {
           const s = new Set(prev);
           s.delete(bookId);
           return s;
         });
 
-        setAlert({
-          type: 'success',
-          message: 'Đã xóa khỏi yêu thích'
-        });
+        setAlert({ type: 'success', message: 'Đã xóa khỏi yêu thích' });
       } else {
         await axios.post(
           `http://localhost:8080/api/wishlist/${bookId}`,
           {},
-          {
-            withCredentials: true
-          }
+          { withCredentials: true }
         );
 
-        setWishlist((prev) => new Set(prev).add(bookId));
-
-        setAlert({
-          type: 'success',
-          message: 'Đã thêm vào yêu thích ❤️'
-        });
+        setWishlist(prev => new Set(prev).add(bookId));
+        setAlert({ type: 'success', message: 'Đã thêm vào yêu thích ❤️' });
       }
-    } catch (error) {
-      console.error(error);
-
-      setAlert({
-        type: 'danger',
-        message: 'Lỗi wishlist'
-      });
+    } catch (err) {
+      setAlert({ type: 'danger', message: 'Lỗi wishlist' });
     } finally {
-      setWishlistLoading((prev) => {
+      setWishlistLoading(prev => {
         const s = new Set(prev);
         s.delete(bookId);
         return s;
       });
 
-      setTimeout(() => {
-        setAlert({
-          type: null,
-          message: null
-        });
-      }, 2000);
+      setTimeout(() => setAlert({ type: null, message: null }), 2000);
     }
   };
 
   // ================= FILTER =================
-
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setFilters(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
 
     const params = new URLSearchParams();
-
-    Object.keys(filters).forEach((key) => {
-      if (filters[key]) {
-        params.append(key, filters[key]);
-      }
+    Object.keys(filters).forEach(k => {
+      if (filters[k]) params.append(k, filters[k]);
     });
 
     setSearchParams(params);
   };
 
   const handleReset = () => {
-    const reset = {
+    setFilters({
       title: '',
       author: '',
       category: '',
       minPrice: '',
       maxPrice: ''
-    };
+    });
 
-    setFilters(reset);
     setSearchParams({});
   };
 
   // ================= CART =================
-
   const handleAddToCart = async (bookId) => {
     if (!user) {
       window.location.href = '/login';
@@ -273,101 +202,64 @@ const BookList = () => {
     try {
       await axios.post(
         'http://localhost:8080/api/cart/add',
-        {
-          bookId: String(bookId),
-          quantity: 1
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          withCredentials: true
-        }
+        { bookId: String(bookId), quantity: 1 },
+        { withCredentials: true }
       );
 
-      setAlert({
-        type: 'success',
-        message: 'Đã thêm vào giỏ hàng'
-      });
+      setAlert({ type: 'success', message: 'Đã thêm vào giỏ hàng!' });
 
+      window.dispatchEvent(new Event('cart-updated'));
       fetchCartCount();
-    } catch (error) {
-      console.error(error);
+
+      setTimeout(() => setAlert({ type: null, message: null }), 3000);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  // ================= OTHER =================
+  const formatPrice = (price) =>
+    new Intl.NumberFormat('vi-VN').format(price) + 'đ';
 
   const isAdmin =
-    user?.roles?.includes('ROLE_ADMIN') ||
-    user?.isAdmin;
-
-  const formatPrice = (price) => {
-    return (
-      new Intl.NumberFormat('vi-VN').format(price) + 'đ'
-    );
-  };
+    user?.roles?.includes('ROLE_ADMIN') || user?.isAdmin;
 
   // ================= UI =================
-
   return (
     <div className="book-list-page">
 
       {/* NAVBAR */}
       <nav className="navbar">
         <div className="container navbar-container">
-
-          <Link
-            to="/books"
-            className="navbar-brand"
-          >
+          <Link to="/books" className="navbar-brand">
             📚 Tiệm Sách
           </Link>
 
           <div className="navbar-nav">
+            <Link to="/books">Sách</Link>
 
-            <Link to="/books">
-              Sách
-            </Link>
-
-            {/* WISHLIST */}
-            <Link
-              to="/wishlist"
-              className="wishlist-nav"
-            >
+            <Link to="/wishlist">
               ❤️ Yêu thích
-
               {wishlist.size > 0 && (
-                <span className="wishlist-badge">
-                  {wishlist.size}
-                </span>
+                <span className="wishlist-badge">{wishlist.size}</span>
               )}
             </Link>
 
-            {/* CART */}
             <Link to="/cart">
               🛒 Giỏ hàng
-
               {cartItemCount > 0 && (
-                <span className="cart-badge">
-                  {cartItemCount}
-                </span>
+                <span className="cart-badge">{cartItemCount}</span>
               )}
             </Link>
-
           </div>
         </div>
       </nav>
 
-      {/* CONTENT */}
       <div className="container">
 
         {/* HEADER */}
         <div className="page-header">
           <h1>📚 Danh Sách Sách</h1>
-          <p>
-            Khám phá kho sách của chúng tôi
-          </p>
+          <p>Khám phá kho sách của chúng tôi</p>
         </div>
 
         {/* ALERT */}
@@ -378,215 +270,119 @@ const BookList = () => {
         )}
 
         {/* FILTER */}
-        <div className="modern-filter-card">
+        <div className="filter-card">
+          <h3>🔎 Tìm kiếm & lọc</h3>
 
-          <h2 className="filter-title">
-            🔎 Tìm Kiếm & Lọc Sách
-          </h2>
+          <form onSubmit={handleSearch}>
+            <div className="filter-grid-layout">
 
-          <form
-            onSubmit={handleSearch}
-            className="modern-filter-form"
-          >
+              <input
+                name="title"
+                placeholder="Tên sách"
+                value={filters.title}
+                onChange={handleFilterChange}
+                className="modern-input"
+              />
 
-            {/* ROW 1 */}
-            <div className="modern-filter-row">
+              <input
+                name="author"
+                placeholder="Tác giả"
+                value={filters.author}
+                onChange={handleFilterChange}
+                className="modern-input"
+              />
 
-              <div className="modern-form-group">
-                <label>Tên Sách</label>
-
-                <input
-                  type="text"
-                  name="title"
-                  placeholder="Nhập tên sách..."
-                  value={filters.title}
-                  onChange={handleFilterChange}
-                  className="modern-input"
-                />
-              </div>
-
-              <div className="modern-form-group">
-                <label>Tác Giả</label>
-
-                <input
-                  type="text"
-                  name="author"
-                  placeholder="Nhập tên tác giả..."
-                  value={filters.author}
-                  onChange={handleFilterChange}
-                  className="modern-input"
-                />
-              </div>
-
-            </div>
-
-            {/* ROW 2 */}
-            <div className="modern-filter-row row-3">
-
-              <div className="modern-form-group">
-                <label>Giá Từ (VNĐ)</label>
-
-                <input
-                  type="number"
-                  name="minPrice"
-                  placeholder="0"
-                  value={filters.minPrice}
-                  onChange={handleFilterChange}
-                  className="modern-input"
-                />
-              </div>
-
-              <div className="modern-form-group">
-                <label>Giá Đến (VNĐ)</label>
-
-                <input
-                  type="number"
-                  name="maxPrice"
-                  placeholder="9999999"
-                  value={filters.maxPrice}
-                  onChange={handleFilterChange}
-                  className="modern-input"
-                />
-              </div>
-
-              <div className="modern-form-group">
-                <label>Danh Mục</label>
-
-                <select
-                  name="category"
-                  value={filters.category}
-                  onChange={handleFilterChange}
-                  className="modern-input"
-                >
-                  <option value="">
-                    -- Tất cả danh mục --
+              <select
+                name="category"
+                value={filters.category}
+                onChange={handleFilterChange}
+                className="modern-input"
+              >
+                <option value="">Tất cả danh mục</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.name}>
+                    {c.name}
                   </option>
+                ))}
+              </select>
 
-                  {categories.map((cat) => (
-                    <option
-                      key={cat.id}
-                      value={cat.name}
-                    >
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
+              <input
+                name="minPrice"
+                placeholder="Giá từ"
+                value={filters.minPrice}
+                onChange={handleFilterChange}
+                className="modern-input"
+              />
+
+              <input
+                name="maxPrice"
+                placeholder="Giá đến"
+                value={filters.maxPrice}
+                onChange={handleFilterChange}
+                className="modern-input"
+              />
+
+              <div className="filter-action-group">
+                <button type="button" onClick={handleReset} className="btn-filter-reset">
+                  Đặt lại
+                </button>
+                <button type="submit" className="btn-filter-search">
+                  Tìm kiếm
+                </button>
               </div>
 
             </div>
-
-            {/* BUTTON */}
-            <div className="modern-filter-buttons">
-
-              <button
-                type="submit"
-                className="modern-search-btn"
-              >
-                🔍 Tìm Kiếm
-              </button>
-
-              <button
-                type="button"
-                onClick={handleReset}
-                className="modern-reset-btn"
-              >
-                ↻ Đặt Lại
-              </button>
-
-            </div>
-
           </form>
         </div>
 
         {/* BOOKS */}
         {isLoading ? (
-          <div className="loading-state">
-            Đang tải...
-          </div>
+          <div className="loading-state">Đang tải...</div>
         ) : (
-          <div className="grid grid-3">
+          <div className="books-grid">
+            {books.map(book => (
+              <div key={book.id} className="book-card">
 
-            {books.map((book) => (
-
-              <div
-                key={book.id}
-                className="book-card"
-              >
-
-                {/* IMAGE */}
                 <div className="book-image-wrapper">
-
-                  <img
-                    src={book.imageUrl}
-                    alt={book.title}
-                    className="book-image"
-                  />
-
-                  {/* HEART */}
-                  {!isAdmin && (
-                    <button
-                      className={`wishlist-btn ${
-                        wishlist.has(book.id)
-                          ? 'wishlisted'
-                          : ''
-                      }`}
-                      onClick={(e) =>
-                        handleToggleWishlist(
-                          e,
-                          book.id
-                        )
-                      }
-                    >
-                      {wishlist.has(book.id)
-                        ? '❤️'
-                        : '🤍'}
-                    </button>
+                  {book.imageUrl ? (
+                    <img src={book.imageUrl} className="book-image" />
+                  ) : (
+                    <div className="book-placeholder">📘</div>
                   )}
 
+                  {!isAdmin && (
+                    <button
+                      className="wishlist-btn"
+                      onClick={(e) => handleToggleWishlist(e, book.id)}
+                    >
+                      {wishlist.has(book.id) ? '❤️' : '🤍'}
+                    </button>
+                  )}
                 </div>
 
-                {/* BODY */}
                 <div className="book-body">
-
-                  <h3 className="book-title">
-                    {book.title}
-                  </h3>
-
-                  <p className="book-author">
-                    {book.author}
-                  </p>
-
-                  <p className="book-price">
-                    {formatPrice(book.price)}
-                  </p>
+                  <h3 className="book-title">{book.title}</h3>
+                  <p className="book-author">{book.author}</p>
+                  <p className="book-price">{formatPrice(book.price)}</p>
 
                   <div className="book-actions">
-
-                    <Link
-                      to={`/books/${book.id}`}
-                      className="btn btn-primary"
-                    >
+                    <Link to={`/books/${book.id}`} className="btn btn-primary">
                       Chi tiết
                     </Link>
 
                     {!isAdmin && (
                       <button
-                        onClick={() =>
-                          handleAddToCart(book.id)
-                        }
                         className="btn btn-success"
+                        onClick={() => handleAddToCart(book.id)}
                       >
                         Thêm giỏ
                       </button>
                     )}
-
                   </div>
-
                 </div>
+
               </div>
-
             ))}
-
           </div>
         )}
 
