@@ -12,18 +12,26 @@ const Navbar = () => {
   useEffect(() => {
     checkAuthStatus();
     fetchCartCount();
+
+    const handleCartUpdate = () => {
+      fetchCartCount();
+    };
+
+    window.addEventListener('cart-updated', handleCartUpdate);
+    return () => {
+      window.removeEventListener('cart-updated', handleCartUpdate);
+    };
   }, []);
 
   const checkAuthStatus = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/auth/status', {
+      const response = await axios.get('http://localhost:8080/api/auth/profile', {
         withCredentials: true
       });
-      if (response.data.authenticated) {
-        setUser(response.data.user);
-      }
+      setUser(response.data);
     } catch (err) {
       console.error('Not authenticated');
+      setUser(null);
     }
   };
 
@@ -32,7 +40,7 @@ const Navbar = () => {
       const response = await axios.get('http://localhost:8080/api/cart', {
         withCredentials: true
       });
-      setCartCount(response.data.items?.length || 0);
+      setCartCount(response.data.itemCount || 0);
     } catch (err) {
       console.error('Error fetching cart count');
     }
@@ -83,30 +91,22 @@ const Navbar = () => {
                 </svg>
                 Danh Mục
               </Link>
-
-              <Link to="/admin/dashboard" className="nav-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect width="7" height="9" x="3" y="3" rx="1"/>
-                  <rect width="7" height="5" x="14" y="3" rx="1"/>
-                  <rect width="7" height="9" x="14" y="12" rx="1"/>
-                  <rect width="7" height="5" x="3" y="16" rx="1"/>
-                </svg>
-                Admin
-              </Link>
             </>
           )}
 
           {user ? (
             <>
-              <Link to="/cart" className="nav-link cart-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="8" cy="21" r="1"/>
-                  <circle cx="19" cy="21" r="1"/>
-                  <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-                </svg>
-                Giỏ hàng
-                {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-              </Link>
+              {!isAdmin && (
+                <Link to="/cart" className="nav-link cart-link">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="8" cy="21" r="1"/>
+                    <circle cx="19" cy="21" r="1"/>
+                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                  </svg>
+                  Giỏ hàng
+                  {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+                </Link>
+              )}
 
               <div className="user-dropdown">
                 <button 
@@ -125,22 +125,44 @@ const Navbar = () => {
 
                 {showUserMenu && (
                   <div className="dropdown-menu">
-                    <Link to="/user/profile" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                    <Link to="/profile" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
                       </svg>
                       Tài khoản
                     </Link>
-                    <Link to="/orders" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                      </svg>
-                      Đơn hàng
-                    </Link>
+                    {isAdmin ? (
+                      <>
+                        <Link to="/admin" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect width="7" height="9" x="3" y="3" rx="1"/>
+                            <rect width="7" height="5" x="14" y="3" rx="1"/>
+                            <rect width="7" height="9" x="14" y="12" rx="1"/>
+                            <rect width="7" height="5" x="3" y="16" rx="1"/>
+                          </svg>
+                          Dashboard Admin
+                        </Link>
+                        <Link to="/admin/users" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                          </svg>
+                          Quản lý người dùng
+                        </Link>
+                      </>
+                    ) : (
+                      <Link to="/orders" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                          <line x1="9" y1="9" x2="15" y2="9"/>
+                          <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                        Đơn hàng
+                      </Link>
+                    )}
                     <div className="dropdown-divider"></div>
                     <button className="dropdown-item logout" onClick={handleLogout}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -63,6 +63,7 @@ const Checkout = () => {
       if (response.data.redirectUrl) {
         window.location.href = response.data.redirectUrl;
       } else {
+        window.dispatchEvent(new Event('cart-updated'));
         navigate('/cart/payment-result', { 
           state: { 
             success: true, 
@@ -77,6 +78,7 @@ const Checkout = () => {
   };
 
   const handleSimulateSuccess = () => {
+    window.dispatchEvent(new Event('cart-updated'));
     navigate('/cart/payment-result', { 
       state: { 
         success: true, 
@@ -98,22 +100,7 @@ const Checkout = () => {
   }
 
   return (
-    <div>
-      <nav className="navbar">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 0 }}>
-          <Link to="/" className="navbar-brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-            Tiệm Sách
-          </Link>
-          <div className="navbar-nav">
-            <Link to="/books">Sách</Link>
-            <Link to="/cart" style={{ color: '#999999', textDecoration: 'none' }}>Quay lại giỏ hàng</Link>
-          </div>
-        </div>
-      </nav>
+    <div className="checkout-page">
 
       {/* Hero Banner */}
       <div className="hero-banner">
@@ -276,16 +263,6 @@ const Checkout = () => {
         </div>
       </div>
 
-      <footer>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-          <Link to="/books" style={{ textDecoration: 'none', color: '#757575', fontWeight: 500 }}>📚 Sách</Link>
-          <Link to="/cart" style={{ textDecoration: 'none', color: '#757575', fontWeight: 500 }}>🛒 Giỏ hàng</Link>
-          <Link to="/orders" style={{ textDecoration: 'none', color: '#757575', fontWeight: 500 }}>📋 Lịch sử mua hàng</Link>
-          <Link to="/user/profile" style={{ textDecoration: 'none', color: '#757575', fontWeight: 500 }}>👤 Tài khoản</Link>
-        </div>
-        <p style={{ margin: '0.5rem 0', color: '#999999' }}>© 2026 Tiệm Sách Management • Secure Payment Gateway</p>
-        <p style={{ margin: 0, fontSize: '0.85rem', color: '#CCCCCC' }}>Thương mại điện tử hiện đại • Mua sắm dễ dàng</p>
-      </footer>
     </div>
   );
 };

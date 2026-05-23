@@ -32,23 +32,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div>
-      <nav className="navbar">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 0 }}>
-          <Link to="/" className="navbar-brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-            Admin Panel
-          </Link>
-          <div className="navbar-nav">
-            <Link to="/">Trang chủ</Link>
-            <Link to="/books">Sách</Link>
-          </div>
-        </div>
-      </nav>
-
-      <div className="container fade-in">
+    <div className="container fade-in">
         <div className="page-header" style={{ marginTop: '3rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: '250px' }}>
@@ -138,13 +122,6 @@ const AdminDashboard = () => {
             </Link>
           </div>
         </div>
-      </div>
-
-      <footer className="footer" style={{ marginTop: '5rem' }}>
-        <div className="container">
-          <p>© 2026 Admin Control Panel. Spring Security 6.x & OAuth2.0.</p>
-        </div>
-      </footer>
     </div>
   );
 };
