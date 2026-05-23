@@ -71,25 +71,7 @@ const CategoryForm = () => {
   };
 
   return (
-    <div>
-      <nav className="navbar">
-        <div className="container">
-          <Link to="/" className="navbar-brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-            Tiệm Sách
-          </Link>
-          <div className="navbar-nav">
-            <Link to="/categories">Danh Mục</Link>
-            <Link to="/books">Sách</Link>
-            <Link to="/logout" className="text-muted">Đăng xuất</Link>
-          </div>
-        </div>
-      </nav>
-
-      <div className="container" style={{ maxWidth: '800px' }}>
+    <div className="container" style={{ maxWidth: '800px' }}>
         <div className="page-header" style={{ marginTop: '2rem' }}>
           <h1>{isEditMode ? 'Sửa Danh Mục' : 'Thêm Danh Mục'}</h1>
           <p className="text-muted">Quản lý thông tin danh mục để tổ chức sách một cách hệ thống</p>
@@ -202,19 +184,6 @@ const CategoryForm = () => {
             </div>
           </form>
         </div>
-      </div>
-
-      <footer className="footer" style={{ marginTop: '4rem' }}>
-        <div className="container">
-          <div className="footer-links">
-            <Link to="/books">Sách</Link>
-            <Link to="/cart">Giỏ hàng</Link>
-            <Link to="/orders">Lịch sử mua hàng</Link>
-            <Link to="/user/profile">Tài khoản</Link>
-          </div>
-          <p>© 2026 Tiệm Sách. Quản lý danh mục sách.</p>
-        </div>
-      </footer>
     </div>
   );
 };
