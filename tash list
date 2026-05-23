@@ -1,0 +1,14 @@
+[33mbccd95f[m[33m ([m[1;31morigin/ngan24[m[33m, [m[1;32mngan24[m[33m, [m[1;32mbackup-current-code[m[33m, [m[1;32mbackup-bccd95f[m[33m)[m thêm vào yêu thích và xóa khỏi yêu thích
+[33mf7e3245[m Merge pull request #5 from NguyenThiNgocMai22130161/mai
+[33m5777780[m[33m ([m[1;31morigin/mai[m[33m)[m Merge branch 'main' into mai
+[33m30fec53[m chỉnh sửa vị trí các file của frontend
+[33mb5eb9f7[m Update README.md
+[33m53126c2[m Merge pull request #3 from NguyenThiNgocMai22130161/mai
+[33m031f4e6[m Giải quyết xong xung đột merge, chính thức chuyển sang React
+[33mc38f1f5[m Chuyển đổi hoàn toàn từ Thymeleaf sang React: xóa template cũ và cập nhật API Backend
+[33m36eafb9[m Merge pull request #2 from NguyenThiNgocMai22130161/revert-1-mai
+[33m8348748[m[33m ([m[1;31morigin/revert-1-mai[m[33m)[m Revert "Mai"
+[33m187c6f1[m Merge pull request #1 from NguyenThiNgocMai22130161/mai
+[33m7ab55d2[m đổi đồ án từ templates sang dùng react
+[33m9d91c7c[m Before cleanup
+[33m8a2f671[m Initial commit: Dự án Books Store
