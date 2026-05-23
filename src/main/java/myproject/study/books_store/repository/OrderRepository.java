@@ -31,4 +31,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
      * Lấy đơn hàng của user theo status
      */
     List<Order> findByUserAndStatus(User user, String status);
+    
+    List<Order> findByUserUserIdAndStatus(Long userId, String status);
 }

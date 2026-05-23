@@ -95,7 +95,7 @@ const OrderList = () => {
       case 'PENDING':
         return 'Chờ Xử Lý';
       case 'COMPLETED':
-        return 'Hoàn Tất';
+        return 'Đã Nhận';
       case 'CANCELLED':
         return 'Đã Hủy';
       default:
