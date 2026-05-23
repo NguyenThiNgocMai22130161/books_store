@@ -179,6 +179,9 @@ const BookList = () => {
       console.log('Add to cart response:', response.data);
       setAlert({ type: 'success', message: 'Đã thêm vào giỏ hàng!' });
       
+      // Dispatch event to update navbar cart count immediately without reload
+      window.dispatchEvent(new Event('cart-updated'));
+      
       // Clear alert after 3 seconds
       setTimeout(() => setAlert({ type: null, message: null }), 3000);
     } catch (error) {
@@ -258,19 +261,19 @@ const BookList = () => {
         {/* Search & Filter Form */}
         <div className="filter-card">
           <h3>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
             </svg>
             Tìm Kiếm & Lọc Sách
             {activeFiltersCount > 0 && (
-              <span style={{ marginLeft: '0.5rem', fontSize: '0.9rem', color: '#EE4D2D' }}>
-                ({activeFiltersCount} bộ lọc)
+              <span style={{ marginLeft: '0.5rem', fontSize: '0.9rem', color: '#4169e1', fontWeight: 600 }}>
+                ({activeFiltersCount} bộ lọc đang kích hoạt)
               </span>
             )}
           </h3>
           
           <form onSubmit={handleSearch} className="filter-form">
-            <div className="filter-row">
+            <div className="filter-grid-layout">
               <div className="form-group">
                 <label htmlFor="title">Tên Sách</label>
                 <input
@@ -295,37 +298,6 @@ const BookList = () => {
                   className="form-control"
                 />
               </div>
-            </div>
-
-            <div className="filter-row">
-              <div className="form-group">
-                <label htmlFor="minPrice">Giá Từ (VNĐ)</label>
-                <input
-                  type="number"
-                  id="minPrice"
-                  name="minPrice"
-                  placeholder="0"
-                  min="0"
-                  step="1000"
-                  value={filters.minPrice}
-                  onChange={handleFilterChange}
-                  className="price-input"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="maxPrice">Giá Đến (VNĐ)</label>
-                <input
-                  type="number"
-                  id="maxPrice"
-                  name="maxPrice"
-                  placeholder="9999999"
-                  min="0"
-                  step="1000"
-                  value={filters.maxPrice}
-                  onChange={handleFilterChange}
-                  className="price-input"
-                />
-              </div>
               <div className="form-group">
                 <label htmlFor="category">Danh Mục</label>
                 <select
@@ -341,25 +313,54 @@ const BookList = () => {
                   ))}
                 </select>
               </div>
-            </div>
 
-            <div className="filter-buttons">
-              <button type="submit" className="btn-with-icon btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"/>
-                  <path d="m21 21-4.35-4.35"/>
-                </svg>
-                Tìm Kiếm
-              </button>
-              <button type="button" onClick={handleReset} className="btn-with-icon btn-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-                  <path d="M21 3v5h-5"/>
-                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-                  <path d="M3 21v-5h5"/>
-                </svg>
-                Đặt Lại
-              </button>
+              <div className="form-group">
+                <label htmlFor="minPrice">Giá Từ (VNĐ)</label>
+                <input
+                  type="number"
+                  id="minPrice"
+                  name="minPrice"
+                  placeholder="0"
+                  min="0"
+                  step="1000"
+                  value={filters.minPrice}
+                  onChange={handleFilterChange}
+                  className="form-control"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="maxPrice">Giá Đến (VNĐ)</label>
+                <input
+                  type="number"
+                  id="maxPrice"
+                  name="maxPrice"
+                  placeholder="9999999"
+                  min="0"
+                  step="1000"
+                  value={filters.maxPrice}
+                  onChange={handleFilterChange}
+                  className="form-control"
+                />
+              </div>
+              
+              <div className="filter-action-group">
+                <button type="button" onClick={handleReset} className="btn-filter-reset">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                    <path d="M21 3v5h-5"/>
+                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                    <path d="M3 21v-5h5"/>
+                  </svg>
+                  Đặt Lại
+                </button>
+                <button type="submit" className="btn-filter-search">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                  </svg>
+                  Tìm Kiếm
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -414,7 +415,7 @@ const BookList = () => {
                 className="book-card fade-in" 
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
-                <div>
+                <div className="book-image-wrapper">
                   {book.imageUrl ? (
                     <img src={book.imageUrl} alt={book.title} className="book-image" />
                   ) : (

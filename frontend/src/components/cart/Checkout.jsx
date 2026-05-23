@@ -63,6 +63,7 @@ const Checkout = () => {
       if (response.data.redirectUrl) {
         window.location.href = response.data.redirectUrl;
       } else {
+        window.dispatchEvent(new Event('cart-updated'));
         navigate('/cart/payment-result', { 
           state: { 
             success: true, 
@@ -77,6 +78,7 @@ const Checkout = () => {
   };
 
   const handleSimulateSuccess = () => {
+    window.dispatchEvent(new Event('cart-updated'));
     navigate('/cart/payment-result', { 
       state: { 
         success: true, 

@@ -15,6 +15,9 @@ const PaymentResult = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Notify navbar that cart has updated/cleared after online payment transaction
+    window.dispatchEvent(new Event('cart-updated'));
+
     // Check if data passed via state (from simulate)
     if (location.state) {
       setSuccess(location.state.success);

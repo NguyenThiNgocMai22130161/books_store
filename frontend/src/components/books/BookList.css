@@ -69,72 +69,135 @@
   z-index: 1;
 }
 
-/* ─── Filter Card ─── */
+/* ─── Premium Filter Card Overhaul ─── */
 .filter-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: 2rem 2.5rem;
+  background: var(--color-surface); /* #FFFFFF */
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 2.5rem;
   margin-bottom: 2.5rem;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease;
 }
 
 .filter-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
 }
 
 .filter-card h3 {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: var(--color-text);
-  margin: 0 0 1.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.filter-card h3 svg {
-  color: var(--color-primary);
-}
-
-.filter-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.filter-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.25rem;
-  align-items: end;
-}
-
-.filter-buttons {
-  display: flex;
-  gap: 1rem;
-  padding-top: 0.25rem;
-}
-
-/* Price range */
-.price-range {
+  color: #1e293b;
+  margin-bottom: 2rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
-.price-range span {
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
+.filter-card h3 svg {
+  color: #4169e1; /* Royal Blue */
+}
+
+/* Beautiful Grid Layout */
+.filter-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.filter-card .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0; /* Align perfectly */
+}
+
+.filter-card .form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+/* Filter Action Group placed inside the grid */
+.filter-action-group {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.btn-filter-reset {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: 1.5px solid #cbd5e1;
+  color: #475569;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  height: 48px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
 }
 
-.price-input {
-  flex: 1;
+.btn-filter-reset:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #1e293b;
+  transform: translateY(-1px);
 }
 
-/* ─── Search Summary ─── */
+.btn-filter-search {
+  flex: 1.5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #4169e1; /* Royal Blue */
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  height: 48px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(65, 105, 225, 0.2);
+}
+
+.btn-filter-search:hover {
+  background: #3457c7;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(65, 105, 225, 0.35);
+}
+
+/* Responsive filter card */
+@media (max-width: 992px) {
+  .filter-grid-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .filter-action-group {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 576px) {
+  .filter-grid-layout {
+    grid-template-columns: 1fr;
+  }
+  .filter-action-group {
+    grid-column: span 1;
+  }
+}
+
 .search-summary {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
