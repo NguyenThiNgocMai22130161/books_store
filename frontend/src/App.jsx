@@ -26,6 +26,8 @@ import { UserProfile } from './components/user';
 // Shared Components
 import { Navbar, Footer } from './components/shared';
 
+import Wishlist from './components/books/Wishlist';
+
 function App() {
   return (
     <div className="app">
@@ -43,6 +45,7 @@ function App() {
         {/* User Routes */}
         <Route path="/profile" element={<><Navbar /><UserProfile /><Footer /></>} />
         <Route path="/cart" element={<><Navbar /><Cart /><Footer /></>} />
+        <Route path="/wishlist" element={<><Navbar /><Wishlist /><Footer /></>} />
         <Route path="/cart/checkout" element={<><Navbar /><Checkout /><Footer /></>} />
         <Route path="/cart/payment-result" element={<><Navbar /><PaymentResult /><Footer /></>} />
         <Route path="/orders" element={<><Navbar /><OrderList /><Footer /></>} />
