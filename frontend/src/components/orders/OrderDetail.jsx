@@ -258,6 +258,7 @@ const OrderDetail = () => {
                     <th className="text-center">Số Lượng</th>
                     <th className="text-right">Đơn Giá</th>
                     <th className="text-right">Thành Tiền</th>
+                    {order.status === 'COMPLETED' && <th className="text-center" style={{ width: '130px' }}>Thao Tác</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -288,6 +289,16 @@ const OrderDetail = () => {
                       <td className="text-right" style={{ fontWeight: 600, color: 'var(--primary)' }}>
                         {(item.price * item.quantity).toLocaleString('vi-VN')} ₫
                       </td>
+                      {order.status === 'COMPLETED' && (
+                        <td className="text-center">
+                          <Link to={`/books/${item.book?.id}?write-review=true`} className="btn-review-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '0.2rem', verticalAlign: 'middle' }}>
+                              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                            </svg>
+                            Đánh giá
+                          </Link>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>

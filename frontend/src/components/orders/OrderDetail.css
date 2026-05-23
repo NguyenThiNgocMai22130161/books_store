@@ -183,6 +183,36 @@
 .item-title { font-weight: 600; color: var(--color-text); font-size: 0.9rem; }
 .item-author { font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.2rem; }
 
+.btn-review-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  background: var(--gradient-primary);
+  color: white !important;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(65, 105, 225, 0.25);
+  transition: var(--transition-fast);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn-review-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(65, 105, 225, 0.4);
+  background: var(--color-primary-hover);
+  color: white !important;
+}
+
+.btn-review-item:active {
+  transform: translateY(0);
+}
+
 /* ─── Summary Card ─── */
 .summary-card {
   background: var(--color-surface-alt);
