@@ -13,12 +13,12 @@ const PaymentResult = () => {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  
+  // Thêm state để hiển thị số giây đếm ngược trực quan trên giao diện
+  const [countdown, setCountdown] = useState(10);
 
   useEffect(() => {
-    // Notify navbar that cart has updated/cleared after online payment transaction
-    window.dispatchEvent(new Event('cart-updated'));
 
-    // Check if data passed via state (from simulate)
     if (location.state) {
       setSuccess(location.state.success);
       setMessage(location.state.message || (location.state.success ? 'Thanh toán thành công!' : 'Thanh toán thất bại'));
@@ -27,35 +27,61 @@ const PaymentResult = () => {
       setPaymentMethod(location.state.paymentMethod || 'N/A');
       setLoading(false);
     } else {
-      // Check URL params (from real payment gateway callback)
       const params = new URLSearchParams(location.search);
-      const successParam = params.get('success');
+      const statusParam = params.get('status'); 
       const orderIdParam = params.get('orderId');
       const messageParam = params.get('message');
       
-      if (successParam !== null) {
-        setSuccess(successParam === 'true');
-        setMessage(messageParam || (successParam === 'true' ? 'Thanh toán thành công!' : 'Thanh toán thất bại'));
+      if (statusParam !== null) {
+        const isSuccess = statusParam === 'success';
+        setSuccess(isSuccess);
+        
+        const decodedMessage = messageParam ? decodeURIComponent(messageParam) : '';
+        setMessage(decodedMessage || (isSuccess ? 'Thanh toán thành công!' : 'Thanh toán thất bại'));
         setOrderId(orderIdParam || '');
+        setPaymentMethod('Cổng thanh toán MoMo'); 
         setLoading(false);
+
+        // Đẩy vào state để giữ thông tin khi F5
+        navigate('/cart/payment-result', { 
+          replace: true, 
+          state: { 
+            success: isSuccess, 
+            message: decodedMessage || (isSuccess ? 'Thanh toán thành công!' : 'Thanh toán thất bại'),
+            orderId: orderIdParam || '',
+            paymentMethod: 'Cổng thanh toán MoMo'
+          } 
+        });
       } else {
-        // No data available
         setSuccess(false);
         setMessage('Không thể xác nhận kết quả thanh toán');
         setErrorMessage('Vui lòng kiểm tra lại hoặc liên hệ hỗ trợ');
         setLoading(false);
       }
     }
+  }, [location.search, location.state, navigate]);
 
-    // Auto-redirect after 10 seconds if successful
-    if (success) {
-      const timer = setTimeout(() => {
-        navigate('/books');
-      }, 10000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [location, success, navigate]);
+  // 🔥 ĐỒNG HỒ ĐẾM NGƯỢC XỊN: Thành công về "Cửa hàng", Thất bại về "Giỏ hàng" để thanh toán lại
+  useEffect(() => {
+    if (success === null) return;
+
+    const interval = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    const timer = setTimeout(() => {
+      if (success === true) {
+        navigate('/books'); // Thành công => đi mua tiếp
+      } else {
+        navigate('/cart');  // Thất bại => về giỏ hàng cày lại đơn
+      }
+    }, 10000);
+    
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+    };
+  }, [success, navigate]);
 
   if (loading) {
     return (
@@ -69,110 +95,125 @@ const PaymentResult = () => {
   }
 
   return (
-    <div className="payment-result-page">
+    <div>
+      <nav className="navbar">
+        <div className="container">
+          <Link to="/" className="navbar-brand">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <span className="brand-text">Tiệm Sách</span>
+          </Link>
+          <div className="navbar-nav desktop-nav">
+            <Link to="/" className="nav-link">Trang chủ</Link>
+            <Link to="/books" className="nav-link">Sách</Link>
+            <Link to="/cart" className="nav-link cart-link">Giỏ hàng</Link>
+          </div>
+        </div>
+      </nav>
 
       <div className="container">
         <div className="payment-result-container">
-          {/* Success State */}
+          
+          {/* Giao diện Thành công */}
           {success === true && (
             <div className="result-success">
               <div className="result-icon">✅</div>
               <div className="result-title">Thanh Toán Thành Công!</div>
               <div className="result-message">{message}</div>
+              <div className="redirect-notice">🎉 Tự động chuyển về Trang chủ sách sau <strong>{countdown}</strong> giây...</div>
             </div>
           )}
 
-          {/* Failed State */}
+          {/*  Giao diện Thất bại nâng cấp nhìn chuyên nghiệp hơn hẳn */}
           {success === false && (
             <div className="result-failed">
               <div className="result-icon">❌</div>
-              <div className="result-title">Thanh Toán Thất Bại</div>
-              <div className="result-message">{message}</div>
+              <div className="result-title" style={{ color: '#ef4444' }}>Thanh Toán Thất Bại hoặc Bị Hủy</div>
+              <div className="result-message" style={{ background: '#fef2f2', color: '#991b1b', padding: '10px', borderRadius: '6px', border: '1px solid #fee2e2' }}>
+                {message}
+              </div>
+              <div className="redirect-notice" style={{ color: '#6b7280' }}>🔄 Hệ thống tự động đưa bạn quay lại Giỏ hàng để thử lại sau <strong>{countdown}</strong> giây...</div>
             </div>
           )}
 
-          {/* Error Messages */}
           {errorMessage && (
             <div className="alert alert-danger">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="15" x2="9" y1="9" y2="15"/>
-                <line x1="9" x2="15" y1="9" y2="15"/>
-              </svg>
               <span>{errorMessage}</span>
             </div>
           )}
 
-          {/* Order Details (if successful) */}
-          {success === true && orderId && (
-            <div className="result-details">
-              <h3 style={{ color: '#000000', marginTop: 0 }}>📋 Chi Tiết Đơn Hàng</h3>
+          {/*  Chi tiết đơn hàng hiển thị chi tiết đầy đủ cho cả hai bên */}
+          {orderId && (
+            <div className="result-details" style={{ marginTop: '20px' }}>
+              <h3 style={{ color: '#000000', marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '8px' }}>📋 Chi Tiết Giao Dịch</h3>
+              
               <div className="result-details-row">
                 <span className="details-label">Mã Đơn Hàng:</span>
-                <span className="details-value">{orderId}</span>
+                <span className="details-value" style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{orderId}</span>
               </div>
-              {orderTotal && (
+
+              <div className="result-details-row">
+                <span className="details-label">Thời gian:</span>
+                <span className="details-value">{new Date().toLocaleString('vi-VN')}</span>
+              </div>
+
+              {/* Nếu luồng MoMo callback không có tổng tiền, ta hiển thị trạng thái "Liên hệ kiểm tra đơn" hoặc ẩn dòng tổng tiền một cách tinh tế */}
+              {orderTotal ? (
                 <div className="result-details-row">
                   <span className="details-label">Tổng Tiền:</span>
-                  <span className="details-value">{orderTotal.toLocaleString('vi-VN')} ₫</span>
+                  <span className="details-value" style={{ color: '#b91c1c', fontWeight: 'bold' }}>{orderTotal.toLocaleString('vi-VN')} ₫</span>
+                </div>
+              ) : (
+                <div className="result-details-row">
+                  <span className="details-label">Tổng Tiền:</span>
+                  <span className="details-value" style={{ color: '#6b7280', fontStyle: 'italic' }}>Xem chi tiết trong lịch sử đơn</span>
                 </div>
               )}
+
               {paymentMethod && (
                 <div className="result-details-row">
                   <span className="details-label">Phương Thức:</span>
                   <span className="details-value">{paymentMethod}</span>
                 </div>
               )}
+
               <div className="result-details-row">
-                <span className="details-label">Trạng Thái:</span>
-                <span className="details-value" style={{ color: '#10b981' }}>Hoàn Tất</span>
+                <span className="details-label">Trạng Thái Hệ Thống:</span>
+                <span className="details-value" style={{ 
+                  color: success ? '#10b981' : '#ef4444', 
+                  fontWeight: 'bold',
+                  background: success ? '#ecfdf5' : '#fef2f2',
+                  padding: '2px 8px',
+                  borderRadius: '4px'
+                }}>
+                  {success ? 'Giao dịch hoàn tất' : 'Giao dịch thất bại'}
+                </span>
               </div>
             </div>
           )}
 
-          {/* Order Details (basic) */}
-          {orderId && !orderTotal && (
-            <div className="result-details">
-              <p><strong>Mã đơn hàng:</strong> <span>{orderId}</span></p>
-              <p><strong>Thời gian:</strong> <span>{new Date().toLocaleString('vi-VN')}</span></p>
-              <p><strong>Trạng thái:</strong> 
-                <span style={{ color: success ? '#10b981' : '#ef4444', marginLeft: '0.5rem' }}>
-                  {success ? 'Thành công' : 'Thất bại'}
-                </span>
-              </p>
-            </div>
-          )}
-
           {/* Action Buttons */}
-          <div className="result-actions">
-            <Link to="/books" className="btn btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-              </svg>
-              Tiếp tục mua sắm
-            </Link>
-            <Link to="/cart" className="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>
-                <circle cx="9" cy="21" r="1"/>
-                <circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-              </svg>
-              Xem giỏ hàng
-            </Link>
+          <div className="result-actions" style={{ marginTop: '25px' }}>
+            <Link to="/books" className="btn btn-primary">Tiếp tục mua sắm</Link>
+            <Link to="/cart" className="btn btn-secondary">Quay lại giỏ hàng</Link>
             {success === true && (
-              <Link to="/orders" className="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                  <rect x="8" y="2" width="8" height="4"/>
-                  <path d="M9 14h6M9 10h6"/>
-                </svg>
-                Lịch sử mua hàng
-              </Link>
+              <Link to="/orders" className="btn btn-primary" style={{ backgroundColor: '#10b981' }}>Lịch sử mua hàng</Link>
             )}
           </div>
         </div>
       </div>
+      <footer className="footer">
+        <div className="container">
+          <div className="d-flex justify-center gap-3 mb-4">
+            <Link to="/books">Sách</Link>
+            <Link to="/cart">Giỏ hàng</Link>
+            <Link to="/orders">Lịch sử mua hàng</Link>
+          </div>
+          <p>© 2026 Tiệm Sách. Secure Payment Gateway.</p>
+        </div>
+      </footer>
 
     </div>
   );

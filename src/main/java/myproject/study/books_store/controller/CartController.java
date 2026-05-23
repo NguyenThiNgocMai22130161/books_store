@@ -1,5 +1,6 @@
 package myproject.study.books_store.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -178,8 +179,8 @@ public class CartController {
             }
 
             String orderId = moMoPaymentService.generateOrderId();
-            Long amount = (long) (total * 100);
-            String orderInfo = "Thanh toán đơn hàng Tiệm Sách - Mã: " + orderId;
+            Long amount = total.longValue();
+            String orderInfo = "Thanh toan don hang Tiem Sach - Ma: " + orderId;
 
             Map<String, Object> momoResponse = moMoPaymentService.createPaymentRequest(orderId, amount, orderInfo);
 
@@ -213,12 +214,15 @@ public class CartController {
                     .body(Map.of("error", "Lỗi hệ thống: " + e.getMessage()));
         }
     }
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     @GetMapping("/payment/return")
-    public ResponseEntity<?> paymentReturn(@RequestParam Map<String, String> params,
-                                          Authentication authentication) {
+    public ResponseEntity<Void> paymentReturn(@RequestParam Map<String, String> params) {
+        
+        String redirectTargetUrl = frontendUrl + "/cart/payment-result";
+        
         try {
-            User user = getUserFromAuthentication(authentication);
             String resultCode = params.get("resultCode");
             String message = params.get("message");
             String orderId = params.get("orderId");
@@ -228,26 +232,30 @@ public class CartController {
                 boolean isValidSignature = moMoPaymentService.validatePaymentSignature(signature, params);
                 
                 if (isValidSignature) {
-                    cartService.clearCart(user);
-                    
-                    Map<String, Object> response = new HashMap<>();
-                    response.put("success", true);
-                    response.put("message", "Thanh toán thành công!");
-                    response.put("orderId", orderId);
-                    
-                    return ResponseEntity.ok(response);
+                    // 1. THÀNH CÔNG
+                    return ResponseEntity.status(HttpStatus.FOUND)
+                            .location(java.net.URI.create(redirectTargetUrl + "?status=success&orderId=" + orderId))
+                            .build();
                 } else {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body(Map.of("success", false, "message", "Signature không hợp lệ!", "orderId", orderId));
+                    // 2. SAI CHỮ KÝ BẢO MẬT
+                    String msg = java.net.URLEncoder.encode("Chữ ký bảo mật không hợp lệ", "UTF-8");
+                    return ResponseEntity.status(HttpStatus.FOUND)
+                            .location(java.net.URI.create(redirectTargetUrl + "?status=failed&message=" + msg + "&orderId=" + orderId))
+                            .build();
                 }
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("success", false, "message", "Thanh toán thất bại: " + message, "orderId", orderId));
+                // 3. THẤT BẠI / BẤM HỦY (resultCode != 0)
+                String encodedMessage = java.net.URLEncoder.encode(message != null ? message : "Giao dịch thất bại", "UTF-8");
+                return ResponseEntity.status(HttpStatus.FOUND)
+                        .location(java.net.URI.create(redirectTargetUrl + "?status=failed&message=" + encodedMessage + "&orderId=" + orderId))
+                        .build();
             }
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Lỗi: " + e.getMessage()));
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(java.net.URI.create(redirectTargetUrl + "?status=error"))
+                    .build();
         }
     }
 

@@ -10,7 +10,7 @@ const Checkout = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('default');
+  const [paymentMethod, setPaymentMethod] = useState('cod'); // Set COD làm mặc định
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
@@ -47,43 +47,103 @@ const Checkout = () => {
       setLoading(false);
     }
   };
+  // 🔥 ĐÃ SỬA: Chạy chuẩn luồng tạo Order và xóa Giỏ hàng thông qua API Backend
+  const handleSimulateMoMoSuccess = async (e) => {
+    e.preventDefault(); // Chặn form submit
+    
+    try {
+      setProcessing(true);
+      setError('');
 
+      // 1. Gọi API gửi phương thức 'momo' lên Backend để BE xử lý tạo Order và clear Cart trong DB
+      const response = await axios.post(
+        'http://localhost:8080/api/cart/payment',
+        { paymentMethod: 'momo' },
+        { withCredentials: true }
+      );
+      
+      console.log('Giả lập MoMo - BE Response:', response.data);
+
+      // 2. Sau khi Backend xử lý tạo đơn và xóa giỏ hàng thành công, 
+      // Điều hướng thẳng sang trang kết quả với dữ liệu thực tế từ hệ thống
+      navigate('/cart/payment-result', {
+        replace: true,
+        state: {
+          success: true,
+          message: 'Giả lập: Thanh toán qua ví MoMo thành công và đã đồng bộ hệ thống!',
+          orderId: response.data.orderId || ('MOMO_' + Date.now()), // Lấy mã đơn thật từ BE trả về
+          orderTotal: total, // Tổng tiền thực tế từ giỏ hàng hiện tại
+          paymentMethod: 'Cổng thanh toán MoMo (Giả lập)'
+        }
+      });
+
+    } catch (err) {
+      console.error('Lỗi khi giả lập thanh toán MoMo:', err);
+      setError(err.response?.data?.message || 'Không thể tạo đơn hàng giả lập MoMo');
+    } finally {
+      setProcessing(false);
+    }
+  };
   const handlePayment = async (e) => {
     e.preventDefault();
     
     try {
       setProcessing(true);
+      setError(''); // Xóa thông báo lỗi cũ nếu có
+
+      // 🚀 BẤT KỂ PHƯƠNG THỨC NÀO (cod, momo, default) CŨNG GỌI LÊN BACKEND ĐỂ TẠO ORDER VÀ XÓA GIỎ HÀNG
       const response = await axios.post(
         'http://localhost:8080/api/cart/payment',
-        { paymentMethod },
+        { paymentMethod }, // Truyền 'cod' hoặc 'momo' hoặc 'default' lên Java
         { withCredentials: true }
       );
       
-      // Redirect to payment result or external payment gateway
+      console.log('Payment response từ Backend:', response.data);
+
+      // --- TRƯỜNG HỢP 1: XỬ LÝ THANH TOÁN THẬT QUA VÍ MOMO ---
+      if (paymentMethod === 'momo') {
+        if (response.data && response.data.payUrl) {
+          window.location.href = response.data.payUrl; // Chuyển sang trang QR MoMo thật
+          return;
+        } else {
+          throw new Error('Không nhận được liên kết thanh toán (payUrl) từ MoMo');
+        }
+      }
+      
+      // --- TRƯỜNG HỢP 2: XỬ LÝ COD HOẶC CÁC PHƯƠNG THỨC KHÁC ĐÃ THÀNH CÔNG NGAY Ở BACKEND ---
+      // Sau khi Backend xử lý lưu DB và xóa giỏ hàng xong, trả về orderId thật
       if (response.data.redirectUrl) {
         window.location.href = response.data.redirectUrl;
       } else {
+        // Áp dụng cho cả COD và Thẻ tín dụng thành công trực tiếp
         window.dispatchEvent(new Event('cart-updated'));
         navigate('/cart/payment-result', { 
+          replace: true,
           state: { 
             success: true, 
-            orderId: response.data.orderId 
+            message: paymentMethod === 'cod' 
+              ? 'Đặt hàng thành công! Đơn hàng của bạn đã được ghi nhận hệ thống dưới hình thức COD.' 
+              : 'Thanh toán thành công qua cổng kết nối!',
+            orderId: response.data.orderId || ('COD-' + Date.now()), // Ưu tiên mã đơn thật từ Java
+            orderTotal: total, // Truyền tổng tiền thực tế để trang kết quả hiển thị xịn mịn
+            paymentMethod: paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng (COD)' : 'Thẻ tín dụng'
           } 
         });
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Không thể xử lý thanh toán');
+      console.error('Lỗi khi xử lý thanh toán:', err);
+      setError(err.response?.data?.message || err.message || 'Không thể xử lý thanh toán');
+    } finally {
       setProcessing(false);
     }
   };
 
-  const handleSimulateSuccess = () => {
-    window.dispatchEvent(new Event('cart-updated'));
+  const handleSimulateSuccess = (method = 'test') => {
     navigate('/cart/payment-result', { 
       state: { 
         success: true, 
-        message: 'Thanh toán thành công (Sandbox)',
-        orderId: 'TEST-' + Date.now()
+        message: method === 'cod' ? 'Đặt hàng thành công (Thanh toán khi nhận hàng)' : 'Thanh toán thành công (Sandbox)',
+        orderId: (method === 'cod' ? 'COD-' : 'TEST-') + Date.now()
       } 
     });
   };
@@ -188,10 +248,55 @@ const Checkout = () => {
             <div className="section-content">
               <form onSubmit={handlePayment}>
                 <div className="payment-methods">
+
+                  {/* COD Option - Added */}
+                  <label className={`payment-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
+                    <div className="payment-icon cod-icon">🚚</div>
+                    <div className="payment-details">
+                      <div className="payment-name">Thanh Toán Khi Nhận Hàng (COD)</div>
+                      <div className="payment-desc">Thanh toán bằng tiền mặt khi giao hàng</div>
+                    </div>
+                    <input 
+                      type="radio" 
+                      name="paymentMethod" 
+                      value="cod" 
+                      checked={paymentMethod === 'cod'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="radio-input" 
+                    />
+                  </label>
+
+                  {/* MoMo Option */}
+                  <label className={`payment-option ${paymentMethod === 'momo' ? 'active' : ''}`}>
+                    <div className="payment-icon momo-icon">📱</div>
+                    <div className="payment-details">
+                      <div className="payment-name">Thanh Toán MoMo</div>
+                      <div className="payment-desc">Thanh toán qua ví điện tử MoMo</div>
+                      
+                      {/* 🛠️ NÚT DEMO ĐÃ ĐƯỢC CHUYỂN VÀO TRONG ĐỂ GỌN GÀNG VÀ ĐẸP MẮT HƠN */}
+                      <button 
+                        type="button" 
+                        onClick={handleSimulateMoMoSuccess} 
+                        className="btn-test-momo"
+                        disabled={processing}
+                      >
+                        {processing ? '🔄 Đang tạo đơn...' : '⚡ Click để Giả lập MoMo Thành Công'}
+                      </button>
+                    </div>
+                    <input 
+                      type="radio" 
+                      name="paymentMethod" 
+                      value="momo" 
+                      checked={paymentMethod === 'momo'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="radio-input" 
+                    />
+                  </label>
+                  {/* Cổng thanh toán mặc định/Thẻ tín dụng */}
                   <label className={`payment-option ${paymentMethod === 'default' ? 'active' : ''}`}>
                     <div className="payment-icon payment-default-icon">💳</div>
                     <div className="payment-details">
-                      <div className="payment-name">Thanh Toán Mặc Định</div>
+                      <div className="payment-name">Thẻ Tín Dụng / Ghi Nợ</div>
                       <div className="payment-desc">Phương thức thanh toán qua cổng an toàn</div>
                     </div>
                     <input 
@@ -203,24 +308,9 @@ const Checkout = () => {
                       className="radio-input" 
                     />
                   </label>
-
-                  <label className={`payment-option ${paymentMethod === 'momo' ? 'active' : ''}`}>
-                    <div className="payment-icon momo-icon">📱</div>
-                    <div className="payment-details">
-                      <div className="payment-name">Thanh Toán MoMo</div>
-                      <div className="payment-desc">Thanh toán nhanh chóng qua ứng dụng MoMo</div>
-                    </div>
-                    <input 
-                      type="radio" 
-                      name="paymentMethod" 
-                      value="momo" 
-                      checked={paymentMethod === 'momo'}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="radio-input" 
-                    />
-                  </label>
                 </div>
 
+                {/* Box thông báo động tuỳ theo loại thanh toán */}
                 <div className="info-box">
                   <div className="info-box-title">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -228,25 +318,36 @@ const Checkout = () => {
                       <line x1="12" x2="12" y1="16" y2="12"/>
                       <line x1="12" x2="12.01" y1="8" y2="8"/>
                     </svg>
-                    Chế độ Sandbox
+                    {paymentMethod === 'cod' ? 'Thanh toán tại nhà' : 'Lưu ý chuyển hướng'}
                   </div>
                   <div className="info-box-text">
-                    Bạn sẽ được chuyển hướng đến cổng thanh toán thử nghiệm. Vui lòng không sử dụng thông tin thẻ thật.
+                    {paymentMethod === 'cod' 
+                      ? 'Đơn hàng sẽ được xác nhận ngay và bạn chỉ thanh toán khi nhận được sách.' 
+                      : 'Bạn sẽ được chuyển hướng đến cổng thanh toán an toàn. Vui lòng không đóng trình duyệt.'}
                   </div>
                 </div>
 
                 <div className="action-buttons">
                   <button 
-                    type="button"
-                    onClick={handleSimulateSuccess}
+                    type="submit" 
                     className="btn btn-success"
                     disabled={processing}
+                    style={{ backgroundColor: paymentMethod === 'cod' ? '#27AE60' : '#EE4D2D' }} // COD màu xanh lá, MoMo màu đỏ/cam cam cho đẹp
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                      <polyline points="22 4 12 14.01 9 11.01"/>
-                    </svg>
-                    THỬ THANH TOÁN
+                    {processing ? (
+                      '⏳ ĐANG XỬ LÝ HỆ THỐNG...'
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                          <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        {/* Thay đổi chữ linh hoạt theo phương thức lựa chọn */}
+                        {paymentMethod === 'cod' && 'ĐẶT HÀNG HOÀN TẤT (COD)'}
+                        {paymentMethod === 'momo' && 'THANH TOÁN GỐC QUA MOMO'}
+                        {paymentMethod === 'default' && 'XÁC NHẬN THẺ TÍN DỤNG'}
+                      </>
+                    )}
                   </button>
                   
                   <Link to="/cart" className="btn btn-secondary">
