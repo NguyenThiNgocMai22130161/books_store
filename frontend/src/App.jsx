@@ -15,7 +15,7 @@ import { Cart, Checkout, PaymentResult } from './components/cart';
 import { OrderList, OrderDetail } from './components/orders';
 
 // Admin Components
-import { AdminDashboard, AdminUsers } from './components/admin';
+import { AdminDashboard, AdminUsers, AdminBooks } from './components/admin';
 
 // Category Components
 import { CategoryList, CategoryForm } from './components/categories';
@@ -50,7 +50,9 @@ function App() {
 
         {/* Admin Routes */}
         <Route path="/admin" element={<><Navbar /><AdminDashboard /><Footer /></>} />
+        <Route path="/admin/dashboard" element={<><Navbar /><AdminDashboard /><Footer /></>} />
         <Route path="/admin/users" element={<><Navbar /><AdminUsers /><Footer /></>} />
+        <Route path="/admin/books" element={<><Navbar /><AdminBooks /><Footer /></>} />
         <Route path="/books/add" element={<><Navbar /><BookForm /><Footer /></>} />
         <Route path="/books/edit/:id" element={<><Navbar /><BookForm /><Footer /></>} />
         <Route path="/categories" element={<><Navbar /><CategoryList /><Footer /></>} />

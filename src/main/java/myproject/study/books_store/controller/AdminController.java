@@ -9,7 +9,8 @@ import myproject.study.books_store.model.Role;
 import myproject.study.books_store.model.User;
 import myproject.study.books_store.service.UserService;
 import myproject.study.books_store.repository.ReviewRepository;
-
+import myproject.study.books_store.service.BookService;
+import myproject.study.books_store.service.CategoryService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,15 +27,69 @@ public class AdminController {
     public AdminController(UserService userService, ReviewRepository reviewRepository) {
         this.userService = userService;
         this.reviewRepository = reviewRepository;
+    private final BookService bookService;
+    private final CategoryService categoryService;
+
+    public AdminController(UserService userService, BookService bookService, CategoryService categoryService) {
+        this.userService = userService;
+        this.bookService = bookService;
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/dashboard")
     public ResponseEntity<?> adminDashboard() {
         try {
+            System.out.println("=== ADMIN DASHBOARD DEBUG ===");
             Map<String, Object> dashboard = new HashMap<>();
-            dashboard.put("totalUsers", userService.getAllUsers().size());
+            
+            // Lấy dữ liệu thực tế từ database
+            int totalUsers = userService.getAllUsers().size();
+            int totalBooks = bookService.getAllBooks().size();
+            int totalCategories = categoryService.getAllCategories().size();
+            
+            System.out.println("Total Users: " + totalUsers);
+            System.out.println("Total Books: " + totalBooks);
+            System.out.println("Total Categories: " + totalCategories);
+            
+            // Tính toán thống kê bổ sung
+            long activeUsers = userService.getAllUsers().stream()
+                    .filter(User::isActive)
+                    .count();
+            
+            long adminUsers = userService.getAllUsers().stream()
+                    .filter(user -> user.getRoles().contains(Role.ROLE_ADMIN))
+                    .count();
+            
+            System.out.println("Active Users: " + activeUsers);
+            System.out.println("Admin Users: " + adminUsers);
+            
+            // Thống kê sách
+            long booksInStock = bookService.getAllBooks().stream()
+                    .filter(book -> book.getQuantity() != null && book.getQuantity() > 0)
+                    .count();
+            
+            long outOfStockBooks = bookService.getAllBooks().stream()
+                    .filter(book -> book.getQuantity() != null && book.getQuantity() == 0)
+                    .count();
+            
+            System.out.println("Books In Stock: " + booksInStock);
+            System.out.println("Out of Stock Books: " + outOfStockBooks);
+            
+            // Đưa dữ liệu vào response
+            dashboard.put("totalUsers", totalUsers);
+            dashboard.put("totalBooks", totalBooks);
+            dashboard.put("totalCategories", totalCategories);
+            dashboard.put("activeUsers", activeUsers);
+            dashboard.put("adminUsers", adminUsers);
+            dashboard.put("booksInStock", booksInStock);
+            dashboard.put("outOfStockBooks", outOfStockBooks);
+            
+            System.out.println("Dashboard response: " + dashboard);
+            
             return ResponseEntity.ok(dashboard);
         } catch (Exception e) {
+            System.err.println("Dashboard error: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Lỗi khi tải dashboard: " + e.getMessage()));
         }

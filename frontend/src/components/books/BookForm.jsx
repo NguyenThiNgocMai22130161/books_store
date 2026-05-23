@@ -110,13 +110,13 @@ const BookForm = () => {
 
         <div className="form-card fade-in">
           <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
+              <div className="form-group" style={{ gridColumn: 'span 3' }}>
                 <label htmlFor="title">Tên Sách *</label>
                 <input type="text" id="title" name="title" value={formData.title} onChange={handleChange} className="form-control" required />
               </div>
 
-              <div className="form-group">
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
                 <label htmlFor="author">Tác Giả *</label>
                 <input type="text" id="author" name="author" value={formData.author} onChange={handleChange} className="form-control" required />
               </div>
@@ -137,8 +137,23 @@ const BookForm = () => {
               </div>
 
               <div className="form-group">
+                <label htmlFor="year">Năm Xuất Bản</label>
+                <input 
+                  type="number" 
+                  id="year" 
+                  name="year" 
+                  value={formData.year} 
+                  onChange={handleChange} 
+                  className="form-control"
+                  min="1900"
+                  max={new Date().getFullYear()}
+                  placeholder="VD: 2024"
+                />
+              </div>
+
+              <div className="form-group">
                 <label htmlFor="quantity">Số Lượng Kho</label>
-                <input type="number" id="quantity" name="quantity" value={formData.quantity} onChange={handleChange} className="form-control" />
+                <input type="number" id="quantity" name="quantity" value={formData.quantity} onChange={handleChange} className="form-control" min="0" />
               </div>
             </div>
 
