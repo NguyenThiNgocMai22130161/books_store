@@ -18,6 +18,7 @@ const PaymentResult = () => {
   const [countdown, setCountdown] = useState(10);
 
   useEffect(() => {
+    // Check if data passed via state (from simulate)
     if (location.state) {
       setSuccess(location.state.success);
       setMessage(location.state.message || (location.state.success ? 'Thanh toán thành công!' : 'Thanh toán thất bại'));
@@ -60,7 +61,7 @@ const PaymentResult = () => {
     }
   }, [location.search, location.state, navigate]);
 
-  // 🔥 ĐỒNG HỒ ĐẾM NGƯỢC XỊN: Thành công về "Cửa hàng", Thất bại về "Giỏ hàng" để thanh toán lại
+  // ĐỒNG HỒ ĐẾM NGƯỢC XỊN: Thành công về "Cửa hàng", Thất bại về "Giỏ hàng" để thanh toán lại
   useEffect(() => {
     if (success === null) return;
 
@@ -115,7 +116,7 @@ const PaymentResult = () => {
       <div className="container">
         <div className="payment-result-container">
           
-          {/* 🟢 Giao diện Thành công */}
+          {/* Giao diện Thành công */}
           {success === true && (
             <div className="result-success">
               <div className="result-icon">✅</div>
@@ -125,7 +126,7 @@ const PaymentResult = () => {
             </div>
           )}
 
-          {/* 🔴 Giao diện Thất bại nâng cấp nhìn chuyên nghiệp hơn hẳn */}
+          {/*Giao diện Thất bại nâng cấp nhìn chuyên nghiệp hơn hẳn */}
           {success === false && (
             <div className="result-failed">
               <div className="result-icon">❌</div>
@@ -143,7 +144,7 @@ const PaymentResult = () => {
             </div>
           )}
 
-          {/* 📋 Chi tiết đơn hàng hiển thị chi tiết đầy đủ cho cả hai bên */}
+          {/* Chi tiết đơn hàng hiển thị chi tiết đầy đủ cho cả hai bên */}
           {orderId && (
             <div className="result-details" style={{ marginTop: '20px' }}>
               <h3 style={{ color: '#000000', marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '8px' }}>📋 Chi Tiết Giao Dịch</h3>

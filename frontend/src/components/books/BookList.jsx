@@ -10,7 +10,6 @@ const BookList = () => {
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [cartItemCount, setCartItemCount] = useState(0);
   const [user, setUser] = useState(null);
   
   // Filter state
@@ -41,7 +40,6 @@ const BookList = () => {
     
     fetchBooks();
     fetchCategories();
-    fetchCartCount();
     fetchUserProfile();
   }, [searchParams]);
 
@@ -94,18 +92,6 @@ const BookList = () => {
     }
   };
 
-  // Fetch cart count
-  const fetchCartCount = async () => {
-    try {
-      const response = await axios.get(
-        'http://localhost:8080/api/cart',
-        { withCredentials: true }
-      );
-      setCartItemCount(response.data.itemCount || 0);
-    } catch (error) {
-      console.error('Error fetching cart count:', error);
-    }
-  };
 
   // Fetch user profile
   const fetchUserProfile = async () => {
@@ -192,7 +178,9 @@ const BookList = () => {
       
       console.log('Add to cart response:', response.data);
       setAlert({ type: 'success', message: 'Đã thêm vào giỏ hàng!' });
-      fetchCartCount();
+      
+      // Dispatch event to update navbar cart count immediately without reload
+      window.dispatchEvent(new Event('cart-updated'));
       
       // Clear alert after 3 seconds
       setTimeout(() => setAlert({ type: null, message: null }), 3000);
@@ -222,19 +210,6 @@ const BookList = () => {
     }
   };
 
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      await axios.post(
-        'http://localhost:8080/api/auth/logout',
-        {},
-        { withCredentials: true }
-      );
-      window.location.href = '/login?logout=true';
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
 
   // Check if user is admin
   const isAdmin = user?.roles?.includes('ROLE_ADMIN') || user?.isAdmin;
@@ -249,50 +224,6 @@ const BookList = () => {
 
   return (
     <div className="book-list-page">
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 0 }}>
-          <Link to="/" className="navbar-brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-            Tiệm Sách
-          </Link>
-          <div className="navbar-nav">
-            <Link to="/books" className="active">Sách</Link>
-            <Link to="/cart">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="9" cy="21" r="1"/>
-                <circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-              </svg>
-              Giỏ hàng
-              {cartItemCount > 0 && <span className="cart-badge">{cartItemCount}</span>}
-            </Link>
-            <div className="dropdown">
-              <a href="#">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
-                </svg>
-                Tài khoản
-              </a>
-              <ul className="dropdown-menu">
-                <li><Link to="/profile">Hồ sơ cá nhân</Link></li>
-                <li><Link to="/orders">Lịch sử mua hàng</Link></li>
-                {isAdmin && (
-                  <>
-                    <li><Link to="/admin">Dashboard Admin</Link></li>
-                    <li><Link to="/admin/users">Quản lý người dùng</Link></li>
-                  </>
-                )}
-                <li><a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>Đăng xuất</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </nav>
 
       {/* Hero Banner */}
       <div className="hero-banner">
@@ -330,19 +261,19 @@ const BookList = () => {
         {/* Search & Filter Form */}
         <div className="filter-card">
           <h3>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
             </svg>
             Tìm Kiếm & Lọc Sách
             {activeFiltersCount > 0 && (
-              <span style={{ marginLeft: '0.5rem', fontSize: '0.9rem', color: '#EE4D2D' }}>
-                ({activeFiltersCount} bộ lọc)
+              <span style={{ marginLeft: '0.5rem', fontSize: '0.9rem', color: '#4169e1', fontWeight: 600 }}>
+                ({activeFiltersCount} bộ lọc đang kích hoạt)
               </span>
             )}
           </h3>
           
           <form onSubmit={handleSearch} className="filter-form">
-            <div className="filter-row">
+            <div className="filter-grid-layout">
               <div className="form-group">
                 <label htmlFor="title">Tên Sách</label>
                 <input
@@ -367,37 +298,6 @@ const BookList = () => {
                   className="form-control"
                 />
               </div>
-            </div>
-
-            <div className="filter-row">
-              <div className="form-group">
-                <label htmlFor="minPrice">Giá Từ (VNĐ)</label>
-                <input
-                  type="number"
-                  id="minPrice"
-                  name="minPrice"
-                  placeholder="0"
-                  min="0"
-                  step="1000"
-                  value={filters.minPrice}
-                  onChange={handleFilterChange}
-                  className="price-input"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="maxPrice">Giá Đến (VNĐ)</label>
-                <input
-                  type="number"
-                  id="maxPrice"
-                  name="maxPrice"
-                  placeholder="9999999"
-                  min="0"
-                  step="1000"
-                  value={filters.maxPrice}
-                  onChange={handleFilterChange}
-                  className="price-input"
-                />
-              </div>
               <div className="form-group">
                 <label htmlFor="category">Danh Mục</label>
                 <select
@@ -413,25 +313,54 @@ const BookList = () => {
                   ))}
                 </select>
               </div>
-            </div>
 
-            <div className="filter-buttons">
-              <button type="submit" className="btn-with-icon btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"/>
-                  <path d="m21 21-4.35-4.35"/>
-                </svg>
-                Tìm Kiếm
-              </button>
-              <button type="button" onClick={handleReset} className="btn-with-icon btn-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-                  <path d="M21 3v5h-5"/>
-                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-                  <path d="M3 21v-5h5"/>
-                </svg>
-                Đặt Lại
-              </button>
+              <div className="form-group">
+                <label htmlFor="minPrice">Giá Từ (VNĐ)</label>
+                <input
+                  type="number"
+                  id="minPrice"
+                  name="minPrice"
+                  placeholder="0"
+                  min="0"
+                  step="1000"
+                  value={filters.minPrice}
+                  onChange={handleFilterChange}
+                  className="form-control"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="maxPrice">Giá Đến (VNĐ)</label>
+                <input
+                  type="number"
+                  id="maxPrice"
+                  name="maxPrice"
+                  placeholder="9999999"
+                  min="0"
+                  step="1000"
+                  value={filters.maxPrice}
+                  onChange={handleFilterChange}
+                  className="form-control"
+                />
+              </div>
+              
+              <div className="filter-action-group">
+                <button type="button" onClick={handleReset} className="btn-filter-reset">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                    <path d="M21 3v5h-5"/>
+                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                    <path d="M3 21v-5h5"/>
+                  </svg>
+                  Đặt Lại
+                </button>
+                <button type="submit" className="btn-filter-search">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                  </svg>
+                  Tìm Kiếm
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -486,7 +415,7 @@ const BookList = () => {
                 className="book-card fade-in" 
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
-                <div>
+                <div className="book-image-wrapper">
                   {book.imageUrl ? (
                     <img src={book.imageUrl} alt={book.title} className="book-image" />
                   ) : (
@@ -556,13 +485,6 @@ const BookList = () => {
         )}
       </div>
 
-      {/* Footer */}
-      <footer>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <p style={{ margin: '0.5rem 0' }}><strong>© 2026 Tiệm Sách</strong></p>
-          <p style={{ margin: 0, fontSize: '0.85rem' }}>Được xây dựng với Spring Boot & React • Thương mại điện tử hiện đại</p>
-        </div>
-      </footer>
     </div>
   );
 };

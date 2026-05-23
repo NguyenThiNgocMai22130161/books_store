@@ -59,7 +59,7 @@ const Footer = () => {
           <div className="footer-section">
             <h4 className="footer-heading">Tài Khoản</h4>
             <ul className="footer-links">
-              <li><Link to="/user/profile">Thông tin cá nhân</Link></li>
+              <li><Link to="/profile">Thông tin cá nhân</Link></li>
               <li><Link to="/orders">Đơn hàng của tôi</Link></li>
               <li><Link to="/cart">Giỏ hàng</Link></li>
               <li><Link to="/login">Đăng nhập</Link></li>

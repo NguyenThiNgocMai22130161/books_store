@@ -94,20 +94,7 @@ const BookForm = () => {
   };
 
   return (
-    <div>
-      <nav className="navbar">
-        <div className="container">
-          <Link to="/" className="navbar-brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-            Tiệm Sách
-          </Link>
-          <div className="navbar-nav">
-            <Link to="/books">Sách</Link>
-          </div>
-        </div>
-      </nav>
+    <div className="book-form-page">
 
       <div className="container" style={{ maxWidth: '800px' }}>
         <div className="page-header" style={{ marginTop: '2rem' }}>
@@ -123,13 +110,13 @@ const BookForm = () => {
 
         <div className="form-card fade-in">
           <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
+              <div className="form-group" style={{ gridColumn: 'span 3' }}>
                 <label htmlFor="title">Tên Sách *</label>
                 <input type="text" id="title" name="title" value={formData.title} onChange={handleChange} className="form-control" required />
               </div>
 
-              <div className="form-group">
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
                 <label htmlFor="author">Tác Giả *</label>
                 <input type="text" id="author" name="author" value={formData.author} onChange={handleChange} className="form-control" required />
               </div>
@@ -150,8 +137,23 @@ const BookForm = () => {
               </div>
 
               <div className="form-group">
+                <label htmlFor="year">Năm Xuất Bản</label>
+                <input 
+                  type="number" 
+                  id="year" 
+                  name="year" 
+                  value={formData.year} 
+                  onChange={handleChange} 
+                  className="form-control"
+                  min="1900"
+                  max={new Date().getFullYear()}
+                  placeholder="VD: 2024"
+                />
+              </div>
+
+              <div className="form-group">
                 <label htmlFor="quantity">Số Lượng Kho</label>
-                <input type="number" id="quantity" name="quantity" value={formData.quantity} onChange={handleChange} className="form-control" />
+                <input type="number" id="quantity" name="quantity" value={formData.quantity} onChange={handleChange} className="form-control" min="0" />
               </div>
             </div>
 
@@ -181,11 +183,6 @@ const BookForm = () => {
         </div>
       </div>
 
-      <footer className="footer" style={{ marginTop: '4rem' }}>
-        <div className="container">
-          <p>© 2026 Tiệm Sách Management System</p>
-        </div>
-      </footer>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import myproject.study.books_store.model.Category;
 import myproject.study.books_store.model.Role;
@@ -17,8 +18,33 @@ import java.util.Set;
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner initData(UserRepository userRepository, CategoryRepository categoryRepository, PasswordEncoder passwordEncoder) {
+    CommandLineRunner initData(UserRepository userRepository, 
+                              CategoryRepository categoryRepository, 
+                              PasswordEncoder passwordEncoder,
+                              JdbcTemplate jdbcTemplate) {
         return args -> {
+            // Reset PostgreSQL sequences to match manual seed maximums to avoid unique constraint violations
+            try {
+                jdbcTemplate.execute("SELECT setval(pg_get_serial_sequence('categories', 'id'), COALESCE((SELECT max(id) FROM categories), 0) + 1, false);");
+                System.out.println("Đã đồng bộ PostgreSQL sequence cho bảng categories.");
+            } catch (Exception e) {
+                System.out.println("Không thể đồng bộ categories sequence (có thể không dùng PostgreSQL): " + e.getMessage());
+            }
+
+            try {
+                jdbcTemplate.execute("SELECT setval(pg_get_serial_sequence('books', 'id'), COALESCE((SELECT max(id) FROM books), 0) + 1, false);");
+                System.out.println("Đã đồng bộ PostgreSQL sequence cho bảng books.");
+            } catch (Exception e) {
+                System.out.println("Không thể đồng bộ books sequence: " + e.getMessage());
+            }
+
+            try {
+                jdbcTemplate.execute("SELECT setval(pg_get_serial_sequence('users', 'user_id'), COALESCE((SELECT max(user_id) FROM users), 0) + 1, false);");
+                System.out.println("Đã đồng bộ PostgreSQL sequence cho bảng users.");
+            } catch (Exception e) {
+                System.out.println("Không thể đồng bộ users sequence: " + e.getMessage());
+            }
+
             // Initialize default category
             if (categoryRepository.findByIsDefaultTrue().isEmpty()) {
                 Category uncategorized = new Category("Chưa phân loại", "Danh mục mặc định cho các sách chưa được phân loại", true);
