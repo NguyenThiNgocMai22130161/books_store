@@ -133,7 +133,6 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/cart/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/api/orders/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/api/wishlist/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/api/auth/profile").authenticated()
                 
                 // Tất cả requests khác cần authentication
