@@ -23,15 +23,13 @@ public class AdminController {
 
     private final UserService userService;
     private final ReviewRepository reviewRepository;
-
-    public AdminController(UserService userService, ReviewRepository reviewRepository) {
-        this.userService = userService;
-        this.reviewRepository = reviewRepository;
     private final BookService bookService;
     private final CategoryService categoryService;
 
-    public AdminController(UserService userService, BookService bookService, CategoryService categoryService) {
+    public AdminController(UserService userService, ReviewRepository reviewRepository, 
+                          BookService bookService, CategoryService categoryService) {
         this.userService = userService;
+        this.reviewRepository = reviewRepository;
         this.bookService = bookService;
         this.categoryService = categoryService;
     }
