@@ -94,20 +94,7 @@ const BookForm = () => {
   };
 
   return (
-    <div>
-      <nav className="navbar">
-        <div className="container">
-          <Link to="/" className="navbar-brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-            Tiệm Sách
-          </Link>
-          <div className="navbar-nav">
-            <Link to="/books">Sách</Link>
-          </div>
-        </div>
-      </nav>
+    <div className="book-form-page">
 
       <div className="container" style={{ maxWidth: '800px' }}>
         <div className="page-header" style={{ marginTop: '2rem' }}>
@@ -181,11 +168,6 @@ const BookForm = () => {
         </div>
       </div>
 
-      <footer className="footer" style={{ marginTop: '4rem' }}>
-        <div className="container">
-          <p>© 2026 Tiệm Sách Management System</p>
-        </div>
-      </footer>
     </div>
   );
 };

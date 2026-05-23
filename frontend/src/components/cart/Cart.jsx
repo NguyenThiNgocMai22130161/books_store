@@ -8,7 +8,6 @@ const Cart = () => {
   
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
-  const [itemCount, setItemCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -31,7 +30,6 @@ const Cart = () => {
       // Backend trả về cartItems, không phải items
       setCartItems(response.data.cartItems || []);
       setTotal(response.data.total || 0);
-      setItemCount(response.data.itemCount || 0);
       setError('');
       
       console.log('Cart items:', response.data.cartItems);
@@ -119,32 +117,7 @@ const Cart = () => {
   }
 
   return (
-    <div>
-      <nav className="navbar">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 0 }}>
-          <Link to="/" className="navbar-brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-            Tiệm Sách
-          </Link>
-          <div className="navbar-nav">
-            <Link to="/books">Sách</Link>
-            <Link to="/cart" className="active">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="9" cy="21" r="1"/>
-                <circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-              </svg>
-              Giỏ hàng
-              <span className="cart-badge">{itemCount}</span>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <div className="container">
+    <div className="container">
         <div className="page-header" style={{ marginTop: '2rem' }}>
           <h1>Giỏ hàng của bạn</h1>
           <p className="text-muted">Kiểm tra lại các sản phẩm trước khi thanh toán</p>
@@ -281,19 +254,6 @@ const Cart = () => {
             </>
           )}
         </div>
-      </div>
-
-      <footer className="footer" style={{ marginTop: '5rem' }}>
-        <div className="container">
-          <div className="d-flex justify-center gap-3 mb-4">
-            <Link to="/books">Sách</Link>
-            <Link to="/cart">Giỏ hàng</Link>
-            <Link to="/orders">Lịch sử mua hàng</Link>
-            <Link to="/user/profile">Tài khoản</Link>
-          </div>
-          <p>© 2026 Tiệm Sách. Hệ thống giỏ hàng bảo mật.</p>
-        </div>
-      </footer>
     </div>
   );
 };
