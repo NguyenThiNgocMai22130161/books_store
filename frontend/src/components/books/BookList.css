@@ -1,469 +1,420 @@
-/* ============================================================
-   BookList.css — Main Catalog Page
-   ============================================================ */
+/* ============================================
+   GOOGLE FONT
+============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
 
-/* ─── Page ─── */
+/* ============================================
+   GLOBAL
+============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  background: #f3f4f6;
+}
+
+/* ============================================
+   PAGE
+============================================ */
+
 .book-list-page {
   min-height: 100vh;
-  background: var(--color-bg);
+  background: #f3f4f6;
+  padding-bottom: 60px;
 }
 
-/* ─── Hero Banner ─── */
+.container {
+  width: 95%;
+  max-width: 1650px;
+  margin: auto;
+}
+
+/* ============================================
+   HERO
+============================================ */
+
 .hero-banner {
-  background: var(--gradient-hero);
+  background: linear-gradient(135deg, #4169e1 0%, #6a8cff 100%);
   padding: 5rem 0 4rem;
   margin-bottom: 3rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-banner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='g' width='80' height='80' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 80 0 L 0 0 0 80' fill='none' stroke='rgba(255,255,255,0.07)' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='80' height='80' fill='url(%23g)'/%3E%3C/svg%3E");
-  opacity: 1;
-}
-
-.hero-banner::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
-  border-radius: 50%;
+  border-radius: 0 0 40px 40px;
 }
 
 .hero-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: relative;
-  z-index: 1;
 }
 
 .hero-text h1 {
   font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 800;
   color: white;
-  margin: 0 0 1rem;
-  text-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  animation: fadeInUp 0.7s ease;
-  line-height: 1.2;
+  margin-bottom: 1rem;
 }
 
 .hero-text p {
-  font-size: clamp(1rem, 2vw, 1.35rem);
-  color: rgba(255,255,255,0.85);
-  font-weight: 300;
-  animation: fadeInUp 0.7s ease 0.15s backwards;
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.9);
 }
 
 .hero-icon {
-  font-size: 8rem;
-  animation: float 3.5s ease-in-out infinite;
-  filter: drop-shadow(0 12px 30px rgba(0,0,0,0.25));
-  position: relative;
-  z-index: 1;
+  font-size: 7rem;
 }
 
-/* ─── Premium Filter Card Overhaul ─── */
+/* ============================================
+   FILTER
+============================================ */
+
 .filter-card {
-  background: var(--color-surface); /* #FFFFFF */
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 2.5rem;
-  margin-bottom: 2.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
-  transition: all 0.3s ease;
-}
-
-.filter-card:hover {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  background: white;
+  border-radius: 24px;
+  padding: 40px;
+  margin-bottom: 40px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.06);
 }
 
 .filter-card h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 30px;
 }
 
-.filter-card h3 svg {
-  color: #4169e1; /* Royal Blue */
-}
-
-/* Beautiful Grid Layout */
 .filter-grid-layout {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  gap: 22px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  font-weight: 700;
+  color: #374151;
+}
+
+.modern-input {
+  width: 100%;
+  height: 56px;
+  border-radius: 16px;
+  border: 2px solid #e5e7eb;
+  padding: 0 18px;
+  font-size: 16px;
+  background: white;
+  transition: 0.2s;
+}
+
+.modern-input:focus {
+  outline: none;
+  border-color: #4169e1;
+  box-shadow: 0 0 0 4px rgba(65,105,225,0.12);
+}
+
+.filter-action-group {
+  display: flex;
+  gap: 14px;
   align-items: end;
 }
 
-.filter-card .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 0; /* Align perfectly */
-}
-
-.filter-card .form-group label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #475569;
-  margin-bottom: 0.5rem;
-}
-
-/* Filter Action Group placed inside the grid */
-.filter-action-group {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-}
-
+.btn-filter-search,
 .btn-filter-reset {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: transparent;
-  border: 1.5px solid #cbd5e1;
-  color: #475569;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 600;
+  height: 56px;
+  border: none;
+  border-radius: 14px;
+  padding: 0 22px;
   cursor: pointer;
-  height: 48px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
-}
-
-.btn-filter-reset:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
-  color: #1e293b;
-  transform: translateY(-1px);
+  font-size: 16px;
+  font-weight: 700;
+  transition: 0.2s;
 }
 
 .btn-filter-search {
-  flex: 1.5;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #4169e1; /* Royal Blue */
-  color: #ffffff;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  height: 48px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(65, 105, 225, 0.2);
+  background: #4169e1;
+  color: white;
 }
 
 .btn-filter-search:hover {
   background: #3457c7;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(65, 105, 225, 0.35);
 }
 
-/* Responsive filter card */
-@media (max-width: 992px) {
-  .filter-grid-layout {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .filter-action-group {
-    grid-column: span 2;
-  }
+.btn-filter-reset {
+  background: #f3f4f6;
 }
 
-@media (max-width: 576px) {
-  .filter-grid-layout {
-    grid-template-columns: 1fr;
-  }
-  .filter-action-group {
-    grid-column: span 1;
-  }
+.btn-filter-reset:hover {
+  background: #e5e7eb;
 }
 
-.search-summary {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1rem 1.5rem;
-  margin-bottom: 1.75rem;
-  font-size: 0.9rem;
-  color: var(--color-text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  box-shadow: var(--shadow-xs);
-}
+/* ============================================
+   GRID
+============================================ */
 
-.search-summary strong {
-  color: var(--color-primary);
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.highlight {
-  background: var(--color-primary-light);
-  color: var(--color-primary);
-  padding: 0.2rem 0.65rem;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-/* ─── Admin Actions Bar ─── */
-.admin-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1.5rem;
-}
-
-/* ─── Book Grid ─── */
 .books-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.75rem;
-  margin-bottom: 3rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px;
 }
 
-/* ─── Book Card ─── */
+/* ============================================
+   BOOK CARD
+============================================ */
+
 .book-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
+  background: white;
+  border-radius: 28px;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition-slow);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+  transition: 0.25s;
   display: flex;
   flex-direction: column;
   position: relative;
-  cursor: pointer;
-}
-
-/* Color accent bar on top */
-.book-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--gradient-primary);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.4s ease;
-  z-index: 2;
 }
 
 .book-card:hover {
-  transform: translateY(-10px) scale(1.015);
-  box-shadow: var(--shadow-xl);
-  border-color: transparent;
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.1);
 }
 
-.book-card:hover::before {
-  transform: scaleX(1);
-}
+/* ============================================
+   IMAGE
+============================================ */
 
-/* ─── Book Image ─── */
 .book-image-wrapper {
   position: relative;
   overflow: hidden;
   height: 320px;
-  background: var(--color-surface-alt);
 }
 
 .book-image {
-  width: 100%;
+  width: 90;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  display: block;
+  transition: 0.3s;
 }
 
 .book-card:hover .book-image {
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 .book-placeholder {
   width: 100%;
   height: 100%;
+  background: #f3f4f6;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-surface-alt) 0%, #e8edf8 100%);
-  color: var(--color-border);
-  transition: var(--transition);
 }
 
-.book-card:hover .book-placeholder {
-  background: linear-gradient(135deg, #e8edf8 0%, #dde4f5 100%);
-}
+/* ============================================
+   WISHLIST
+============================================ */
 
-.book-card:hover .book-placeholder svg {
-  transform: scale(1.15) rotate(5deg);
-  color: var(--color-primary-glow);
-}
-
-/* Overlay on hover */
-.book-image-overlay {
+.wishlist-btn {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 50%, rgba(65,105,225,0.15) 100%);
-  opacity: 0;
-  transition: var(--transition);
+  top: 16px;
+  right: 16px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.95);
+  cursor: pointer;
+  font-size: 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  transition: 0.2s;
+  z-index: 5;
 }
 
-.book-card:hover .book-image-overlay {
-  opacity: 1;
+.wishlist-btn:hover {
+  transform: scale(1.08);
 }
 
-/* Category tag */
-.book-category-tag {
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(8px);
-  color: var(--color-primary);
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-full);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: var(--shadow-xs);
-  z-index: 1;
-}
+/* ============================================
+   BODY
+============================================ */
 
-/* ─── Book Body ─── */
 .book-body {
-  padding: 1.25rem 1.5rem 1.5rem;
-  flex-grow: 1;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  flex: 1;
 }
+
+/* ============================================
+   TITLE
+============================================ */
 
 .book-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.45;
-  min-height: 2.9em;
-  transition: color 0.2s;
-}
-
-.book-card:hover .book-title {
-  color: var(--color-primary);
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.4;
+  text-align: center;
+  margin-bottom: 14px;
+  min-height: 58px;
 }
 
 .book-author {
-  font-size: 0.83rem;
-  color: var(--color-text-muted);
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-weight: 500;
+  font-size: 16px;
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 16px;
 }
 
 .book-price {
-  font-size: 1.5rem;
+  font-size: 32px;
   font-weight: 800;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0.25rem 0;
-  line-height: 1;
+  color: #e05b37;
+  text-align: center;
+  margin-bottom: 24px;
 }
 
+/* ============================================
+   DESCRIPTION
+============================================ */
+
 .book-description {
-  font-size: 0.82rem;
-  color: var(--color-text-muted);
-  line-height: 1.55;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 22px;
+
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* ─── Book Actions ─── */
+/* ============================================
+   ACTIONS
+============================================ */
+
 .book-actions {
-  display: flex;
-  gap: 0.6rem;
   margin-top: auto;
-  padding-top: 1rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.book-actions .btn { flex: 1; font-size: 0.85rem; padding: 0.6rem 1rem; }
-
-/* ─── Loading ─── */
-.loading-state {
+.book-actions .btn {
+  flex: 1;
+  height: 56px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 360px;
-  gap: 1.25rem;
-  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 700;
+  transition: 0.2s;
 }
 
-/* ─── Empty ─── */
+.btn-primary {
+  background: #4169e1;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #3457c7;
+  transform: translateY(-2px);
+}
+
+.btn-success {
+  background: #22c55e;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #16a34a;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   LOADING
+============================================ */
+
+.loading-state {
+  min-height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+}
+
+/* ============================================
+   EMPTY
+============================================ */
+
 .empty-books {
   text-align: center;
   padding: 5rem 2rem;
-  background: var(--color-surface);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--color-border);
-}
-
-.empty-books svg {
-  color: var(--color-border);
-  margin-bottom: 1.5rem;
+  background: white;
+  border-radius: 24px;
 }
 
 .empty-books h3 {
-  font-size: 1.5rem;
-  color: var(--color-text-secondary);
-  margin-bottom: 0.75rem;
+  font-size: 28px;
+  margin-bottom: 12px;
 }
 
 .empty-books p {
-  color: var(--color-text-muted);
-  margin-bottom: 1.5rem;
+  color: #6b7280;
 }
 
-/* ─── Responsive ─── */
+/* ============================================
+   RESPONSIVE
+============================================ */
+
+@media (max-width: 992px) {
+  .filter-grid-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-content {
+    flex-direction: column;
+    gap: 30px;
+    text-align: center;
+  }
+}
+
 @media (max-width: 768px) {
-  .hero-banner { padding: 3rem 0 2.5rem; }
-  .hero-content { flex-direction: column; gap: 1.5rem; text-align: center; }
-  .hero-icon { font-size: 5rem; }
-  .filter-card { padding: 1.5rem; }
-  .filter-row { grid-template-columns: 1fr; }
-  .books-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
-  .book-image-wrapper { height: 260px; }
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  .filter-card {
+    padding: 24px;
+  }
+
+  .hero-icon {
+    font-size: 5rem;
+  }
 }
 
 @media (max-width: 480px) {
-  .books-grid { grid-template-columns: 1fr 1fr; }
+  .books-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    width: 92%;
+  }
+
+  .book-actions {
+    flex-direction: column;
+  }
 }
