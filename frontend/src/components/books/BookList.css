@@ -467,3 +467,99 @@
 @media (max-width: 480px) {
   .books-grid { grid-template-columns: 1fr 1fr; }
 }
+/* ============================================
+   WISHLIST BUTTON (from code 2)
+============================================ */
+
+.wishlist-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  font-size: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: 0.2s;
+  z-index: 10;
+}
+
+.wishlist-btn:hover {
+  transform: scale(1.08);
+}
+/* ============================================
+   CẢI TIẾN 2 NÚT CHÍNH (Xem chi tiết & Thêm vào giỏ) - GHI ĐÈ MẠNH
+============================================ */
+
+.book-actions {
+  display: flex !important;
+  gap: 12px !important;
+  margin-top: auto !important;
+  padding-top: 1rem !important;
+}
+
+.book-actions .btn {
+  flex: 1 !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  padding: 0.6rem 0.8rem !important;
+  border-radius: 40px !important;
+  transition: all 0.25s ease !important;
+  text-align: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+/* Nút Xem chi tiết */
+.book-actions .btn-primary.btn-sm {
+  background: #ffffff !important;
+  color: #4169e1 !important;
+  border: 1.5px solid #4169e1 !important;
+  box-shadow: 0 2px 6px rgba(65, 105, 225, 0.08) !important;
+}
+
+.book-actions .btn-primary.btn-sm:hover {
+  background: #4169e1 !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 16px rgba(65, 105, 225, 0.2) !important;
+}
+
+/* Nút Thêm vào giỏ */
+.book-actions .btn-success.btn-sm {
+  background: #4169e1 !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 4px 10px rgba(65, 105, 225, 0.3) !important;
+}
+
+.book-actions .btn-success.btn-sm:hover {
+  background: #3457c7 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 18px rgba(65, 105, 225, 0.4) !important;
+}
+
+/* Hiệu ứng active */
+.book-actions .btn-primary.btn-sm:active,
+.book-actions .btn-success.btn-sm:active {
+  transform: translateY(0) !important;
+  transition: 0.05s !important;
+}
+
+/* Responsive: giảm padding trên mobile */
+@media (max-width: 576px) {
+  .book-actions .btn {
+    font-size: 0.75rem !important;
+    padding: 0.5rem 0.5rem !important;
+  }
+  .book-actions {
+    gap: 8px !important;
+  }
+}
