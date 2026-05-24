@@ -211,7 +211,12 @@ const BookList = () => {
         { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
       );
       setAlert({ type: 'success', message: 'Đã thêm vào giỏ hàng!' });
-      fetchCartCount(); // Cập nhật badge ngay
+      
+      // Dispatch event để Navbar cập nhật cart count
+      setTimeout(() => {
+        window.dispatchEvent(new Event('cart-updated'));
+      }, 100);
+      
       setTimeout(() => setAlert({ type: null, message: null }), 3000);
     } catch (error) {
       console.error('Error adding to cart:', error);

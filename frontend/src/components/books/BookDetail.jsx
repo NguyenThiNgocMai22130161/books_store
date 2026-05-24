@@ -92,8 +92,13 @@ const BookDetail = () => {
         { withCredentials: true }
       );
       setSuccessMessage('Đã thêm vào giỏ hàng!');
+      
       // Dispatch event to update navbar cart count immediately without reload
-      window.dispatchEvent(new Event('cart-updated'));
+      // Thêm delay nhỏ để đảm bảo backend đã cập nhật xong
+      setTimeout(() => {
+        window.dispatchEvent(new Event('cart-updated'));
+      }, 100);
+      
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       // Nếu lỗi 401 (Unauthorized), redirect đến login
