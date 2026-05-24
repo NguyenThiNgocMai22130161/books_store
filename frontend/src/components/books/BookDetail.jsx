@@ -87,8 +87,8 @@ const BookDetail = () => {
     try {
       setAddingToCart(true);
       await axios.post(
-        `http://localhost:8080/api/cart/add/${id}`,
-        { quantity },
+        'http://localhost:8080/api/cart/add',
+        { bookId: id, quantity },
         { withCredentials: true }
       );
       setSuccessMessage('Đã thêm vào giỏ hàng!');
@@ -107,7 +107,7 @@ const BookDetail = () => {
           navigate('/login');
         }, 1500);
       } else {
-        setError(err.response?.data?.message || 'Không thể thêm vào giỏ hàng');
+        setError(err.response?.data?.error || err.response?.data?.message || 'Không thể thêm vào giỏ hàng');
       }
     } finally {
       setAddingToCart(false);
@@ -272,22 +272,14 @@ const BookDetail = () => {
                       +
                     </button>
                   </div>
-                  {/* <button type="submit" className="btn-add-cart" disabled={addingToCart}>
+                  <button type="submit" className="btn-add-cart" disabled={addingToCart}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <circle cx="9" cy="21" r="1"/>
                       <circle cx="20" cy="21" r="1"/>
                       <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                     </svg>
                     {addingToCart ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
-                  </button> */}
-                  <button onClick={() => handleAddToCart(book.id)} className="btn btn-success btn-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="9" cy="21" r="1" />
-                          <circle cx="20" cy="21" r="1" />
-                          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                        </svg>
-                        Thêm vào giỏ
-                      </button>
+                  </button>
                 </form>
               )}
             </div>
