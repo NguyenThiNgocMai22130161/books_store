@@ -175,6 +175,10 @@ const BookDetail = () => {
       const response = await axios.get(`http://localhost:8080/api/books/${id}`, {
         withCredentials: true
       });
+      console.log('=== BOOK DETAIL DEBUG ===');
+      console.log('Book data:', response.data);
+      console.log('Year field:', response.data.year);
+      console.log('========================');
       setBook(response.data);
       setError('');
     } catch (err) {
@@ -332,6 +336,12 @@ const BookDetail = () => {
                 <div className="detail-meta-item">
                   <span className="detail-meta-label">Thể Loại</span>
                   <span className="detail-meta-value">{book.category}</span>
+                </div>
+              )}
+              {book.year && (
+                <div className="detail-meta-item">
+                  <span className="detail-meta-label">Năm Xuất Bản</span>
+                  <span className="detail-meta-value">{book.year}</span>
                 </div>
               )}
             </div>
