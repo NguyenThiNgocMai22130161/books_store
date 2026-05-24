@@ -9,7 +9,8 @@ import { Login, Register, AccessDenied } from './components/auth';
 import { BookList, BookDetail, BookForm } from './components/books';
 
 // Cart & Payment Components
-import { Cart, Checkout, PaymentResult } from './components/cart';
+import { Cart, Checkout } from './components/cart';
+import { PaymentResult } from './components/payment';
 
 // Order Components
 import { OrderList, OrderDetail } from './components/orders';
@@ -23,10 +24,11 @@ import { CategoryList, CategoryForm } from './components/categories';
 // User Components
 import { UserProfile } from './components/user';
 
+// Wishlist Components
+import { Wishlist } from './components/wishlist';
+
 // Shared Components
 import { Navbar, Footer } from './components/shared';
-// wishlist
-import Wishlist from './components/books/Wishlist';
 
 function App() {
   return (
