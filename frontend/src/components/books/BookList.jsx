@@ -13,6 +13,10 @@ const BookList = () => {
   const [user, setUser] = useState(null);
   const [cartItemCount, setCartItemCount] = useState(0);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const booksPerPage = 12; // Số sách mỗi trang
+
   // Wishlist STATE
   const [wishlist, setWishlist] = useState(new Set());
   const [wishlistLoading, setWishlistLoading] = useState(new Set());
@@ -184,12 +188,14 @@ const BookList = () => {
       if (filters[key]) params.append(key, filters[key]);
     });
     setSearchParams(params);
+    setCurrentPage(1); // Reset về trang 1 khi search
     fetchBooks();
   };
 
   const handleReset = () => {
     setFilters({ title: '', author: '', category: '', minPrice: '', maxPrice: '' });
     setSearchParams({});
+    setCurrentPage(1); // Reset về trang 1
     fetchBooks();
   };
 
@@ -211,7 +217,12 @@ const BookList = () => {
         { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
       );
       setAlert({ type: 'success', message: 'Đã thêm vào giỏ hàng!' });
-      fetchCartCount(); // Cập nhật badge ngay
+      
+      // Dispatch event để Navbar cập nhật cart count
+      setTimeout(() => {
+        window.dispatchEvent(new Event('cart-updated'));
+      }, 100);
+      
       setTimeout(() => setAlert({ type: null, message: null }), 3000);
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -231,6 +242,92 @@ const BookList = () => {
   const isAdmin = user?.roles?.includes('ROLE_ADMIN') || user?.isAdmin;
   const formatPrice = (price) => new Intl.NumberFormat('vi-VN').format(price) + 'đ';
   const activeFiltersCount = Object.values(filters).filter(v => v).length;
+
+  // Pagination calculations
+  const indexOfLastBook = currentPage * booksPerPage;
+  const indexOfFirstBook = indexOfLastBook - booksPerPage;
+  const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
+  const totalPages = Math.ceil(books.length / booksPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Scroll đến phần danh sách sách (sau filter card)
+    const bookGrid = document.querySelector('.grid.grid-3');
+    if (bookGrid) {
+      const offset = 100; // Khoảng cách từ top
+      const elementPosition = bookGrid.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({ 
+        top: elementPosition - offset, 
+        behavior: 'smooth' 
+      });
+    }
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="pagination-btn"
+        >
+          ‹ Trước
+        </button>
+
+        {startPage > 1 && (
+          <>
+            <button onClick={() => handlePageChange(1)} className="pagination-number">
+              1
+            </button>
+            {startPage > 2 && <span className="pagination-dots">...</span>}
+          </>
+        )}
+
+        {pageNumbers.map(number => (
+          <button
+            key={number}
+            onClick={() => handlePageChange(number)}
+            className={`pagination-number ${currentPage === number ? 'active' : ''}`}
+          >
+            {number}
+          </button>
+        ))}
+
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && <span className="pagination-dots">...</span>}
+            <button onClick={() => handlePageChange(totalPages)} className="pagination-number">
+              {totalPages}
+            </button>
+          </>
+        )}
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="pagination-btn"
+        >
+          Sau ›
+        </button>
+      </div>
+    );
+  };
 
   // ================= RENDER =================
 
@@ -362,23 +459,27 @@ const BookList = () => {
             <p>Đang tải sách...</p>
           </div>
         ) : books.length > 0 ? (
-          <div className="grid grid-3">
-            <div style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
-              <p className="search-summary">
-                <strong>{books.length}</strong> sách được tìm thấy
-                {activeFiltersCount > 0 && (
-                  <span> theo tiêu chí:
-                    {filters.title && <span className="highlight"> 📖 {filters.title}</span>}
-                    {filters.author && <span className="highlight"> ✍️ {filters.author}</span>}
-                    {filters.category && <span className="highlight"> 📂 {filters.category}</span>}
-                    {filters.minPrice && <span className="highlight"> 💰 từ {formatPrice(filters.minPrice)}</span>}
-                    {filters.maxPrice && <span className="highlight"> đến {formatPrice(filters.maxPrice)}</span>}
-                  </span>
-                )}
-              </p>
-            </div>
+          <>
+            <div className="grid grid-3">
+              <div style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
+                <p className="search-summary">
+                  <strong>{books.length}</strong> sách được tìm thấy
+                  {totalPages > 1 && (
+                    <span> - Đang xem trang <strong>{currentPage}</strong> / <strong>{totalPages}</strong></span>
+                  )}
+                  {activeFiltersCount > 0 && (
+                    <span> theo tiêu chí:
+                      {filters.title && <span className="highlight"> 📖 {filters.title}</span>}
+                      {filters.author && <span className="highlight"> ✍️ {filters.author}</span>}
+                      {filters.category && <span className="highlight"> 📂 {filters.category}</span>}
+                      {filters.minPrice && <span className="highlight"> 💰 từ {formatPrice(filters.minPrice)}</span>}
+                      {filters.maxPrice && <span className="highlight"> đến {formatPrice(filters.maxPrice)}</span>}
+                    </span>
+                  )}
+                </p>
+              </div>
 
-            {books.map((book, index) => (
+              {currentBooks.map((book, index) => (
               <div key={book.id} className="book-card fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
                 <div className="book-image-wrapper">
                   {book.imageUrl ? (
@@ -440,6 +541,10 @@ const BookList = () => {
               </div>
             ))}
           </div>
+
+          {/* Pagination */}
+          {renderPagination()}
+        </>
         ) : (
           <div className="empty-state">
             <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

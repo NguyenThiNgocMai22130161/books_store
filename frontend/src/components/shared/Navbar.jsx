@@ -55,9 +55,14 @@ const Navbar = () => {
       const response = await axios.get('http://localhost:8080/api/cart', {
         withCredentials: true
       });
+      console.log('Cart count updated:', response.data.itemCount);
       setCartCount(response.data.itemCount || 0);
     } catch (err) {
-      console.error('Error fetching cart count');
+      console.error('Error fetching cart count:', err);
+      // Nếu lỗi 401 (chưa đăng nhập), set count = 0
+      if (err.response?.status === 401) {
+        setCartCount(0);
+      }
     }
   };
 

@@ -139,3 +139,5 @@ logs/
 *.tmp
 *.temp
 
+ORDER_STATUS_FLOW.md
+COMPONENT_REFACTORING.md
