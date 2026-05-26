@@ -25,6 +25,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findByAuthorIgnoreCase(String author);
     List<Book> findByAuthorContainingIgnoreCase(String author);
     
+    // Kiểm tra sách trùng lặp (cùng tên và tác giả)
+    List<Book> findByTitleAndAuthor(String title, String author);
+    
     // Tìm kiếm theo giá
     List<Book> findByPriceBetween(Double minPrice, Double maxPrice);
     

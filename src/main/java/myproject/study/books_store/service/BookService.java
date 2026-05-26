@@ -27,6 +27,13 @@ public class BookService {
 
     @SuppressWarnings("null")
     public Book saveBook(Book book) {
+        // Kiểm tra xem đã có sách với cùng tên và tác giả chưa
+        List<Book> existingBooks = bookRepository.findByTitleAndAuthor(book.getTitle(), book.getAuthor());
+        
+        if (!existingBooks.isEmpty()) {
+            throw new RuntimeException("Sách '" + book.getTitle() + "' của tác giả '" + book.getAuthor() + "' đã tồn tại trong hệ thống!");
+        }
+        
         return bookRepository.save(book);
     }
 
