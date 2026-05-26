@@ -212,7 +212,7 @@ const Wishlist = () => {
                       }
                       className="btn-remove"
                     >
-                      ❤️ Xóa
+                      🗑️
                     </button>
 
                   </div>
