@@ -33,6 +33,7 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestParam String username, 
                                  @RequestParam String password,
                                  HttpServletRequest request) {
+                                    System.out.println(">>> ĐANG ĐĂNG NHẬP VỚI USERNAME: " + username + " | PASSWORD: " + password);
         try {
             // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
