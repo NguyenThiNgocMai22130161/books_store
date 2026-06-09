@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import ChatbotWidget from '../chatbot/ChatbotWidget';
+import SmartSearchBar from '../search/SmartSearchBar';
 import './BookList.css';
 
 const BookList = () => {
@@ -347,6 +349,11 @@ const BookList = () => {
       </div>
 
       <div className="container">
+        {/* AI Smart Search Bar */}
+        <div style={{ margin: '2rem 0' }}>
+          <SmartSearchBar />
+        </div>
+
         {/* Page Header */}
         <div className="page-header" style={{ marginTop: '2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -559,6 +566,9 @@ const BookList = () => {
           </div>
         )}
       </div>
+
+      {/* AI Chatbot Widget - General book search assistant */}
+      <ChatbotWidget />
     </div>
   );
 };

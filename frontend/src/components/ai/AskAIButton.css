@@ -1,0 +1,134 @@
+/* Ask AI Button Styles */
+
+.ask-ai-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.ask-ai-button:hover {
+  transform: translateY(-2px);
+}
+
+.ask-ai-button:active {
+  transform: translateY(0);
+}
+
+/* Sizes */
+.ask-ai-small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.ask-ai-medium {
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.ask-ai-large {
+  padding: 14px 20px;
+  font-size: 16px;
+}
+
+/* Styles */
+.ask-ai-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.ask-ai-primary:hover {
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.ask-ai-secondary {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.ask-ai-secondary:hover {
+  background: #f7fafc;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.ask-ai-outline {
+  background: transparent;
+  color: #667eea;
+  border: 2px solid #e2e8f0;
+}
+
+.ask-ai-outline:hover {
+  background: #f7fafc;
+  border-color: #667eea;
+}
+
+.ask-ai-ghost {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border: none;
+}
+
+.ask-ai-ghost:hover {
+  background: rgba(102, 126, 234, 0.2);
+}
+
+/* Icons */
+.ai-icon {
+  flex-shrink: 0;
+}
+
+.arrow-icon {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.ask-ai-button:hover .arrow-icon {
+  transform: translateX(2px);
+}
+
+.button-text {
+  flex: 1;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .ask-ai-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .button-text {
+    flex: initial;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .ask-ai-secondary {
+    background: #2d3748;
+    color: #a0aec0;
+    border-color: #4a5568;
+  }
+
+  .ask-ai-secondary:hover {
+    background: #374151;
+  }
+
+  .ask-ai-outline {
+    color: #a0aec0;
+    border-color: #4a5568;
+  }
+
+  .ask-ai-outline:hover {
+    background: #2d3748;
+    border-color: #667eea;
+  }
+}

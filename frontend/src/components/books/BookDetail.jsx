@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import BookReviews from '../reviews/BookReviews';
+import ChatbotWidget from '../chatbot/ChatbotWidget';
+import SimilarBooks from '../ai/SimilarBooks';
+import AskAIButton from '../ai/AskAIButton';
 import './BookDetail.css';
 
 const BookDetail = () => {
@@ -321,9 +324,42 @@ const BookDetail = () => {
           </div>
         )}
 
+        {/* AI Quick Questions Section */}
+        <div className="ai-quick-questions-section">
+          <h3 className="ai-questions-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
+              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+            </svg>
+            Hỏi AI về sách này
+          </h3>
+          <div className="ai-questions-grid">
+            <AskAIButton 
+              question="Sách này phù hợp cho người mới bắt đầu không?"
+              style="primary"
+              size="medium"
+            />
+            <AskAIButton 
+              question="Có sách nào tương tự với sách này không?"
+              style="secondary"
+              size="medium"
+            />
+            <AskAIButton 
+              question="Tại sao nên đọc sách này?"
+              style="outline"
+              size="medium"
+            />
+          </div>
+        </div>
+
         {/* Reviews Section */}
         <BookReviews bookId={id} user={user} isAdmin={isAdmin} />
+
+        {/* AI Similar Books Section */}
+        <SimilarBooks bookId={parseInt(id)} currentTitle={book?.title} />
       </div>
+
+      {/* AI Chatbot Widget with book context */}
+      <ChatbotWidget bookId={parseInt(id)} category={book?.category} />
     </div>
   );
 };
