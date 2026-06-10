@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import PaymentMethods from '../payment/PaymentMethods';
+import PaymentSummary from '../payment/PaymentSummary';
 import './Checkout.css';
 
 const Checkout = () => {
@@ -189,51 +191,7 @@ const Checkout = () => {
 
         <div className="checkout-wrapper fade-in">
           {/* Left Side: Order Review */}
-          <div className="section-card">
-            <div className="section-header">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#EE4D2D" strokeWidth="2">
-                <path d="M21 8V21H3V8"/>
-                <path d="M1 3H23V8H1V3Z"/>
-                <path d="M10 12H14"/>
-              </svg>
-              <h2>Kiểm Tra Đơn Hàng</h2>
-            </div>
-            <div className="section-content">
-              <div className="checkout-items">
-                {cartItems.map((item) => (
-                  item.book && (
-                    <div key={item.id} className="checkout-item">
-                      <img 
-                        src={item.book.imageUrl || 'https://via.placeholder.com/100x140'} 
-                        alt="Book Cover" 
-                      />
-                      <div className="item-details">
-                        <h4>{item.book.title}</h4>
-                        <p>Số lượng: <span className="item-quantity">{item.quantity}</span></p>
-                        <p className="item-price">{item.book.price?.toLocaleString('vi-VN')} ₫</p>
-                      </div>
-                    </div>
-                  )
-                ))}
-              </div>
-
-              <div className="summary-section">
-                <div className="summary-row">
-                  <span>Tạm tính:</span>
-                  <span>{total.toLocaleString('vi-VN')} ₫</span>
-                </div>
-                <div className="summary-row">
-                  <span>Phí vận chuyển:</span>
-                  <span style={{ color: '#27AE60', fontWeight: 700 }}>Miễn phí</span>
-                </div>
-                <div className="summary-divider"></div>
-                <div className="summary-total">
-                  <span className="summary-total-label">Tổng tiền</span>
-                  <span className="summary-total-amount">{total.toLocaleString('vi-VN')} ₫</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PaymentSummary cartItems={cartItems} total={total} />
 
           {/* Right Side: Payment */}
           <div className="section-card">
@@ -246,68 +204,12 @@ const Checkout = () => {
             </div>
             <div className="section-content">
               <form onSubmit={handlePayment}>
-                <div className="payment-methods">
-
-                  {/* COD Option - Added */}
-                  <label className={`payment-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
-                    <div className="payment-icon cod-icon">🚚</div>
-                    <div className="payment-details">
-                      <div className="payment-name">Thanh Toán Khi Nhận Hàng (COD)</div>
-                      <div className="payment-desc">Thanh toán bằng tiền mặt khi giao hàng</div>
-                    </div>
-                    <input 
-                      type="radio" 
-                      name="paymentMethod" 
-                      value="cod" 
-                      checked={paymentMethod === 'cod'}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="radio-input" 
-                    />
-                  </label>
-
-                  {/* MoMo Option */}
-                  <label className={`payment-option ${paymentMethod === 'momo' ? 'active' : ''}`}>
-                    <div className="payment-icon momo-icon">📱</div>
-                    <div className="payment-details">
-                      <div className="payment-name">Thanh Toán MoMo</div>
-                      <div className="payment-desc">Thanh toán qua ví điện tử MoMo</div>
-                      
-                      {/* 🛠️ NÚT DEMO ĐÃ ĐƯỢC CHUYỂN VÀO TRONG ĐỂ GỌN GÀNG VÀ ĐẸP MẮT HƠN */}
-                      <button 
-                        type="button" 
-                        onClick={handleSimulateMoMoSuccess} 
-                        className="btn-test-momo"
-                        disabled={processing}
-                      >
-                        {processing ? '🔄 Đang tạo đơn...' : '⚡ Click để Giả lập MoMo Thành Công'}
-                      </button>
-                    </div>
-                    <input 
-                      type="radio" 
-                      name="paymentMethod" 
-                      value="momo" 
-                      checked={paymentMethod === 'momo'}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="radio-input" 
-                    />
-                  </label>
-                  {/* Cổng thanh toán mặc định/Thẻ tín dụng */}
-                  <label className={`payment-option ${paymentMethod === 'default' ? 'active' : ''}`}>
-                    <div className="payment-icon payment-default-icon">💳</div>
-                    <div className="payment-details">
-                      <div className="payment-name">Thẻ Tín Dụng / Ghi Nợ</div>
-                      <div className="payment-desc">Phương thức thanh toán qua cổng an toàn</div>
-                    </div>
-                    <input 
-                      type="radio" 
-                      name="paymentMethod" 
-                      value="default" 
-                      checked={paymentMethod === 'default'}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="radio-input" 
-                    />
-                  </label>
-                </div>
+                <PaymentMethods
+                  paymentMethod={paymentMethod}
+                  setPaymentMethod={setPaymentMethod}
+                  processing={processing}
+                  onSimulateMoMo={handleSimulateMoMoSuccess}
+                />
 
                 {/* Box thông báo động tuỳ theo loại thanh toán */}
                 <div className="info-box">

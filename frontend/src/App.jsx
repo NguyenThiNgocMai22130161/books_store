@@ -9,7 +9,8 @@ import { Login, Register, AccessDenied } from './components/auth';
 import { BookList, BookDetail, BookForm } from './components/books';
 
 // Cart & Payment Components
-import { Cart, Checkout, PaymentResult } from './components/cart';
+import { Cart, Checkout } from './components/cart';
+import { PaymentResult } from './components/payment';
 
 // Order Components
 import { OrderList, OrderDetail } from './components/orders';
@@ -22,6 +23,9 @@ import { CategoryList, CategoryForm } from './components/categories';
 
 // User Components
 import { UserProfile } from './components/user';
+
+// Wishlist Components
+import { Wishlist } from './components/wishlist';
 
 // Shared Components
 import { Navbar, Footer } from './components/shared';
@@ -43,6 +47,7 @@ function App() {
         {/* User Routes */}
         <Route path="/profile" element={<><Navbar /><UserProfile /><Footer /></>} />
         <Route path="/cart" element={<><Navbar /><Cart /><Footer /></>} />
+        <Route path="/wishlist" element={<><Navbar /><Wishlist /><Footer /></>} />
         <Route path="/cart/checkout" element={<><Navbar /><Checkout /><Footer /></>} />
         <Route path="/cart/payment-result" element={<><Navbar /><PaymentResult /><Footer /></>} />
         <Route path="/orders" element={<><Navbar /><OrderList /><Footer /></>} />

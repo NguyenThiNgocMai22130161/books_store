@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # AI Service
+  ai-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: books-ai-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PG_DSN=${PG_DSN}
+      - BACKEND_BASE_URL=${BACKEND_BASE_URL}
+      - JWT_TOKEN=${JWT_TOKEN}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - LLM_MODEL=${LLM_MODEL}
+      - EMBED_MODEL=${EMBED_MODEL}
+      - EMBED_DIM=${EMBED_DIM}
+      - TOP_K_RESULTS=${TOP_K_RESULTS}
+      - SCORE_THRESHOLD=${SCORE_THRESHOLD}
+      - TEMPERATURE=${TEMPERATURE}
+      - ENVIRONMENT=production
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - books-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      - redis
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis Cache (Optional but recommended)
+  redis:
+    image: redis:7-alpine
+    container_name: books-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - books-network
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: books-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - books-network
+    depends_on:
+      - ai-service
+
+networks:
+  books-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local

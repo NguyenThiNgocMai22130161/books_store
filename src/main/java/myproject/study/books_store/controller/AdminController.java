@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import myproject.study.books_store.model.Role;
 import myproject.study.books_store.model.User;
 import myproject.study.books_store.service.UserService;
+import myproject.study.books_store.repository.ReviewRepository;
 import myproject.study.books_store.service.BookService;
 import myproject.study.books_store.service.CategoryService;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,11 +22,14 @@ import java.util.Set;
 public class AdminController {
 
     private final UserService userService;
+    private final ReviewRepository reviewRepository;
     private final BookService bookService;
     private final CategoryService categoryService;
 
-    public AdminController(UserService userService, BookService bookService, CategoryService categoryService) {
+    public AdminController(UserService userService, ReviewRepository reviewRepository, 
+                          BookService bookService, CategoryService categoryService) {
         this.userService = userService;
+        this.reviewRepository = reviewRepository;
         this.bookService = bookService;
         this.categoryService = categoryService;
     }
@@ -150,6 +153,21 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Lỗi khi xóa người dùng: " + e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/reviews/{reviewId}")
+    public ResponseEntity<?> deleteReview(@PathVariable Long reviewId) {
+        try {
+            if (!reviewRepository.existsById(reviewId)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Không tìm thấy đánh giá cần xóa!"));
+            }
+            reviewRepository.deleteById(reviewId);
+            return ResponseEntity.ok(Map.of("message", "Đã xóa đánh giá thành công!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi xóa đánh giá: " + e.getMessage()));
         }
     }
 }

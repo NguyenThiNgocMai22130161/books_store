@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import BookReviews from '../reviews/BookReviews';
+import ChatbotWidget from '../chatbot/ChatbotWidget';
+import SimilarBooks from '../ai/SimilarBooks';
+import AskAIButton from '../ai/AskAIButton';
 import './BookDetail.css';
 
 const BookDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,16 +25,28 @@ const BookDetail = () => {
     fetchAuthStatus();
   }, [id]);
 
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('write-review') === 'true') {
+      const timer = setTimeout(() => {
+        const reviewSection = document.querySelector('.detail-reviews-section');
+        if (reviewSection) {
+          reviewSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [location.search, loading]);
+
   const fetchAuthStatus = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/auth/status', {
+      const response = await axios.get('http://localhost:8080/api/auth/profile', {
         withCredentials: true
       });
-      if (response.data.authenticated) {
-        setUser(response.data.user);
-      }
+      setUser(response.data);
     } catch (err) {
       console.log('Not authenticated');
+      setUser(null);
     }
   };
 
@@ -39,6 +56,10 @@ const BookDetail = () => {
       const response = await axios.get(`http://localhost:8080/api/books/${id}`, {
         withCredentials: true
       });
+      console.log('=== BOOK DETAIL DEBUG ===');
+      console.log('Book data:', response.data);
+      console.log('Year field:', response.data.year);
+      console.log('========================');
       setBook(response.data);
       setError('');
     } catch (err) {
@@ -69,13 +90,18 @@ const BookDetail = () => {
     try {
       setAddingToCart(true);
       await axios.post(
-        `http://localhost:8080/api/cart/add/${id}`,
-        { quantity },
+        'http://localhost:8080/api/cart/add',
+        { bookId: id, quantity },
         { withCredentials: true }
       );
       setSuccessMessage('Đã thêm vào giỏ hàng!');
+      
       // Dispatch event to update navbar cart count immediately without reload
-      window.dispatchEvent(new Event('cart-updated'));
+      // Thêm delay nhỏ để đảm bảo backend đã cập nhật xong
+      setTimeout(() => {
+        window.dispatchEvent(new Event('cart-updated'));
+      }, 100);
+      
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       // Nếu lỗi 401 (Unauthorized), redirect đến login
@@ -89,7 +115,7 @@ const BookDetail = () => {
           navigate('/login');
         }, 1500);
       } else {
-        setError(err.response?.data?.message || 'Không thể thêm vào giỏ hàng');
+        setError(err.response?.data?.error || err.response?.data?.message || 'Không thể thêm vào giỏ hàng');
       }
     } finally {
       setAddingToCart(false);
@@ -198,6 +224,12 @@ const BookDetail = () => {
                   <span className="detail-meta-value">{book.category}</span>
                 </div>
               )}
+              {book.year && (
+                <div className="detail-meta-item">
+                  <span className="detail-meta-label">Năm Xuất Bản</span>
+                  <span className="detail-meta-value">{book.year}</span>
+                </div>
+              )}
             </div>
 
             <div className="detail-price-section">
@@ -291,7 +323,43 @@ const BookDetail = () => {
             </div>
           </div>
         )}
+
+        {/* AI Quick Questions Section */}
+        <div className="ai-quick-questions-section">
+          <h3 className="ai-questions-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
+              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+            </svg>
+            Hỏi AI về sách này
+          </h3>
+          <div className="ai-questions-grid">
+            <AskAIButton 
+              question="Sách này phù hợp cho người mới bắt đầu không?"
+              style="primary"
+              size="medium"
+            />
+            <AskAIButton 
+              question="Có sách nào tương tự với sách này không?"
+              style="secondary"
+              size="medium"
+            />
+            <AskAIButton 
+              question="Tại sao nên đọc sách này?"
+              style="outline"
+              size="medium"
+            />
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <BookReviews bookId={id} user={user} isAdmin={isAdmin} />
+
+        {/* AI Similar Books Section */}
+        <SimilarBooks bookId={parseInt(id)} currentTitle={book?.title} />
       </div>
+
+      {/* AI Chatbot Widget with book context */}
+      <ChatbotWidget bookId={parseInt(id)} category={book?.category} />
     </div>
   );
 };

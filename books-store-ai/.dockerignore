@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Tests
+test_*.py
+*_test.py
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Development
+.env
+.env.local
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+
+# Deployment
+docker-compose.yml
+Dockerfile
+deploy.sh
+healthcheck.sh
+
+# Data
+data/
+*.sqlite
+*.db
+
+# Temporary
+tmp/
+temp/
+*.tmp

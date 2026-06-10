@@ -64,10 +64,11 @@ public class SecurityConfig {
         
         // Cho phép React dev server và production
         configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:5173",      // Vite dev server (PRIMARY)
             "http://localhost:5174",
-            "http://localhost:5173",      // React dev server
-            "http://localhost:3001",      // Alternative React port
-            "http://localhost:3000",
+            "http://localhost:3000",      // Alternative React port
+            "http://localhost:3001",
+            "http://127.0.0.1:5173",      // Localhost alternative
             "http://localhost:8080"       // Spring Boot (nếu cần)
         ));
         
@@ -136,6 +137,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/cart/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/api/orders/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/api/wishlist/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/api/auth/profile").authenticated()
                 
                 // Tất cả requests khác cần authentication

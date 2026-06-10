@@ -96,8 +96,7 @@ public class CartService {
     }
 
     public int getCartItemCount(User user) {
-        return getCartItems(user).stream()
-                .mapToInt(CartItem::getQuantity)
-                .sum();
+        // Trả về số lượng sản phẩm khác nhau (số dòng), không phải tổng số lượng
+        return getCartItems(user).size();
     }
 }

@@ -7,21 +7,36 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     checkAuthStatus();
     fetchCartCount();
+    fetchWishlistCount();
 
-    const handleCartUpdate = () => {
-      fetchCartCount();
+    const handleCartUpdate = () => fetchCartCount();
+    const handleWishlistUpdate = (e) => {
+      if (e.detail?.count !== undefined) setWishlistCount(e.detail.count);
     };
 
     window.addEventListener('cart-updated', handleCartUpdate);
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
+
     return () => {
       window.removeEventListener('cart-updated', handleCartUpdate);
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
     };
   }, []);
+
+  // Khi user thay đổi (đăng nhập/đăng xuất), fetch lại wishlist count
+  useEffect(() => {
+    if (user) {
+      fetchWishlistCount();
+    } else {
+      setWishlistCount(0);
+    }
+  }, [user]);
 
   const checkAuthStatus = async () => {
     try {
@@ -40,9 +55,26 @@ const Navbar = () => {
       const response = await axios.get('http://localhost:8080/api/cart', {
         withCredentials: true
       });
+      console.log('Cart count updated:', response.data.itemCount);
       setCartCount(response.data.itemCount || 0);
     } catch (err) {
-      console.error('Error fetching cart count');
+      console.error('Error fetching cart count:', err);
+      // Nếu lỗi 401 (chưa đăng nhập), set count = 0
+      if (err.response?.status === 401) {
+        setCartCount(0);
+      }
+    }
+  };
+
+  const fetchWishlistCount = async () => {
+    if (!user) return;
+    try {
+      const response = await axios.get('http://localhost:8080/api/wishlist', {
+        withCredentials: true
+      });
+      setWishlistCount(response.data?.length || 0);
+    } catch (err) {
+      console.error('Error fetching wishlist count');
     }
   };
 
@@ -53,6 +85,7 @@ const Navbar = () => {
       });
       setUser(null);
       setCartCount(0);
+      setWishlistCount(0);
       navigate('/login');
     } catch (err) {
       console.error('Logout error:', err);
@@ -97,15 +130,27 @@ const Navbar = () => {
           {user ? (
             <>
               {!isAdmin && (
-                <Link to="/cart" className="nav-link cart-link">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="8" cy="21" r="1"/>
-                    <circle cx="19" cy="21" r="1"/>
-                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-                  </svg>
-                  Giỏ hàng
-                  {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-                </Link>
+                <>
+                  {/* Wishlist Link */}
+                  <Link to="/wishlist" className="nav-link wishlist-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    Yêu thích
+                    {wishlistCount > 0 && <span className="wishlist-badge">{wishlistCount}</span>}
+                  </Link>
+
+                  {/* Cart Link */}
+                  <Link to="/cart" className="nav-link cart-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="8" cy="21" r="1"/>
+                      <circle cx="19" cy="21" r="1"/>
+                      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                    </svg>
+                    Giỏ hàng
+                    {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+                  </Link>
+                </>
               )}
 
               <div className="user-dropdown">
