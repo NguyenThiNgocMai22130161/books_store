@@ -1,0 +1,117 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Environment variables
+.env
+.env.local
+.env.development
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/
+pip-log.txt
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Test files (keep only essential tests)
+test_*.py
+*_test.py
+quick_test.py
+test_chat_only.py
+test_llm_direct.py
+test_comprehensive.py
+load_test.py
+monitor_performance.py
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Data files
+data/
+*.csv
+*.json
+!requirements.txt
+!package.json
+!railway.json
+!render.yaml
+
+# Documentation (keep only essential)
+PHASE*.md
+SETUP*.md
+QUICK_START_FULL.md
+INTEGRATION_TEST_RESULTS.md
+AI_COMPLETION_SUMMARY.md
+
+# Deployment scripts (optional - keep if needed)
+deploy.sh
+healthcheck.sh
+restart_server.sh
+setup_advanced_features.py
+ingest_all_books.py
+
+# Helper/Debug scripts (not needed for deployment)
+check_embed_models.py
+inspect_database.py
+list_models.py
+monitor_progress.py
+setup_database.py
+update_vector_dimension.py
+verify_database.py
+
+# Database setup (keep the SQL)
+# database_*.sql - Keep these!
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+.cache/
+
+# OS
+Thumbs.db

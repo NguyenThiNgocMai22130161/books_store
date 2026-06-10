@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: books-store-ai
+    runtime: python
+    region: singapore
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PG_DSN
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: models/gemini-2.5-flash
+      - key: EMBED_MODEL
+        value: models/gemini-embedding-001
+      - key: EMBED_DIM
+        value: 3072
+      - key: DEBUG
+        value: false
+      - key: ENVIRONMENT
+        value: production
