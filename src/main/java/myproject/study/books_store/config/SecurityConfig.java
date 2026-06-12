@@ -126,8 +126,8 @@ public class SecurityConfig {
                     "/login/oauth2/**",
                     "/api/books/**",           // Cho phép xem sách công khai
                     "/api/categories/**",       // Cho phép xem danh mục công khai
-                    "/api/cart/payment/return", 
-                    "/api/cart/payment/notify"
+                    "/api/cart/payment/vnpay-return", 
+                    "/api/cart/payment/vnpay-ipn"
                 ).permitAll()
                 
                 // Static resources (nếu còn dùng)
