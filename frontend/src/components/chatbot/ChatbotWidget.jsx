@@ -29,7 +29,7 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
     if (isOpen && messages.length === 0) {
       const welcomeMessage = {
         role: 'assistant',
-        content: bookId 
+        content: bookId
           ? 'Xin chào! Tôi có thể giúp bạn tìm sách tương tự hoặc trả lời câu hỏi về sách này.'
           : 'Xin chào! Tôi là trợ lý AI của Books Store. Tôi có thể giúp bạn tìm sách, gợi ý sách phù hợp, hoặc trả lời câu hỏi về sách. Bạn cần giúp gì?',
         timestamp: new Date()
@@ -126,20 +126,28 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
   };
 
   return (
-    <div className="chatbot-widget">
+    <div className="chatbot-widget" style={{
+      position: 'fixed',
+      bottom: '24px',
+      right: '24px',
+      left: 'auto',
+      width: 'auto',
+      zIndex: 1000
+    }}
+    >
       {/* Chat Button */}
       {!isOpen && (
-        <button 
+        <button
           className="chatbot-button"
           onClick={toggleChat}
           aria-label="Open AI Chatbot"
         >
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
             strokeWidth="2"
           >
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -156,7 +164,7 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
             <div className="chatbot-header-content">
               <div className="chatbot-avatar">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
                 </svg>
               </div>
               <div>
@@ -165,7 +173,7 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
               </div>
             </div>
             <div className="chatbot-actions">
-              <button 
+              <button
                 className="chatbot-action-btn"
                 onClick={clearChat}
                 title="Clear chat"
@@ -175,7 +183,7 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                 </svg>
               </button>
-              <button 
+              <button
                 className="chatbot-action-btn"
                 onClick={toggleChat}
                 title="Close chat"
@@ -191,21 +199,21 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
           {/* Messages */}
           <div className="chatbot-messages">
             {messages.map((msg, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`message message-${msg.role} ${msg.isError ? 'message-error' : ''}`}
               >
                 <div className="message-content">
                   <p>{msg.content}</p>
-                  
+
                   {/* Book Recommendations */}
                   {msg.sources && msg.sources.length > 0 && (
                     <div className="message-sources">
                       <p className="sources-title">📚 Sách gợi ý:</p>
                       <div className="sources-list">
                         {msg.sources.map((book, idx) => (
-                          <div 
-                            key={idx} 
+                          <div
+                            key={idx}
                             className="source-item"
                             onClick={() => handleBookClick(book)}
                           >
@@ -226,9 +234,9 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
                   )}
                 </div>
                 <span className="message-time">
-                  {msg.timestamp.toLocaleTimeString('vi-VN', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
+                  {msg.timestamp.toLocaleTimeString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit'
                   })}
                 </span>
               </div>
@@ -260,7 +268,7 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
               rows="2"
               disabled={isLoading}
             />
-            <button 
+            <button
               onClick={handleSend}
               disabled={!inputMessage.trim() || isLoading}
               className="send-button"
