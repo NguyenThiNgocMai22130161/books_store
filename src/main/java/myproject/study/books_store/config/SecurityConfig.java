@@ -69,7 +69,8 @@ public class SecurityConfig {
             "http://localhost:3000",      // Alternative React port
             "http://localhost:3001",
             "http://127.0.0.1:5173",      // Localhost alternative
-            "http://localhost:8080"       // Spring Boot (nếu cần)
+            "http://localhost:8080",       // Spring Boot (nếu cần)
+            "https://books-store-three-swart.vercel.app"
         ));
         
         // Cho phép tất cả HTTP methods cần thiết cho REST API
