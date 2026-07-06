@@ -1,132 +1,44 @@
-# """
-# Embedding Service
-# Handles text-to-vector conversion using Google Gemini
-# """
-
-# import google.generativeai as genai
-# from typing import List, Union
-# import logging
-# from app.core.config import settings
-
-# logger = logging.getLogger(__name__)
-
-
-# class Embedder:
-#     """
-#     Wrapper for Google Gemini Embedding API
-#     """
-    
-#     def __init__(self):
-#         """Initialize embedder with Google API"""
-#         genai.configure(api_key=settings.GOOGLE_API_KEY)
-#         self.model = settings.EMBED_MODEL
-#         self.dimension = settings.EMBED_DIM
-#         logger.info(f"[OK] Embedder initialized: {self.model} ({self.dimension}d)")
-    
-#     def encode(self, texts: Union[str, List[str]]) -> List[List[float]]:
-#         """
-#         Convert text(s) to embedding vector(s)
-        
-#         Args:
-#             texts: Single text string or list of texts
-            
-#         Returns:
-#             List of embedding vectors (each vector is list of floats)
-            
-#         Raises:
-#             Exception: If embedding fails
-#         """
-#         # Handle single string
-#         if isinstance(texts, str):
-#             texts = [texts]
-        
-#         if not texts:
-#             return []
-        
-#         embeddings = []
-        
-#         # Process texts (Gemini can handle batches but we'll do one-by-one for rate limit control)
-#         for i, text in enumerate(texts):
-#             try:
-#                 # Truncate if too long (Gemini has token limits)
-#                 if len(text) > 10000:
-#                     text = text[:10000]
-#                     logger.warning(f"Text {i} truncated to 10000 chars")
-                
-#                 # Call Gemini API
-#                 result = genai.embed_content(
-#                     model=self.model,
-#                     content=text,
-#                     task_type="retrieval_document"  # For indexing documents
-#                 )
-                
-#                 embedding = result['embedding']
-                
-#                 # Validate dimension
-#                 if len(embedding) != self.dimension:
-#                     logger.warning(
-#                         f"Expected {self.dimension}d, got {len(embedding)}d"
-#                     )
-                
-#                 embeddings.append(embedding)
-                
-#             except Exception as e:
-#                 logger.error(f"Failed to embed text {i}: {str(e)}")
-#                 # Return zero vector on error
-#                 embeddings.append([0.0] * self.dimension)
-        
-#         logger.debug(f"Embedded {len(texts)} texts successfully")
-#         return embeddings
-    
-#     def encode_query(self, query: str) -> List[float]:
-#         """
-#         Encode a search query (optimized for retrieval)
-        
-#         Args:
-#             query: Search query string
-            
-#         Returns:
-#             Single embedding vector
-#         """
-#         try:
-#             result = genai.embed_content(
-#                 model=self.model,
-#                 content=query,
-#                 task_type="retrieval_query"  # Optimized for queries
-#             )
-#             return result['embedding']
-        
-#         except Exception as e:
-#             logger.error(f"Failed to embed query: {str(e)}")
-#             return [0.0] * self.dimension
-
-
-# # Global embedder instance
-# embedder = Embedder()
-
 """
-Embedding Service
-Handles text-to-vector conversion using sentence-transformers
+Lightweight Embedding Service
+No Gemini, no HuggingFace, no heavy model.
+Creates deterministic 384d hashing vectors for search.
 """
 
 from typing import List, Union
 import logging
-from sentence_transformers import SentenceTransformer
+import re
+import hashlib
+import math
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 
 class Embedder:
-    """
-    Local embedding model wrapper
-    """
-
     def __init__(self):
-        self.model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-        self.dimension = settings.EMBED_DIM
-        self.model = SentenceTransformer(self.model_name)
-        logger.info(f"[OK] Embedder initialized: {self.model_name} ({self.dimension}d)")
+        self.dimension = int(settings.EMBED_DIM)
+        logger.info(f"[OK] Lightweight hash embedder initialized ({self.dimension}d)")
+
+    def _tokenize(self, text: str) -> List[str]:
+        text = text.lower()
+        tokens = re.findall(r"[\wÀ-ỹ]+", text, flags=re.UNICODE)
+        return [t for t in tokens if len(t) > 1]
+
+    def _hash_vector(self, text: str) -> List[float]:
+        vector = [0.0] * self.dimension
+        tokens = self._tokenize(text)
+
+        for token in tokens:
+            h = hashlib.md5(token.encode("utf-8")).hexdigest()
+            idx = int(h[:8], 16) % self.dimension
+            sign = 1.0 if int(h[8:10], 16) % 2 == 0 else -1.0
+            vector[idx] += sign
+
+        norm = math.sqrt(sum(x * x for x in vector))
+        if norm > 0:
+            vector = [x / norm for x in vector]
+
+        return vector
 
     def encode(self, texts: Union[str, List[str]]) -> List[List[float]]:
         if isinstance(texts, str):
@@ -135,26 +47,10 @@ class Embedder:
         if not texts:
             return []
 
-        try:
-            embeddings = self.model.encode(
-                texts,
-                normalize_embeddings=True
-            )
-            return embeddings.tolist()
-        except Exception as e:
-            logger.error(f"Failed to embed text: {str(e)}")
-            return [[0.0] * self.dimension for _ in texts]
+        return [self._hash_vector(text) for text in texts]
 
     def encode_query(self, query: str) -> List[float]:
-        try:
-            embedding = self.model.encode(
-                query,
-                normalize_embeddings=True
-            )
-            return embedding.tolist()
-        except Exception as e:
-            logger.error(f"Failed to embed query: {str(e)}")
-            return [0.0] * self.dimension
+        return self._hash_vector(query)
 
 
 embedder = Embedder()
