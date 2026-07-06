@@ -17,6 +17,10 @@ import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -29,40 +33,77 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
+    // @PostMapping("/login")
+    // public ResponseEntity<?> login(@RequestParam String username, 
+    //                              @RequestParam String password,
+    //                              HttpServletRequest request) {
+    //                                 System.out.println(">>> ĐANG ĐĂNG NHẬP VỚI USERNAME: " + username + " | PASSWORD: " + password);
+    //     try {
+    //         // Authenticate user
+    //         Authentication authentication = authenticationManager.authenticate(
+    //             new UsernamePasswordAuthenticationToken(username, password)
+    //         );
+    //         // Set authentication in security context
+    //         SecurityContextHolder.getContext().setAuthentication(authentication);
+    //         // Create session
+    //         HttpSession session = request.getSession(true);
+    //         session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+    //         // Get user details
+    //         User user = userService.findByUsername(username).orElse(null);
+    //         Map<String, Object> response = new HashMap<>();
+    //         response.put("success", true);
+    //         response.put("message", "Đăng nhập thành công!");
+    //         response.put("user", user);
+    //         return ResponseEntity.ok(response);
+    //     } catch (Exception e) {
+    //         Map<String, Object> response = new HashMap<>();
+    //         response.put("success", false);
+    //         response.put("message", "Tên đăng nhập hoặc mật khẩu không đúng!");
+    //         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    //     }
+    // }
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String username, 
-                                 @RequestParam String password,
-                                 HttpServletRequest request) {
-                                    System.out.println(">>> ĐANG ĐĂNG NHẬP VỚI USERNAME: " + username + " | PASSWORD: " + password);
+    public ResponseEntity<?> login(@RequestParam String username,
+            @RequestParam String password,
+            HttpServletRequest request,
+            HttpServletResponse response) {
         try {
-            // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
+                    new UsernamePasswordAuthenticationToken(username, password)
             );
-            
-            // Set authentication in security context
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            
-            // Create session
+
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
+
             HttpSession session = request.getSession(true);
-            session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-            
-            // Get user details
+            session.setAttribute(
+                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    context
+            );
+
+            HttpSessionSecurityContextRepository securityContextRepository
+                    = new HttpSessionSecurityContextRepository();
+
+            securityContextRepository.saveContext(context, request, response);
+
             User user = userService.findByUsername(username).orElse(null);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Đăng nhập thành công!");
-            response.put("user", user);
-            
-            return ResponseEntity.ok(response);
-            
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "Đăng nhập thành công!");
+            result.put("username", authentication.getName());
+            result.put("authorities", authentication.getAuthorities());
+            result.put("user", user);
+
+            return ResponseEntity.ok(result);
+
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Tên đăng nhập hoặc mật khẩu không đúng!");
-            
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", false);
+            result.put("message", "Tên đăng nhập hoặc mật khẩu không đúng!");
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
         }
     }
 
@@ -125,8 +166,8 @@ public class AuthController {
     public ResponseEntity<?> authStatus(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.ok(Map.of(
-                "authenticated", false,
-                "message", "Chưa đăng nhập"
+                    "authenticated", false,
+                    "message", "Chưa đăng nhập"
             ));
         }
 
@@ -134,7 +175,7 @@ public class AuthController {
         status.put("authenticated", true);
         status.put("username", authentication.getName());
         status.put("authorities", authentication.getAuthorities());
-        
+
         return ResponseEntity.ok(status);
     }
 
