@@ -40,7 +40,7 @@ const Navbar = () => {
 
   const checkAuthStatus = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/auth/profile', {
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/auth/profile', {
         withCredentials: true
       });
       setUser(response.data);
@@ -52,7 +52,7 @@ const Navbar = () => {
 
   const fetchCartCount = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/cart', {
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/cart', {
         withCredentials: true
       });
       console.log('Cart count updated:', response.data.itemCount);
@@ -69,7 +69,7 @@ const Navbar = () => {
   const fetchWishlistCount = async () => {
     if (!user) return;
     try {
-      const response = await axios.get('http://localhost:8080/api/wishlist', {
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/wishlist', {
         withCredentials: true
       });
       setWishlistCount(response.data?.length || 0);
@@ -80,7 +80,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:8080/api/auth/logout', {}, {
+      await axios.post('https://books-store-backend-production.up.railway.app/api/auth/logout', {}, {
         withCredentials: true
       });
       setUser(null);

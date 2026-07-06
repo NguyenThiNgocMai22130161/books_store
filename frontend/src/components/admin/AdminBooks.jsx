@@ -24,7 +24,7 @@ const AdminBooks = () => {
   const fetchBooks = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/books', {
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/books', {
         withCredentials: true
       });
       setBooks(response.data);
@@ -41,7 +41,7 @@ const AdminBooks = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/categories', {
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/categories', {
         withCredentials: true
       });
       setCategories(response.data);
@@ -53,7 +53,7 @@ const AdminBooks = () => {
   const handleDeleteBook = async (bookId, bookTitle) => {
     if (window.confirm(`Bạn có chắc chắn muốn xóa sách "${bookTitle}"?`)) {
       try {
-        await axios.delete(`http://localhost:8080/api/books/${bookId}`, {
+        await axios.delete(`https://books-store-backend-production.up.railway.app/api/books/${bookId}`, {
           withCredentials: true
         });
         setBooks(books.filter(book => book.id !== bookId));

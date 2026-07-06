@@ -21,7 +21,7 @@ const Wishlist = () => {
     try {
 
       const response = await axios.get(
-        'http://localhost:8080/api/wishlist',
+        'https://books-store-backend-production.up.railway.app/api/wishlist',
         {
           withCredentials: true
         }
@@ -51,7 +51,7 @@ const Wishlist = () => {
     try {
 
       await axios.delete(
-        `http://localhost:8080/api/wishlist/${bookId}`,
+        `https://books-store-backend-production.up.railway.app/api/wishlist/${bookId}`,
         {
           withCredentials: true
         }
@@ -80,7 +80,7 @@ const Wishlist = () => {
     try {
 
       await axios.post(
-        'http://localhost:8080/api/cart/add',
+        'https://books-store-backend-production.up.railway.app/api/cart/add',
         {
           bookId: String(bookId),
           quantity: 1

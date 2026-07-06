@@ -17,7 +17,7 @@ const UserProfile = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/auth/profile', {
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/auth/profile', {
         withCredentials: true
       });
       setUser(response.data);

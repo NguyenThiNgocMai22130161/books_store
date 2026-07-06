@@ -32,7 +32,7 @@ const BookReviews = ({ bookId, user, isAdmin }) => {
 
   const fetchReviews = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/books/${bookId}/reviews`, {
+      const response = await axios.get(`https://books-store-backend-production.up.railway.app/api/books/${bookId}/reviews`, {
         withCredentials: true
       });
       setReviews(response.data || []);
@@ -43,7 +43,7 @@ const BookReviews = ({ bookId, user, isAdmin }) => {
 
   const checkReviewPermission = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/books/${bookId}/reviews/check-purchase`, {
+      const response = await axios.get(`https://books-store-backend-production.up.railway.app/api/books/${bookId}/reviews/check-purchase`, {
         withCredentials: true
       });
       setCanReview(response.data.canReview || false);
@@ -67,7 +67,7 @@ const BookReviews = ({ bookId, user, isAdmin }) => {
       setSubmittingReview(true);
       setError('');
       await axios.post(
-        'http://localhost:8080/api/reviews',
+        'https://books-store-backend-production.up.railway.app/api/reviews',
         {
           bookId: bookId,
           rating: reviewRating,
@@ -93,7 +93,7 @@ const BookReviews = ({ bookId, user, isAdmin }) => {
       return;
     }
     try {
-      await axios.delete(`http://localhost:8080/api/admin/reviews/${reviewId}`, {
+      await axios.delete(`https://books-store-backend-production.up.railway.app/api/admin/reviews/${reviewId}`, {
         withCredentials: true
       });
       setSuccessMessage('Đã xóa đánh giá thành công!');
@@ -125,7 +125,7 @@ const BookReviews = ({ bookId, user, isAdmin }) => {
       setSavingEdit(true);
       setError('');
       await axios.put(
-        `http://localhost:8080/api/reviews/${reviewId}`,
+        `https://books-store-backend-production.up.railway.app/api/reviews/${reviewId}`,
         { rating: editRating, comment: editComment },
         { withCredentials: true }
       );
