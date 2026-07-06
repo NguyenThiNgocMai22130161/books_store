@@ -141,3 +141,21 @@ logs/
 
 ORDER_STATUS_FLOW.md
 COMPONENT_REFACTORING.md
+
+# Documentation files (exclude from git)
+*.md
+!README.md
+DEPLOY_*.md
+DEPLOYMENT_*.md
+HUONG_DAN_*.md
+RAILWAY_*.md
+AI_*.md
+FULL_STACK_*.md
+PRODUCTION_*.md
+INTEGRATION_*.md
+SPRING_BOOT_*.md
+TONG_HOP_*.md
+
+# Temporary scripts
+fix_*.py
+test_*.py

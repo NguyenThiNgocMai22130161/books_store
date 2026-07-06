@@ -9,6 +9,7 @@ import './BookDetail.css';
 
 const BookDetail = () => {
   const { id } = useParams();
+  console.log('BookDetail rendered, id from useParams:', id, 'type:', typeof id);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -20,9 +21,19 @@ const BookDetail = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [user, setUser] = useState(null);
 
+  // Reset state when navigating to a different book
   useEffect(() => {
-    fetchBookDetail();
-    fetchAuthStatus();
+    setBook(null);
+    setLoading(true);
+    setError('');
+    setSuccessMessage('');
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (id) {
+      fetchBookDetail();
+      fetchAuthStatus();
+    }
   }, [id]);
 
   useEffect(() => {
@@ -51,8 +62,17 @@ const BookDetail = () => {
   };
 
   const fetchBookDetail = async () => {
+    // Guard: don't fetch if id is invalid
+    if (!id || id === 'undefined') {
+      console.error('fetchBookDetail called with invalid id:', id);
+      setError('ID sách không hợp lệ');
+      setLoading(false);
+      return;
+    }
+    
     try {
       setLoading(true);
+      console.log('Fetching book with id:', id);
       const response = await axios.get(`http://localhost:8080/api/books/${id}`, {
         withCredentials: true
       });
@@ -352,14 +372,14 @@ const BookDetail = () => {
         </div>
 
         {/* Reviews Section */}
-        <BookReviews bookId={id} user={user} isAdmin={isAdmin} />
+        {id && <BookReviews bookId={id} user={user} isAdmin={isAdmin} />}
 
         {/* AI Similar Books Section */}
-        <SimilarBooks bookId={parseInt(id)} currentTitle={book?.title} />
+        {id && <SimilarBooks bookId={parseInt(id)} currentTitle={book?.title} />}
       </div>
 
       {/* AI Chatbot Widget with book context */}
-      <ChatbotWidget bookId={parseInt(id)} category={book?.category} />
+      {id && <ChatbotWidget bookId={parseInt(id)} category={book?.category} />}
     </div>
   );
 };
