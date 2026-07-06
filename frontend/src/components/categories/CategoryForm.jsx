@@ -26,7 +26,7 @@ const CategoryForm = () => {
 
   const fetchCategory = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/categories/${id}`, {
+      const response = await axios.get(`https://books-store-backend-production.up.railway.app/api/categories/${id}`, {
         withCredentials: true
       });
       setFormData(response.data);
@@ -54,11 +54,11 @@ const CategoryForm = () => {
 
     try {
       if (isEditMode) {
-        await axios.put(`http://localhost:8080/api/categories/${id}`, formData, {
+        await axios.put(`https://books-store-backend-production.up.railway.app/api/categories/${id}`, formData, {
           withCredentials: true
         });
       } else {
-        await axios.post('http://localhost:8080/api/categories', formData, {
+        await axios.post('https://books-store-backend-production.up.railway.app/api/categories', formData, {
           withCredentials: true
         });
       }

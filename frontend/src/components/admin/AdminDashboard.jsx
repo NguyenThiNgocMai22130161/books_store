@@ -25,7 +25,7 @@ const AdminDashboard = () => {
   const checkAuthStatus = async () => {
     try {
       console.log('Checking auth status...');
-      const authResponse = await axios.get('http://localhost:8080/api/auth/status', {
+      const authResponse = await axios.get('https://books-store-backend-production.up.railway.app/api/auth/status', {
         withCredentials: true
       });
       
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
       
       console.log('Fetching dashboard data...');
       
-      const response = await axios.get('http://localhost:8080/api/admin/dashboard', {
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/admin/dashboard', {
         withCredentials: true
       });
       
