@@ -13,6 +13,8 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
+  const [contextBookId, setContextBookId] = useState(bookId);
+  const [contextCategory, setContextCategory] = useState(category);
   const messagesEndRef = useRef(null);
 
   // Scroll to bottom when new messages
@@ -39,13 +41,37 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
   }, [isOpen, bookId]);
 
   // Listen for openChatbot events from AskAIButton
+  // useEffect(() => {
+  //   const handleOpenChat = (e) => {
+  //     setIsOpen(true);
+  //     if (e.detail?.message) {
+  //       setInputMessage(e.detail.message);
+  //     }
+  //   };
+  //   window.addEventListener('openChatbot', handleOpenChat);
+  //   return () => window.removeEventListener('openChatbot', handleOpenChat);
+  // }, []);
   useEffect(() => {
     const handleOpenChat = (e) => {
+      const message = e.detail?.message;
+      const eventBookId = e.detail?.bookId;
+      const eventCategory = e.detail?.category;
+
       setIsOpen(true);
-      if (e.detail?.message) {
-        setInputMessage(e.detail.message);
+
+      if (eventBookId) {
+        setContextBookId(eventBookId);
+      }
+
+      if (eventCategory) {
+        setContextCategory(eventCategory);
+      }
+
+      if (message) {
+        setInputMessage(message);
       }
     };
+
     window.addEventListener('openChatbot', handleOpenChat);
     return () => window.removeEventListener('openChatbot', handleOpenChat);
   }, []);
@@ -64,16 +90,22 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
     setIsLoading(true);
 
     try {
+      // const response = await aiService.chat(
+      //   inputMessage,
+      //   bookId,
+      //   category,
+      //   sessionId
+      // );
       const response = await aiService.chat(
         inputMessage,
-        bookId,
-        category,
+        contextBookId || bookId,
+        contextCategory || category,
         sessionId
       );
 
       // Save session ID
-      if (response.sessionId) {
-        setSessionId(response.sessionId);
+      if (response.session_id || response.sessionId) {
+        setSessionId(response.session_id || response.sessionId);
       }
 
       const assistantMessage = {
