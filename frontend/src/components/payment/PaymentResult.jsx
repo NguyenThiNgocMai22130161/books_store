@@ -18,7 +18,6 @@ const PaymentResult = () => {
   const [countdown, setCountdown] = useState(10);
 
   useEffect(() => {
-
     if (location.state) {
       setSuccess(location.state.success);
       setMessage(location.state.message || (location.state.success ? 'Thanh toán thành công!' : 'Thanh toán thất bại'));
@@ -61,7 +60,7 @@ const PaymentResult = () => {
     }
   }, [location.search, location.state, navigate]);
 
-  // 🔥 ĐỒNG HỒ ĐẾM NGƯỢC XỊN: Thành công về "Cửa hàng", Thất bại về "Giỏ hàng" để thanh toán lại
+  // ĐỒNG HỒ ĐẾM NGƯỢC XỊN: Thành công về "Cửa hàng", Thất bại về "Giỏ hàng" để thanh toán lại
   useEffect(() => {
     if (success === null) return;
 
@@ -214,7 +213,6 @@ const PaymentResult = () => {
           <p>© 2026 Tiệm Sách. Secure Payment Gateway.</p>
         </div>
       </footer>
-
     </div>
   );
 };

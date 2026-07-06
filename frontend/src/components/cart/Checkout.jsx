@@ -118,7 +118,6 @@ const Checkout = () => {
         window.location.href = response.data.redirectUrl;
       } else {
         // Áp dụng cho cả COD và Thẻ tín dụng thành công trực tiếp
-        window.dispatchEvent(new Event('cart-updated'));
         navigate('/cart/payment-result', { 
           replace: true,
           state: { 

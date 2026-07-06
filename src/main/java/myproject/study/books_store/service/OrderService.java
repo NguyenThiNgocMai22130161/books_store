@@ -42,25 +42,65 @@ public class OrderService {
     /**
      * Hoàn tất thanh toán - cập nhật số lượng sách và trạng thái đơn hàng
      */
+    /**
+     * Hoàn tất thanh toán
+     */
     public void completePayment(Order order) {
-        // Trừ số lượng sách
+
+        // =========================
+        // CHỐNG THANH TOÁN TRÙNG
+        // =========================
+        if ("PAID".equals(order.getStatus())) {
+            return;
+        }
+
+        // =========================
+        // TRỪ KHO
+        // =========================
         for (OrderItem item : order.getItems()) {
+
             Book book = item.getBook();
+
             if (book != null) {
-                // Lấy số lượng hiện tại
-                int currentQuantity = book.getQuantity() != null ? book.getQuantity() : 0;
-                // Trừ đi số lượng mua
-                book.setQuantity(currentQuantity - item.getQuantity());
-                // Lưu lại
+
+                int currentQuantity =
+                        book.getQuantity() != null
+                                ? book.getQuantity()
+                                : 0;
+
+                // tránh âm kho
+                if (currentQuantity < item.getQuantity()) {
+                    throw new RuntimeException(
+                            "Không đủ số lượng sách trong kho"
+                    );
+                }
+
+                book.setQuantity(
+                        currentQuantity - item.getQuantity()
+                );
+
                 bookRepository.save(book);
             }
         }
 
-        // Cập nhật trạng thái đơn hàng
+        // =========================
+        // UPDATE ORDER
+        // =========================
         order.complete();
+
+        order.setStatus("PAID");
+
         orderRepository.save(order);
     }
+    /**
+     * Thanh toán thất bại
+     */
+    public void failPayment(Order order) {
 
+        order.setStatus("FAILED");
+
+        orderRepository.save(order);
+    }
     /**
      * Hủy đơn hàng
      */
@@ -179,5 +219,19 @@ public class OrderService {
         return userOrders.stream()
                 .mapToDouble(Order::getTotalPrice)
                 .sum();
+    }
+    /**
+     * Lưu order
+     */
+    public Order save(Order order) {
+        return orderRepository.save(order);
+    }
+    /**
+     * Tìm order theo orderCode
+     */
+    public Order findByOrderCode(String orderCode) {
+        return orderRepository
+                .findByOrderCode(orderCode)
+                .orElse(null);
     }
 }
