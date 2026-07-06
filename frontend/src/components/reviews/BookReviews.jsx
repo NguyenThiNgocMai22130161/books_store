@@ -16,6 +16,14 @@ const BookReviews = ({ bookId, user, isAdmin }) => {
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
+    console.log('BookReviews useEffect triggered, bookId:', bookId, 'type:', typeof bookId);
+    
+    // Only fetch if bookId is valid
+    if (!bookId || bookId === 'undefined' || bookId === undefined) {
+      console.log('Invalid bookId, skipping API calls');
+      return;
+    }
+    
     fetchReviews();
     if (user) {
       checkReviewPermission();
