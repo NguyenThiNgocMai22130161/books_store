@@ -12,7 +12,7 @@ const Checkout = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('cod'); // Set COD làm mặc định
+  const [paymentMethod, setPaymentMethod] = useState('vnpay');
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
@@ -93,7 +93,6 @@ const Checkout = () => {
       setProcessing(true);
       setError(''); // Xóa thông báo lỗi cũ nếu có
 
-      // 🚀 BẤT KỂ PHƯƠNG THỨC NÀO (cod, momo, default) CŨNG GỌI LÊN BACKEND ĐỂ TẠO ORDER VÀ XÓA GIỎ HÀNG
       const response = await axios.post(
         'https://books-store-backend-production.up.railway.app/api/cart/payment',
         { paymentMethod }, // Truyền 'cod' hoặc 'momo' hoặc 'default' lên Java
@@ -102,33 +101,28 @@ const Checkout = () => {
       
       console.log('Payment response từ Backend:', response.data);
 
-      // --- TRƯỜNG HỢP 1: XỬ LÝ THANH TOÁN THẬT QUA VÍ MOMO ---
-      if (paymentMethod === 'momo') {
-        if (response.data && response.data.payUrl) {
-          window.location.href = response.data.payUrl; // Chuyển sang trang QR MoMo thật
+      if (paymentMethod === 'vnpay') {
+        if (response.data?.paymentUrl) {
+          window.location.href = response.data.paymentUrl;
           return;
-        } else {
-          throw new Error('Không nhận được liên kết thanh toán (payUrl) từ MoMo');
         }
+        throw new Error('Không nhận được liên kết thanh toán từ VNPay');
       }
-      
-      // --- TRƯỜNG HỢP 2: XỬ LÝ COD HOẶC CÁC PHƯƠNG THỨC KHÁC ĐÃ THÀNH CÔNG NGAY Ở BACKEND ---
-      // Sau khi Backend xử lý lưu DB và xóa giỏ hàng xong, trả về orderId thật
-      if (response.data.redirectUrl) {
+
+      if (response.data?.redirectUrl) {
         window.location.href = response.data.redirectUrl;
       } else {
-        // Áp dụng cho cả COD và Thẻ tín dụng thành công trực tiếp
-        navigate('/cart/payment-result', { 
+        navigate('/cart/payment-result', {
           replace: true,
-          state: { 
-            success: true, 
-            message: paymentMethod === 'cod' 
-              ? 'Đặt hàng thành công! Đơn hàng của bạn đã được ghi nhận hệ thống dưới hình thức COD.' 
+          state: {
+            success: true,
+            message: paymentMethod === 'cod'
+              ? 'Đặt hàng thành công! Đơn hàng của bạn đã được ghi nhận hệ thống dưới hình thức COD.'
               : 'Thanh toán thành công qua cổng kết nối!',
-            orderId: response.data.orderId || ('COD-' + Date.now()), // Ưu tiên mã đơn thật từ Java
-            orderTotal: total, // Truyền tổng tiền thực tế để trang kết quả hiển thị xịn mịn
-            paymentMethod: paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng (COD)' : 'Thẻ tín dụng'
-          } 
+            orderId: response.data.orderId || ('COD-' + Date.now()),
+            orderTotal: total,
+            paymentMethod: paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng (COD)' : 'Thanh toán qua VNPay'
+          }
         });
       }
     } catch (err) {
@@ -137,16 +131,6 @@ const Checkout = () => {
     } finally {
       setProcessing(false);
     }
-  };
-
-  const handleSimulateSuccess = (method = 'test') => {
-    navigate('/cart/payment-result', { 
-      state: { 
-        success: true, 
-        message: method === 'cod' ? 'Đặt hàng thành công (Thanh toán khi nhận hàng)' : 'Thanh toán thành công (Sandbox)',
-        orderId: (method === 'cod' ? 'COD-' : 'TEST-') + Date.now()
-      } 
-    });
   };
 
   if (loading) {
@@ -207,8 +191,6 @@ const Checkout = () => {
                 <PaymentMethods
                   paymentMethod={paymentMethod}
                   setPaymentMethod={setPaymentMethod}
-                  processing={processing}
-                  onSimulateMoMo={handleSimulateMoMoSuccess}
                 />
 
                 {/* Box thông báo động tuỳ theo loại thanh toán */}
@@ -233,7 +215,7 @@ const Checkout = () => {
                     type="submit" 
                     className="btn btn-success"
                     disabled={processing}
-                    style={{ backgroundColor: paymentMethod === 'cod' ? '#27AE60' : '#EE4D2D' }} // COD màu xanh lá, MoMo màu đỏ/cam cam cho đẹp
+                    style={{ backgroundColor: paymentMethod === 'cod' ? '#27AE60' : '#2563EB' }}
                   >
                     {processing ? (
                       '⏳ ĐANG XỬ LÝ HỆ THỐNG...'
@@ -245,8 +227,7 @@ const Checkout = () => {
                         </svg>
                         {/* Thay đổi chữ linh hoạt theo phương thức lựa chọn */}
                         {paymentMethod === 'cod' && 'ĐẶT HÀNG HOÀN TẤT (COD)'}
-                        {paymentMethod === 'momo' && 'THANH TOÁN GỐC QUA MOMO'}
-                        {paymentMethod === 'default' && 'XÁC NHẬN THẺ TÍN DỤNG'}
+                        {paymentMethod === 'vnpay' && 'THANH TOÁN QUA VNPay'}
                       </>
                     )}
                   </button>

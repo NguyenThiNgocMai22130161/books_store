@@ -38,7 +38,7 @@ const PaymentResult = () => {
         const decodedMessage = messageParam ? decodeURIComponent(messageParam) : '';
         setMessage(decodedMessage || (isSuccess ? 'Thanh toán thành công!' : 'Thanh toán thất bại'));
         setOrderId(orderIdParam || '');
-        setPaymentMethod('Cổng thanh toán MoMo'); 
+        setPaymentMethod('Cổng thanh toán VNPay');
         setLoading(false);
 
         // Đẩy vào state để giữ thông tin khi F5
@@ -48,7 +48,7 @@ const PaymentResult = () => {
             success: isSuccess, 
             message: decodedMessage || (isSuccess ? 'Thanh toán thành công!' : 'Thanh toán thất bại'),
             orderId: orderIdParam || '',
-            paymentMethod: 'Cổng thanh toán MoMo'
+            paymentMethod: 'Cổng thanh toán VNPay'
           } 
         });
       } else {
