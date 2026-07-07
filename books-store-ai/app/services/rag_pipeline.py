@@ -68,17 +68,23 @@ class RAGPipeline:
                     'intent': 'no_results'
                 }
             
-            # Step 2: Build context from books
-            context = self._build_context(context_books)
+            # Step 2: Build template answer (without LLM for now)
+            intent = self._classify_intent(question)
+            answer = self._build_template_answer(context_books, intent, question)
             
-            # Step 3: Build prompt
-            prompt = self._build_prompt(question, context)
+            # Fallback to LLM if needed (commented out for stability)
+            # Step 3: Build context from books
+            # context = self._build_context(context_books)
             
-            # Step 4: Generate answer
-            logger.info("[OK] Generating answer...")
-            answer = llm_client.generate(prompt)
+            # Step 4: Build prompt
+            # prompt = self._build_prompt(question, context)
             
-            # Step 5: Extract sources
+            # Step 5: Generate answer
+            # logger.info("[OK] Generating answer...")
+            # answer = llm_client.generate(prompt)
+            
+            
+            # Step 6: Extract sources
             sources = [
                 {
                     'book_id': book.book_id,
@@ -95,7 +101,7 @@ class RAGPipeline:
             return {
                 'answer': answer,
                 'sources': sources,
-                'intent': self._classify_intent(question)
+                'intent': intent
             }
             
         except Exception as e:
@@ -105,6 +111,46 @@ class RAGPipeline:
                 'sources': [],
                 'intent': 'error'
             }
+    
+    def _build_template_answer(self, books: List[SearchResult], intent: str, question: str) -> str:
+        """
+        Build template answer without LLM (for stability)
+        """
+        if not books:
+            return "Xin lỗi, tôi không tìm thấy sách phù hợp."
+        
+        # Build answer based on intent
+        if intent == 'search' or 'tìm' in question.lower() or 'gợi ý' in question.lower():
+            answer_parts = ["Dựa trên yêu cầu của bạn, tôi gợi ý các cuốn sách sau:\n"]
+            
+            for i, book in enumerate(books[:3], 1):
+                answer_parts.append(
+                    f"\n{i}. **{book.title}** - {book.author}\n"
+                    f"   💰 Giá: {book.price:,.0f}đ\n"
+                    f"   📖 {book.description[:100] if book.description else 'Sách hay về chủ đề này'}..."
+                )
+            
+            answer_parts.append("\n\nBạn muốn biết thêm chi tiết về cuốn nào không?")
+            return "".join(answer_parts)
+        
+        elif intent == 'comparison' or 'so sánh' in question.lower():
+            if len(books) >= 2:
+                book1, book2 = books[0], books[1]
+                return (
+                    f"So sánh giữa **{book1.title}** và **{book2.title}**:\n\n"
+                    f"📚 **{book1.title}**\n"
+                    f"   - Tác giả: {book1.author}\n"
+                    f"   - Giá: {book1.price:,.0f}đ\n"
+                    f"   - Thể loại: {book1.category or 'Đa dạng'}\n\n"
+                    f"📚 **{book2.title}**\n"
+                    f"   - Tác giả: {book2.author}\n"
+                    f"   - Giá: {book2.price:,.0f}đ\n"
+                    f"   - Thể loại: {book2.category or 'Đa dạng'}\n\n"
+                    f"Cả hai đều là sách hay, bạn có thể chọn dựa trên giá và sở thích!"
+                )
+        
+        # Default: list books
+        return self._build_template_answer(books, 'search', question)
     
     def _build_context(self, books: List[SearchResult]) -> str:
         """

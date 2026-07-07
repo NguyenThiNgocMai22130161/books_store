@@ -107,7 +107,13 @@ const ChatbotWidget = ({ bookId = null, category = null }) => {
 
   const handleBookClick = (book) => {
     // Navigate to book detail
-    window.location.href = `/books/${book.bookId}`;
+    // Support both bookId (from AI) and id (from backend)
+    const bookId = book.bookId || book.id || book.book_id;
+    if (bookId) {
+      window.location.href = `/books/${bookId}`;
+    } else {
+      console.error('Book ID not found:', book);
+    }
   };
 
   const toggleChat = () => {

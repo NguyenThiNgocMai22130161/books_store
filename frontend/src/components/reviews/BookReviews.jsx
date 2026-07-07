@@ -340,7 +340,7 @@ const BookReviews = ({ bookId, user, isAdmin }) => {
             <line x1="12" x2="12.01" y1="8" y2="8"/>
           </svg>
           <span style={{ fontSize: '0.95rem', fontWeight: 500, lineHeight: 1.5 }}>
-            Bạn chỉ có thể gửi đánh giá sau khi đã mua sản phẩm này và đơn hàng được chuyển sang trạng thái **Đã nhận (COMPLETED)**.
+            Bạn chỉ có thể gửi đánh giá sau khi đã mua sản phẩm này và đơn hàng được chuyển sang trạng thái.
           </span>
         </div>
       )}
