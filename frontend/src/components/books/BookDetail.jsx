@@ -9,9 +9,10 @@ import './BookDetail.css';
 
 const BookDetail = () => {
   const { id } = useParams();
+  console.log('BookDetail rendered, id from useParams:', id, 'type:', typeof id);
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -20,9 +21,19 @@ const BookDetail = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [user, setUser] = useState(null);
 
+  // Reset state when navigating to a different book
   useEffect(() => {
-    fetchBookDetail();
-    fetchAuthStatus();
+    setBook(null);
+    setLoading(true);
+    setError('');
+    setSuccessMessage('');
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (id) {
+      fetchBookDetail();
+      fetchAuthStatus();
+    }
   }, [id]);
 
   useEffect(() => {
@@ -40,7 +51,7 @@ const BookDetail = () => {
 
   const fetchAuthStatus = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/auth/profile', {
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/auth/profile', {
         withCredentials: true
       });
       setUser(response.data);
@@ -51,9 +62,18 @@ const BookDetail = () => {
   };
 
   const fetchBookDetail = async () => {
+    // Guard: don't fetch if id is invalid
+    if (!id || id === 'undefined') {
+      console.error('fetchBookDetail called with invalid id:', id);
+      setError('ID sách không hợp lệ');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:8080/api/books/${id}`, {
+      console.log('Fetching book with id:', id);
+      const response = await axios.get(`https://books-store-backend-production.up.railway.app/api/books/${id}`, {
         withCredentials: true
       });
       console.log('=== BOOK DETAIL DEBUG ===');
@@ -72,14 +92,14 @@ const BookDetail = () => {
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
-    
+
     if (!user) {
       // Lưu URL hiện tại để redirect về sau khi đăng nhập
       const currentUrl = window.location.pathname;
       sessionStorage.setItem('redirectAfterLogin', currentUrl);
-      
+
       setError('Vui lòng đăng nhập để thêm sách vào giỏ hàng!');
-      
+
       // Redirect đến trang login sau 1.5 giây
       setTimeout(() => {
         navigate('/login');
@@ -90,27 +110,27 @@ const BookDetail = () => {
     try {
       setAddingToCart(true);
       await axios.post(
-        'http://localhost:8080/api/cart/add',
+        'https://books-store-backend-production.up.railway.app/api/cart/add',
         { bookId: id, quantity },
         { withCredentials: true }
       );
       setSuccessMessage('Đã thêm vào giỏ hàng!');
-      
+
       // Dispatch event to update navbar cart count immediately without reload
       // Thêm delay nhỏ để đảm bảo backend đã cập nhật xong
       setTimeout(() => {
         window.dispatchEvent(new Event('cart-updated'));
       }, 100);
-      
+
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       // Nếu lỗi 401 (Unauthorized), redirect đến login
       if (err.response?.status === 401) {
         const currentUrl = window.location.pathname;
         sessionStorage.setItem('redirectAfterLogin', currentUrl);
-        
+
         setError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!');
-        
+
         setTimeout(() => {
           navigate('/login');
         }, 1500);
@@ -128,7 +148,7 @@ const BookDetail = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:8080/api/books/${id}`, {
+      await axios.delete(`https://books-store-backend-production.up.railway.app/api/books/${id}`, {
         withCredentials: true
       });
       navigate('/books');
@@ -155,9 +175,9 @@ const BookDetail = () => {
       <div className="container">
         <div className="alert alert-danger">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="15" x2="9" y1="9" y2="15"/>
-            <line x1="9" x2="15" y1="9" y2="15"/>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="15" x2="9" y1="9" y2="15" />
+            <line x1="9" x2="15" y1="9" y2="15" />
           </svg>
           <span>{error}</span>
         </div>
@@ -176,8 +196,8 @@ const BookDetail = () => {
         {successMessage && (
           <div className="alert alert-success" style={{ marginBottom: '2rem' }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-              <polyline points="22 4 12 14.01 9 11.01"/>
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
             <span>{successMessage}</span>
           </div>
@@ -186,9 +206,9 @@ const BookDetail = () => {
         {error && (
           <div className="alert alert-danger" style={{ marginBottom: '2rem' }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="15" x2="9" y1="9" y2="15"/>
-              <line x1="9" x2="15" y1="9" y2="15"/>
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" x2="9" y1="9" y2="15" />
+              <line x1="9" x2="15" y1="9" y2="15" />
             </svg>
             <span>{error}</span>
           </div>
@@ -202,8 +222,8 @@ const BookDetail = () => {
             ) : (
               <div className="detail-book-placeholder">
                 <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                 </svg>
               </div>
             )}
@@ -249,32 +269,32 @@ const BookDetail = () => {
             <div className="detail-actions">
               <Link to="/books" className="btn-back">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '0.25rem' }}>
-                  <line x1="19" x2="5" y1="12" y2="12"/>
-                  <polyline points="12 19 5 12 12 5"/>
+                  <line x1="19" x2="5" y1="12" y2="12" />
+                  <polyline points="12 19 5 12 12 5" />
                 </svg>
                 Quay lại
               </Link>
-              
+
               {!isAdmin && user && (
                 <form onSubmit={handleAddToCart} className="add-to-cart-form">
                   <div className="qty-picker">
-                    <button 
-                      type="button" 
-                      onClick={() => setQuantity(q => Math.max(1, q - 1))} 
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(q => Math.max(1, q - 1))}
                       className="qty-picker-btn"
                     >
                       −
                     </button>
-                    <input 
-                      type="number" 
-                      value={quantity} 
+                    <input
+                      type="number"
+                      value={quantity}
                       onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                       min="1"
                       className="qty-picker-input"
                     />
-                    <button 
-                      type="button" 
-                      onClick={() => setQuantity(q => q + 1)} 
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(q => q + 1)}
                       className="qty-picker-btn"
                     >
                       +
@@ -282,9 +302,9 @@ const BookDetail = () => {
                   </div>
                   <button type="submit" className="btn-add-cart" disabled={addingToCart}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <circle cx="9" cy="21" r="1"/>
-                      <circle cx="20" cy="21" r="1"/>
-                      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                      <circle cx="9" cy="21" r="1" />
+                      <circle cx="20" cy="21" r="1" />
+                      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                     </svg>
                     {addingToCart ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
                   </button>
@@ -296,14 +316,14 @@ const BookDetail = () => {
               <div className="admin-detail-actions">
                 <Link to={`/books/edit/${book.id}`} className="btn-admin-edit">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
                   </svg>
                   Sửa thông tin
                 </Link>
                 <button onClick={handleDelete} className="btn-admin-delete">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                   </svg>
                   Xóa sách
                 </button>
@@ -328,38 +348,44 @@ const BookDetail = () => {
         <div className="ai-quick-questions-section">
           <h3 className="ai-questions-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
-              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
             </svg>
             Hỏi AI về sách này
           </h3>
-          <div className="ai-questions-grid">
-            <AskAIButton 
-              question="Sách này phù hợp cho người mới bắt đầu không?"
-              style="primary"
-              size="medium"
-            />
-            <AskAIButton 
-              question="Có sách nào tương tự với sách này không?"
-              style="secondary"
-              size="medium"
-            />
-            <AskAIButton 
-              question="Tại sao nên đọc sách này?"
-              style="outline"
-              size="medium"
-            />
-          </div>
+          <AskAIButton
+            question="Sách này phù hợp cho người mới bắt đầu không?"
+            bookId={parseInt(id)}
+            category={book?.category}
+            style="primary"
+            size="medium"
+          />
+
+          <AskAIButton
+            question="Có sách nào tương tự với sách này không?"
+            bookId={parseInt(id)}
+            category={book?.category}
+            style="secondary"
+            size="medium"
+          />
+
+          <AskAIButton
+            question="Tại sao nên đọc sách này?"
+            bookId={parseInt(id)}
+            category={book?.category}
+            style="outline"
+            size="medium"
+          />
         </div>
 
         {/* Reviews Section */}
-        <BookReviews bookId={id} user={user} isAdmin={isAdmin} />
+        {id && <BookReviews bookId={id} user={user} isAdmin={isAdmin} />}
 
         {/* AI Similar Books Section */}
-        <SimilarBooks bookId={parseInt(id)} currentTitle={book?.title} />
+        {id && <SimilarBooks bookId={parseInt(id)} currentTitle={book?.title} />}
       </div>
 
       {/* AI Chatbot Widget with book context */}
-      <ChatbotWidget bookId={parseInt(id)} category={book?.category} />
+      {id && <ChatbotWidget bookId={parseInt(id)} category={book?.category} />}
     </div>
   );
 };

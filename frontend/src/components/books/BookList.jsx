@@ -89,7 +89,7 @@ const BookList = () => {
       if (minPriceParam) params.append('minPrice', minPriceParam);
       if (maxPriceParam) params.append('maxPrice', maxPriceParam);
 
-      const response = await axios.get(`http://localhost:8080/api/books?${params.toString()}`, { withCredentials: true });
+      const response = await axios.get(`https://books-store-backend-production.up.railway.app/api/books?${params.toString()}`, { withCredentials: true });
       setBooks(response.data || []);
     } catch (error) {
       console.error('Error fetching books:', error);
@@ -101,7 +101,7 @@ const BookList = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/categories', { withCredentials: true });
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/categories', { withCredentials: true });
       setCategories(response.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -110,7 +110,7 @@ const BookList = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/auth/profile', { withCredentials: true });
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/auth/profile', { withCredentials: true });
       setUser(response.data);
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -119,7 +119,7 @@ const BookList = () => {
 
   const fetchWishlist = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/wishlist', { withCredentials: true });
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/wishlist', { withCredentials: true });
       setWishlist(new Set((response.data || []).map(item => item.bookId)));
     } catch (error) {
       console.error(error);
@@ -128,7 +128,7 @@ const BookList = () => {
 
   const fetchCartCount = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/cart', { withCredentials: true });
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/cart', { withCredentials: true });
       setCartItemCount(response.data.itemCount || 0);
     } catch (error) {
       console.error(error);
@@ -151,7 +151,7 @@ const BookList = () => {
 
     try {
       if (wishlist.has(bookId)) {
-        await axios.delete(`http://localhost:8080/api/wishlist/${bookId}`, { withCredentials: true });
+        await axios.delete(`https://books-store-backend-production.up.railway.app/api/wishlist/${bookId}`, { withCredentials: true });
         setWishlist(prev => {
           const s = new Set(prev);
           s.delete(bookId);
@@ -159,7 +159,7 @@ const BookList = () => {
         });
         setAlert({ type: 'success', message: 'Đã xóa khỏi yêu thích' });
       } else {
-        await axios.post(`http://localhost:8080/api/wishlist/${bookId}`, {}, { withCredentials: true });
+        await axios.post(`https://books-store-backend-production.up.railway.app/api/wishlist/${bookId}`, {}, { withCredentials: true });
         setWishlist(prev => new Set(prev).add(bookId));
         setAlert({ type: 'success', message: 'Đã thêm vào yêu thích ❤️' });
       }
@@ -214,7 +214,7 @@ const BookList = () => {
 
     try {
       await axios.post(
-        'http://localhost:8080/api/cart/add',
+        'https://books-store-backend-production.up.railway.app/api/cart/add',
         { bookId: String(bookId), quantity: 1 },
         { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
       );

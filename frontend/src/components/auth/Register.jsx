@@ -47,7 +47,7 @@ const Register = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:8080/api/auth/register',
+        'https://books-store-backend-production.up.railway.app/api/auth/register',
         formData,
         {
           headers: {
@@ -89,7 +89,7 @@ const Register = () => {
 
   // Handle Google OAuth registration
   const handleGoogleRegister = () => {
-    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+    window.location.href = 'https://books-store-backend-production.up.railway.app/oauth2/authorization/google';
   };
 
   return (

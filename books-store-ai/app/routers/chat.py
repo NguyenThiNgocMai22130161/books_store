@@ -23,6 +23,7 @@ from app.services.chat_history_service import chat_history_service
 from app.services.recommendation_service import recommendation_service
 from app.services.review_analysis_service import review_analysis_service
 from app.services.cache_service import cache_service
+from app.clients.backend_client import backend_client
 
 logger = logging.getLogger(__name__)
 
@@ -33,22 +34,13 @@ router = APIRouter()
 async def chat(request: ChatRequest):
     """
     Main chatbot endpoint - answer user questions using RAG
-    
-    Args:
-        request: ChatRequest with message and optional context
-        
-    Returns:
-        ChatResponse with answer and sources
     """
     try:
         logger.info(f"[OK] Chat request: {request.message[:50]}...")
-        
-        # Generate or use existing session ID
+
         session_id = request.session_id or str(uuid.uuid4())
-        
-        # Enhanced greeting and common questions handler
         message_lower = request.message.lower().strip()
-        
+
         # Greetings
         if any(word in message_lower for word in ['xin chào', 'chào', 'hello', 'hi', 'hey', 'xin chao']):
             return ChatResponse(
@@ -63,7 +55,25 @@ async def chat(request: ChatRequest):
                 intent='greeting',
                 session_id=session_id
             )
-        
+
+        # Identity / capability questions.
+        # Lưu ý: KHÔNG bắt cụm "your name" ở đây vì "Your Name" là tên sách.
+        if any(phrase in message_lower for phrase in [
+            'what is your name',
+            'who are you',
+            'bạn tên gì',
+            'tên bạn là gì',
+            'bạn là ai',
+            'mày là ai'
+        ]):
+            return ChatResponse(
+                answer="Tôi là trợ lý AI của Books Store. Tôi có thể giúp bạn tìm sách, "
+                       "gợi ý sách phù hợp, trả lời câu hỏi về sách và đề xuất sách tương tự.",
+                sources=[],
+                intent='identity',
+                session_id=session_id
+            )
+
         # How are you / Thank you
         if any(phrase in message_lower for phrase in ['bạn khỏe không', 'how are you', 'bạn thế nào', 'có khỏe không']):
             return ChatResponse(
@@ -74,7 +84,7 @@ async def chat(request: ChatRequest):
                 intent='casual',
                 session_id=session_id
             )
-        
+
         if any(phrase in message_lower for phrase in ['cảm ơn', 'cám ơn', 'thank', 'thanks', 'cảm ơn bạn']):
             return ChatResponse(
                 answer="Rất vui được giúp bạn! 🙏\n\n"
@@ -83,7 +93,7 @@ async def chat(request: ChatRequest):
                 intent='casual',
                 session_id=session_id
             )
-        
+
         # Help / What can you do
         if any(phrase in message_lower for phrase in ['giúp gì', 'làm được gì', 'what can you do', 'bạn có thể', 'giúp tôi']):
             return ChatResponse(
@@ -92,14 +102,14 @@ async def chat(request: ChatRequest):
                        "2️⃣ **Gợi ý sách hay**: \"Gợi ý sách kinh doanh hay nhất\"\n"
                        "3️⃣ **So sánh sách**: \"So sánh 'Sapiens' và 'Homo Deus'\"\n"
                        "4️⃣ **Tư vấn theo giá**: \"Sách dưới 200k về tâm lý học\"\n"
-                       "5️⃣ **Giải thích nội dung**: \"Nói về cuốn 'Nhà Giả Kim'\"\n"
+                       "5️⃣ **Giải thích nội dung**: \"Sách này nói về gì?\"\n"
                        "6️⃣ **Tìm sách tương tự**: Khi xem chi tiết sách\n\n"
                        "Hãy thử hỏi tôi bất cứ điều gì về sách nhé! 😊",
                 sources=[],
                 intent='help',
                 session_id=session_id
             )
-        
+
         # Goodbye
         if any(phrase in message_lower for phrase in ['tạm biệt', 'bye', 'goodbye', 'hẹn gặp lại', 'chào tạm biệt']):
             return ChatResponse(
@@ -109,24 +119,218 @@ async def chat(request: ChatRequest):
                 intent='goodbye',
                 session_id=session_id
             )
-        
-        # Get context books if book_id provided
+
+        def safe_text(value, default=''):
+            return value if value not in [None, ''] else default
+
+        def format_price(price):
+            try:
+                return f"{float(price):,.0f}đ"
+            except Exception:
+                return "chưa có thông tin giá"
+
+        def build_sources_from_results(books):
+            return [
+                BookRecommendation(
+                    book_id=book.book_id,
+                    title=book.title,
+                    author=book.author,
+                    price=book.price,
+                    category=book.category,
+                    score=book.score
+                )
+                for book in books
+            ]
+
         context_books = None
+        current_book = None
+
+        # Nếu đang ở trang chi tiết sách, lấy đúng cuốn hiện tại + sách tương tự
         if request.book_id:
-            logger.info(f"[OK] Finding similar books to book_id={request.book_id}")
+            logger.info(f"[OK] Loading current book context for book_id={request.book_id}")
+
+            try:
+                current_book = await backend_client.get_book_by_id(request.book_id)
+            except Exception as e:
+                logger.warning(f"Cannot fetch current book {request.book_id}: {str(e)}")
+                current_book = None
+
             context_books = retriever.get_similar_books(
                 book_id=request.book_id,
                 top_k=5
             )
-        
-        # Generate answer using RAG pipeline
+
+        # Book-specific questions: trả lời trực tiếp theo book_id để không bị RAG trả sai
+        if current_book:
+            title = safe_text(current_book.get("title"), "cuốn sách này")
+            author = safe_text(current_book.get("author"), "chưa rõ tác giả")
+            category_name = safe_text(current_book.get("category"), request.category or "chưa rõ thể loại")
+            price = current_book.get("price")
+            price_text = format_price(price)
+            description = safe_text(
+                current_book.get("description") or current_book.get("summary"),
+                "Hiện sách chưa có mô tả chi tiết."
+            )
+
+            # 1. Sách tương tự
+            if any(phrase in message_lower for phrase in [
+                "tương tự",
+                "giống",
+                "sách nào tương tự",
+                "sách liên quan",
+                "similar",
+                "similar books",
+                "related books"
+            ]):
+                if not context_books:
+                    return ChatResponse(
+                        answer=f"Hiện tôi chưa tìm thấy sách tương tự phù hợp với **{title}**.",
+                        sources=[],
+                        intent="similar_books",
+                        session_id=session_id
+                    )
+
+                answer_parts = [f"Một số sách tương tự hoặc liên quan đến **{title}** là:\n"]
+
+                for i, book in enumerate(context_books[:5], 1):
+                    answer_parts.append(
+                        f"\n{i}. **{book.title}** - {book.author}\n"
+                        f"   💰 Giá: {format_price(book.price)}\n"
+                        f"   📚 Thể loại: {book.category or 'Chưa rõ'}\n"
+                        f"   📖 {book.description[:140] if book.description else 'Sách có nội dung liên quan'}..."
+                    )
+
+                return ChatResponse(
+                    answer="".join(answer_parts),
+                    sources=build_sources_from_results(context_books[:5]),
+                    intent="similar_books",
+                    session_id=session_id
+                )
+
+            # 2. Sách này nói về gì / nội dung chính
+            if any(phrase in message_lower for phrase in [
+                "sách này nói về gì",
+                "cuốn này nói về gì",
+                "nội dung chính",
+                "nội dung sách",
+                "sách này kể về gì",
+                "nói về gì",
+                "book about",
+                "what is this book about"
+            ]):
+                return ChatResponse(
+                    answer=(
+                        f"**{title}** của **{author}** thuộc thể loại **{category_name}**.\n\n"
+                        f"📖 **Nội dung/Mô tả:** {description[:600]}...\n\n"
+                        f"💰 **Giá:** {price_text}"
+                    ),
+                    sources=[],
+                    intent="book_summary",
+                    session_id=session_id
+                )
+
+            # 3. Phù hợp với ai / người mới bắt đầu / khó đọc không
+            if any(phrase in message_lower for phrase in [
+                "người mới bắt đầu",
+                "beginner",
+                "mới học",
+                "mới đọc",
+                "dễ đọc không",
+                "khó đọc không",
+                "phù hợp với ai",
+                "ai nên đọc",
+                "dành cho ai",
+                "phù hợp không"
+            ]):
+                return ChatResponse(
+                    answer=(
+                        f"Dựa trên thông tin hiện có, **{title}** thuộc thể loại **{category_name}**.\n\n"
+                        f"Cuốn này phù hợp với người quan tâm đến thể loại/chủ đề này. "
+                        f"Nếu bạn là người mới bắt đầu, nên đọc mô tả và vài trang đầu để xem văn phong có dễ theo dõi không.\n\n"
+                        f"📖 **Mô tả ngắn:** {description[:450]}...\n\n"
+                        f"💰 **Giá:** {price_text}"
+                    ),
+                    sources=[],
+                    intent="book_audience",
+                    session_id=session_id
+                )
+
+            # 4. Tại sao nên đọc / có nên mua
+            if any(phrase in message_lower for phrase in [
+                "tại sao nên đọc",
+                "vì sao nên đọc",
+                "có nên đọc",
+                "có nên mua",
+                "đáng đọc không",
+                "why should i read",
+                "should i buy"
+            ]):
+                return ChatResponse(
+                    answer=(
+                        f"Bạn có thể cân nhắc đọc **{title}** vì:\n\n"
+                        f"1. Sách thuộc thể loại **{category_name}**.\n"
+                        f"2. Tác giả là **{author}**.\n"
+                        f"3. Dựa trên mô tả, sách có nội dung phù hợp nếu bạn quan tâm đến chủ đề này.\n\n"
+                        f"📖 **Mô tả:** {description[:500]}...\n\n"
+                        f"💰 **Giá:** {price_text}"
+                    ),
+                    sources=[],
+                    intent="book_reason",
+                    session_id=session_id
+                )
+
+            # 5. Tác giả
+            if any(phrase in message_lower for phrase in [
+                "tác giả",
+                "author",
+                "ai viết",
+                "người viết"
+            ]):
+                return ChatResponse(
+                    answer=f"Cuốn **{title}** được viết bởi **{author}**.",
+                    sources=[],
+                    intent="book_author",
+                    session_id=session_id
+                )
+
+            # 6. Giá
+            if any(phrase in message_lower for phrase in [
+                "giá",
+                "bao nhiêu tiền",
+                "price",
+                "cost",
+                "mắc không",
+                "rẻ không"
+            ]):
+                return ChatResponse(
+                    answer=f"Cuốn **{title}** hiện có giá **{price_text}**.",
+                    sources=[],
+                    intent="book_price",
+                    session_id=session_id
+                )
+
+            # 7. Thể loại
+            if any(phrase in message_lower for phrase in [
+                "thể loại",
+                "category",
+                "genre",
+                "loại sách"
+            ]):
+                return ChatResponse(
+                    answer=f"Cuốn **{title}** thuộc thể loại **{category_name}**.",
+                    sources=[],
+                    intent="book_category",
+                    session_id=session_id
+                )
+
+        # Generate answer using RAG pipeline for normal search/recommendation questions.
+        # Ví dụ: "your name", "effective java", "gợi ý sách thiếu nhi"
         result = rag_pipeline.answer(
             question=request.message,
             context_books=context_books,
             category=request.category
         )
-        
-        # Convert sources to BookRecommendation format
+
         sources = [
             BookRecommendation(
                 book_id=source['book_id'],
@@ -137,17 +341,17 @@ async def chat(request: ChatRequest):
             )
             for source in result['sources']
         ]
-        
+
         response = ChatResponse(
             answer=result['answer'],
             sources=sources,
             intent=result['intent'],
             session_id=session_id
         )
-        
+
         logger.info(f"[OK] Chat response generated: {len(sources)} sources")
         return response
-        
+
     except Exception as e:
         logger.error(f"[OK] Chat error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Chat error: {str(e)}")
