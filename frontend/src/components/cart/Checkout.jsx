@@ -72,6 +72,20 @@ const Checkout = () => {
         throw new Error('Không nhận được liên kết thanh toán từ VNPay');
       }
 
+      if (paymentMethod === 'cod') {
+        navigate('/cart/payment-result', {
+          replace: true,
+          state: {
+            success: true,
+            message: 'Đặt hàng thành công! Đơn hàng của bạn đã được ghi nhận hệ thống dưới hình thức COD.',
+            orderId: response.data.orderId || ('COD-' + Date.now()),
+            orderTotal: total,
+            paymentMethod: 'Thanh toán khi nhận hàng (COD)'
+          }
+        });
+        return;
+      }
+
       if (response.data?.redirectUrl) {
         window.location.href = response.data.redirectUrl;
       } else {
@@ -79,12 +93,10 @@ const Checkout = () => {
           replace: true,
           state: {
             success: true,
-            message: paymentMethod === 'cod'
-              ? 'Đặt hàng thành công! Đơn hàng của bạn đã được ghi nhận hệ thống dưới hình thức COD.'
-              : 'Thanh toán thành công qua cổng kết nối!',
+            message: 'Thanh toán thành công qua cổng kết nối!',
             orderId: response.data.orderId || ('COD-' + Date.now()),
             orderTotal: total,
-            paymentMethod: paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng (COD)' : 'Thanh toán qua VNPay'
+            paymentMethod: 'Thanh toán qua VNPay'
           }
         });
       }
