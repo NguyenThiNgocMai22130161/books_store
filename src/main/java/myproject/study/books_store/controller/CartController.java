@@ -402,8 +402,42 @@ public class CartController {
 
     // Các hàm bổ trợ (processDirectPayment, getIpAddress, getUserFromAuthentication) giữ nguyên...
     private ResponseEntity<?> processDirectPayment(String paymentMethod, Authentication authentication) {
-        // Luồng cũ giữ nguyên
-        return ResponseEntity.ok().build(); 
+        try {
+            User user = getUserFromAuthentication(authentication);
+            List<CartItem> cartItems = cartService.getCartItems(user);
+            Double total = cartService.getCartTotal(user);
+
+            if (cartItems.isEmpty() || total == null || total <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Giỏ hàng không hợp lệ!"));
+            }
+
+            if (!orderService.hasEnoughStock(cartItems)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Sản phẩm không đủ hàng trong kho!"));
+            }
+
+            Order order = orderService.createOrderFromCart(user, cartItems, paymentMethod);
+            order.setStatus("PENDING");
+            orderService.save(order);
+
+            orderService.completePayment(order);
+            cartService.clearCart(user);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("orderId", order.getOrderCode());
+            response.put("message", "Đặt hàng thành công!" );
+            response.put("paymentMethod", paymentMethod);
+            response.put("amount", total);
+            response.put("redirectUrl", "/cart/payment-result");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage() != null ? e.getMessage() : "Lỗi khi tạo đơn hàng COD"));
+        }
     }
 
     private String getIpAddress(HttpServletRequest request) {
