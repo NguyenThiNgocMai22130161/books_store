@@ -22,7 +22,7 @@ const Checkout = () => {
   const fetchCart = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/cart', {
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/cart', {
         withCredentials: true
       });
       
@@ -49,6 +49,43 @@ const Checkout = () => {
       setLoading(false);
     }
   };
+  // 🔥 ĐÃ SỬA: Chạy chuẩn luồng tạo Order và xóa Giỏ hàng thông qua API Backend
+  const handleSimulateMoMoSuccess = async (e) => {
+    e.preventDefault(); // Chặn form submit
+    
+    try {
+      setProcessing(true);
+      setError('');
+
+      // 1. Gọi API gửi phương thức 'momo' lên Backend để BE xử lý tạo Order và clear Cart trong DB
+      const response = await axios.post(
+        'https://books-store-backend-production.up.railway.app/api/cart/payment',
+        { paymentMethod: 'momo' },
+        { withCredentials: true }
+      );
+      
+      console.log('Giả lập MoMo - BE Response:', response.data);
+
+      // 2. Sau khi Backend xử lý tạo đơn và xóa giỏ hàng thành công, 
+      // Điều hướng thẳng sang trang kết quả với dữ liệu thực tế từ hệ thống
+      navigate('/cart/payment-result', {
+        replace: true,
+        state: {
+          success: true,
+          message: 'Giả lập: Thanh toán qua ví MoMo thành công và đã đồng bộ hệ thống!',
+          orderId: response.data.orderId || ('MOMO_' + Date.now()), // Lấy mã đơn thật từ BE trả về
+          orderTotal: total, // Tổng tiền thực tế từ giỏ hàng hiện tại
+          paymentMethod: 'Cổng thanh toán MoMo (Giả lập)'
+        }
+      });
+
+    } catch (err) {
+      console.error('Lỗi khi giả lập thanh toán MoMo:', err);
+      setError(err.response?.data?.message || 'Không thể tạo đơn hàng giả lập MoMo');
+    } finally {
+      setProcessing(false);
+    }
+  };
   const handlePayment = async (e) => {
     e.preventDefault();
     
@@ -57,8 +94,8 @@ const Checkout = () => {
       setError(''); // Xóa thông báo lỗi cũ nếu có
 
       const response = await axios.post(
-        'http://localhost:8080/api/cart/payment',
-        { paymentMethod },
+        'https://books-store-backend-production.up.railway.app/api/cart/payment',
+        { paymentMethod }, // Truyền 'cod' hoặc 'momo' hoặc 'default' lên Java
         { withCredentials: true }
       );
       

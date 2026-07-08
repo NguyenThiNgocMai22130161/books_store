@@ -74,7 +74,19 @@ const SmartSearchBar = () => {
     return () => clearTimeout(timeoutId);
   }, [query]);
 
-  const handleBookClick = (bookId) => {
+  // const handleBookClick = (bookId) => {
+  //   setShowResults(false);
+  //   setQuery('');
+  //   navigate(`/books/${bookId}`);
+  // };
+  const handleBookClick = (book) => {
+    const bookId = book?.id ?? book?.book_id ?? book;
+
+    if (!bookId) {
+      console.error('Invalid book id:', book);
+      return;
+    }
+
     setShowResults(false);
     setQuery('');
     navigate(`/books/${bookId}`);
@@ -91,19 +103,19 @@ const SmartSearchBar = () => {
   return (
     <div className="smart-search-container" ref={searchRef}>
       <div className="smart-search-bar">
-        <svg 
-          className="search-icon" 
-          width="20" 
-          height="20" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          className="search-icon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
           strokeWidth="2"
         >
           <circle cx="11" cy="11" r="8" />
           <path d="m21 21-4.35-4.35" />
         </svg>
-        
+
         <input
           type="text"
           className="smart-search-input"
@@ -117,7 +129,7 @@ const SmartSearchBar = () => {
         {aiEnabled && (
           <span className="ai-badge" title="AI-powered search">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V9h7V2.99c3.72 1.15 6.47 4.82 7 8.94v.06h-7z"/>
+              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V9h7V2.99c3.72 1.15 6.47 4.82 7 8.94v.06h-7z" />
             </svg>
             AI
           </span>
@@ -130,7 +142,7 @@ const SmartSearchBar = () => {
         )}
 
         {query && !isSearching && (
-          <button 
+          <button
             className="clear-button"
             onClick={() => {
               setQuery('');
@@ -153,13 +165,14 @@ const SmartSearchBar = () => {
             <span>Kết quả tìm kiếm AI</span>
             <span className="results-count">{results.length} kết quả</span>
           </div>
-          
+
           <div className="results-list">
             {results.map((book, index) => (
-              <div 
+              <div
                 key={book.bookId}
                 className="result-item"
-                onClick={() => handleBookClick(book.bookId)}
+                // onClick={() => handleBookClick(book.bookId)}
+                onClick={() => handleBookClick(book)}
               >
                 <div className="result-rank">{index + 1}</div>
                 <div className="result-info">
@@ -188,7 +201,7 @@ const SmartSearchBar = () => {
           </div>
 
           <div className="results-footer">
-            <button 
+            <button
               className="view-all-button"
               onClick={() => {
                 navigate(`/books?search=${encodeURIComponent(query)}&ai=true`);

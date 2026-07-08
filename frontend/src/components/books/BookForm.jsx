@@ -31,7 +31,7 @@ const BookForm = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/categories', {
+      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/categories', {
         withCredentials: true
       });
       setCategories(response.data);
@@ -42,7 +42,7 @@ const BookForm = () => {
 
   const fetchBook = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/books/${id}`, {
+      const response = await axios.get(`https://books-store-backend-production.up.railway.app/api/books/${id}`, {
         withCredentials: true
       });
       setFormData(response.data);
@@ -73,12 +73,12 @@ const BookForm = () => {
 
     try {
       if (isEditMode) {
-        const response = await axios.put(`http://localhost:8080/api/books/${id}`, bookData, {
+        const response = await axios.put(`https://books-store-backend-production.up.railway.app/api/books/${id}`, bookData, {
           withCredentials: true
         });
         console.log('Update response:', response.data);
       } else {
-        const response = await axios.post('http://localhost:8080/api/books', bookData, {
+        const response = await axios.post('https://books-store-backend-production.up.railway.app/api/books', bookData, {
           withCredentials: true
         });
         console.log('Create response:', response.data);
