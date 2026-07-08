@@ -7,18 +7,27 @@ import myproject.study.books_store.model.Role;
 import myproject.study.books_store.model.User;
 import myproject.study.books_store.repository.UserRepository;
 
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Random;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    private final Map<String, String> passwordResetOtps = new ConcurrentHashMap<>();
+    private final Map<String, LocalDateTime> passwordResetExpiry = new ConcurrentHashMap<>();
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     public User createUser(User user) {
@@ -102,5 +111,43 @@ public class UserService {
 
     public void deleteUser(String userId) {
         userRepository.deleteById(Long.parseLong(userId));
+    }
+
+    public String requestPasswordReset(String email) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            throw new IllegalArgumentException("Email không tồn tại!");
+        }
+
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        passwordResetOtps.put(email, otp);
+        passwordResetExpiry.put(email, LocalDateTime.now().plusMinutes(5));
+        emailService.sendPasswordResetOtp(email, otp);
+        return otp;
+    }
+
+    public boolean resetPassword(String email, String otp, String newPassword) {
+        String savedOtp = passwordResetOtps.get(email);
+        LocalDateTime expiry = passwordResetExpiry.get(email);
+
+        if (savedOtp == null || expiry == null || LocalDateTime.now().isAfter(expiry)) {
+            return false;
+        }
+
+        if (!savedOtp.equals(otp)) {
+            return false;
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+
+        User user = userOpt.get();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        passwordResetOtps.remove(email);
+        passwordResetExpiry.remove(email);
+        return true;
     }
 }
