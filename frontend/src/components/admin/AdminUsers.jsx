@@ -17,7 +17,7 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/admin/users', {
+      const response = await axios.get('http://localhost:8080/api/admin/users', {
         withCredentials: true
       });
       setUsers(response.data);
@@ -36,7 +36,7 @@ const AdminUsers = () => {
   const handleRoleChange = async (userId, newRole) => {
     try {
       await axios.put(
-        `https://books-store-backend-production.up.railway.app/api/admin/users/${userId}/role`,
+        `http://localhost:8080/api/admin/users/${userId}/role`,
         { role: newRole },
         { withCredentials: true }
       );
@@ -52,7 +52,7 @@ const AdminUsers = () => {
     try {
       const endpoint = isActive ? 'deactivate' : 'activate';
       await axios.put(
-        `https://books-store-backend-production.up.railway.app/api/admin/users/${userId}/${endpoint}`,
+        `http://localhost:8080/api/admin/users/${userId}/${endpoint}`,
         {},
         { withCredentials: true }
       );
@@ -68,7 +68,7 @@ const AdminUsers = () => {
     if (!window.confirm('Xóa vĩnh viễn người dùng này?')) return;
 
     try {
-      await axios.delete(`https://books-store-backend-production.up.railway.app/api/admin/users/${userId}`, {
+      await axios.delete(`http://localhost:8080/api/admin/users/${userId}`, {
         withCredentials: true
       });
       setSuccessMessage('Đã xóa người dùng');

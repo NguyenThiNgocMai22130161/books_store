@@ -23,7 +23,7 @@ const OrderList = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/orders', {
+      const response = await axios.get('http://localhost:8080/api/orders', {
         withCredentials: true
       });
       
@@ -62,7 +62,7 @@ const OrderList = () => {
 
     try {
       await axios.post(
-        `https://books-store-backend-production.up.railway.app/api/orders/${orderId}/cancel`,
+        `http://localhost:8080/api/orders/${orderId}/cancel`,
         {},
         { withCredentials: true }
       );

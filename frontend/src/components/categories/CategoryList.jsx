@@ -16,7 +16,7 @@ const CategoryList = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/categories', {
+      const response = await axios.get('http://localhost:8080/api/categories', {
         withCredentials: true
       });
       setCategories(response.data);
@@ -39,7 +39,7 @@ const CategoryList = () => {
 
     if (confirmed) {
       try {
-        await axios.delete(`https://books-store-backend-production.up.railway.app/api/categories/${id}`, {
+        await axios.delete(`http://localhost:8080/api/categories/${id}`, {
           withCredentials: true
         });
         setSuccessMessage('Xóa danh mục thành công!');

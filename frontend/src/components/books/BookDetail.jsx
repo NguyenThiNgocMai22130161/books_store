@@ -51,7 +51,7 @@ const BookDetail = () => {
 
   const fetchAuthStatus = async () => {
     try {
-      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/auth/profile', {
+      const response = await axios.get('http://localhost:8080/api/auth/profile', {
         withCredentials: true
       });
       setUser(response.data);
@@ -73,7 +73,7 @@ const BookDetail = () => {
     try {
       setLoading(true);
       console.log('Fetching book with id:', id);
-      const response = await axios.get(`https://books-store-backend-production.up.railway.app/api/books/${id}`, {
+      const response = await axios.get(`http://localhost:8080/api/books/${id}`, {
         withCredentials: true
       });
       console.log('=== BOOK DETAIL DEBUG ===');
@@ -110,7 +110,7 @@ const BookDetail = () => {
     try {
       setAddingToCart(true);
       await axios.post(
-        'https://books-store-backend-production.up.railway.app/api/cart/add',
+        'http://localhost:8080/api/cart/add',
         { bookId: id, quantity },
         { withCredentials: true }
       );
@@ -148,7 +148,7 @@ const BookDetail = () => {
     }
 
     try {
-      await axios.delete(`https://books-store-backend-production.up.railway.app/api/books/${id}`, {
+      await axios.delete(`http://localhost:8080/api/books/${id}`, {
         withCredentials: true
       });
       navigate('/books');

@@ -62,7 +62,7 @@ const Login = () => {
       formDataEncoded.append('password', formData.password);
 
       const response = await axios.post(
-        'https://books-store-backend-production.up.railway.app/api/auth/login',
+        'http://localhost:8080/api/auth/login',
         formDataEncoded,
         {
           headers: {
@@ -123,7 +123,7 @@ const Login = () => {
 
   // Handle Google OAuth login
   const handleGoogleLogin = () => {
-    window.location.href = 'https://books-store-backend-production.up.railway.app/oauth2/authorization/google';
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
   };
 
   return (

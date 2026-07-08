@@ -6,7 +6,7 @@
 import axios from 'axios';
 
 // API Base URL - Direct to Python AI service
-// TODO: Change to Spring Boot proxy when ready: https://books-store-backend-production.up.railway.app/api/ai
+// TODO: Change to Spring Boot proxy when ready: http://localhost:8080/api/ai
 const API_BASE_URL = 'https://books-store-ai-production.up.railway.app/api';
 
 /**

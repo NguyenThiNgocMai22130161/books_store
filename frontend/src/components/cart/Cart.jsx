@@ -21,7 +21,7 @@ const Cart = () => {
       if (showSpinner) setLoading(true);
       console.log('Fetching cart...');
       
-      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/cart', {
+      const response = await axios.get('http://localhost:8080/api/cart', {
         withCredentials: true
       });
       
@@ -68,7 +68,7 @@ const Cart = () => {
       console.log('Updating quantity - itemId:', itemId, 'newQuantity:', newQuantity);
       
       await axios.put(
-        `https://books-store-backend-production.up.railway.app/api/cart/update/${itemId}`,
+        `http://localhost:8080/api/cart/update/${itemId}`,
         { quantity: newQuantity },
         { withCredentials: true }
       );
@@ -77,7 +77,7 @@ const Cart = () => {
       window.dispatchEvent(new Event('cart-updated'));
 
       // Silent background sync
-      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/cart', {
+      const response = await axios.get('http://localhost:8080/api/cart', {
         withCredentials: true
       });
       setCartItems(response.data.cartItems || []);
@@ -108,14 +108,14 @@ const Cart = () => {
     setTotal(newTotal);
 
     try {
-      await axios.delete(`https://books-store-backend-production.up.railway.app/api/cart/remove/${itemId}`, {
+      await axios.delete(`http://localhost:8080/api/cart/remove/${itemId}`, {
         withCredentials: true
       });
       
       window.dispatchEvent(new Event('cart-updated'));
 
       // Silent background sync
-      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/cart', {
+      const response = await axios.get('http://localhost:8080/api/cart', {
         withCredentials: true
       });
       setCartItems(response.data.cartItems || []);
@@ -141,14 +141,14 @@ const Cart = () => {
     setTotal(0);
 
     try {
-      await axios.delete('https://books-store-backend-production.up.railway.app/api/cart/clear', {
+      await axios.delete('http://localhost:8080/api/cart/clear', {
         withCredentials: true
       });
       
       window.dispatchEvent(new Event('cart-updated'));
 
       // Silent background sync
-      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/cart', {
+      const response = await axios.get('http://localhost:8080/api/cart', {
         withCredentials: true
       });
       setCartItems(response.data.cartItems || []);

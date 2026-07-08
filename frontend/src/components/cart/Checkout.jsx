@@ -22,7 +22,7 @@ const Checkout = () => {
   const fetchCart = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://books-store-backend-production.up.railway.app/api/cart', {
+      const response = await axios.get('http://localhost:8080/api/cart', {
         withCredentials: true
       });
       
@@ -59,7 +59,7 @@ const Checkout = () => {
 
       // 1. Gọi API gửi phương thức 'momo' lên Backend để BE xử lý tạo Order và clear Cart trong DB
       const response = await axios.post(
-        'https://books-store-backend-production.up.railway.app/api/cart/payment',
+        'http://localhost:8080/api/cart/payment',
         { paymentMethod: 'momo' },
         { withCredentials: true }
       );
@@ -94,7 +94,7 @@ const Checkout = () => {
       setError(''); // Xóa thông báo lỗi cũ nếu có
 
       const response = await axios.post(
-        'https://books-store-backend-production.up.railway.app/api/cart/payment',
+        'http://localhost:8080/api/cart/payment',
         { paymentMethod }, // Truyền 'cod' hoặc 'momo' hoặc 'default' lên Java
         { withCredentials: true }
       );
