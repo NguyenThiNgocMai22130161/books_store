@@ -287,14 +287,17 @@
 .otp-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 0.5rem;
+  gap: 0.4rem;
   margin: 0.5rem 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .otp-box {
-  aspect-ratio: 1;
+  width: 100%;
+  height: 52px;
   text-align: center;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 700;
   border: 2px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -304,12 +307,13 @@
   outline: none;
   caret-color: var(--color-primary);
   padding: 0;
+  box-sizing: border-box;
 }
 
 .otp-box:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
-  transform: translateY(-2px) scale(1.05);
+  transform: translateY(-2px) scale(1.04);
 }
 
 .otp-box.otp-filled {
