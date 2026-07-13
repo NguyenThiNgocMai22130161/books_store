@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import './Login.css';
 
-const API = 'https://books-store-backend-production.up.railway.app';
+const API = 'http://localhost:8080';
 
 // ─── Bước trong luồng quên mật khẩu ───────────────────────────
 const FP_STEP = { EMAIL: 'email', OTP: 'otp', NEW_PW: 'newpw', DONE: 'done' };
@@ -346,12 +346,13 @@ const Login = () => {
                             ref={el => otpRefs.current[i] = el}
                             type="text"
                             inputMode="numeric"
-                            maxLength={1}
+                            maxLength={6}
                             className={`otp-box ${digit ? 'otp-filled' : ''}`}
                             value={digit}
                             onChange={e => handleOtpChange(i, e.target.value)}
                             onKeyDown={e => handleOtpKeyDown(i, e)}
                             onPaste={i === 0 ? handleOtpPaste : undefined}
+                            onFocus={e => e.target.select()}
                             autoFocus={i === 0}
                           />
                         ))}
