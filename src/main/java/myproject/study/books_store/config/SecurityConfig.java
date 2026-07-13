@@ -124,6 +124,8 @@ public class SecurityConfig {
                         "/api/auth/check-username",
                         "/api/auth/check-email",
                         "/api/auth/login",
+                        "/api/auth/forgot-password",   // Quên mật khẩu - không cần đăng nhập
+                        "/api/auth/reset-password",    // Đặt lại mật khẩu - không cần đăng nhập
                         "/oauth2/**",
                         "/login/oauth2/**",
                         "/api/books",

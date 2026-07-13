@@ -195,4 +195,27 @@ public class AuthController {
     public ResponseEntity<?> logout() {
         return ResponseEntity.ok(Map.of("message", "Đăng xuất thành công!"));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+        try {
+            userService.requestPasswordReset(email);
+            return ResponseEntity.ok(Map.of("success", true, "message", "Mã OTP đã được gửi tới email của bạn."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String email,
+                                           @RequestParam String otp,
+                                           @RequestParam String newPassword) {
+        boolean success = userService.resetPassword(email, otp, newPassword);
+        if (success) {
+            return ResponseEntity.ok(Map.of("success", true, "message", "Đặt lại mật khẩu thành công!"));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("success", false, "message", "OTP không hợp lệ hoặc đã hết hạn!"));
+    }
 }
