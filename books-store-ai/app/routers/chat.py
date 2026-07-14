@@ -642,7 +642,8 @@ def book_recommendation_from_result(result) -> BookRecommendation:
         author=result.author,
         price=result.price,
         category=result.category,
-        score=result.score
+        score=result.score,
+        image_url=getattr(result, 'image_url', None)
     )
 
 

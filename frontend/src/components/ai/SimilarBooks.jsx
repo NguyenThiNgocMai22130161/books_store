@@ -8,6 +8,12 @@ import { Link } from 'react-router-dom';
 import aiService from '../../services/aiService';
 import './SimilarBooks.css';
 
+const getSimilarityLevel = (score) => {
+  if (score >= 0.85) return { label: '⭐ Rất phù hợp', cls: 'sim-high' };
+  if (score >= 0.50) return { label: '👍 Phù hợp',     cls: 'sim-mid'  };
+  return               { label: '🔍 Khá liên quan',    cls: 'sim-low'  };
+};
+
 const SimilarBooks = ({ bookId, currentTitle }) => {
   const [similarBooks, setSimilarBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,20 +30,16 @@ const SimilarBooks = ({ bookId, currentTitle }) => {
     setError(null);
 
     try {
-      const response = await aiService.getSimilarBooks(bookId, 6);
-      console.log('=== SIMILAR BOOKS RESPONSE ===');
-      console.log('Response:', response);
-      console.log('Similar books:', response.similar_books);
-      console.log('First book:', response.similar_books?.[0]);
-      console.log('==============================');
-      
-      // Transform book_id to bookId for consistency
-      const booksWithCamelCase = (response.similar_books || []).map(book => ({
+      const response = await aiService.getSimilarBooks(bookId, 5);
+
+      // Normalize fields: book_id → bookId, image_url → imageUrl
+      const normalized = (response.similar_books || []).map(book => ({
         ...book,
-        bookId: book.book_id || book.bookId || book.id
+        bookId: book.book_id || book.bookId || book.id,
+        imageUrl: book.image_url || book.imageUrl || null,
       }));
-      
-      setSimilarBooks(booksWithCamelCase);
+
+      setSimilarBooks(normalized);
     } catch (err) {
       console.error('Error fetching similar books:', err);
       setError('Không thể tải sách tương tự');
@@ -50,9 +52,6 @@ const SimilarBooks = ({ bookId, currentTitle }) => {
     return (
       <div className="similar-books-section">
         <h3 className="section-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
-          </svg>
           🤖 Sách Tương Tự (AI)
         </h3>
         <div className="similar-books-loading">
@@ -64,25 +63,18 @@ const SimilarBooks = ({ bookId, currentTitle }) => {
   }
 
   if (error || similarBooks.length === 0) {
-    return null; // Don't show section if error or no results
+    return null;
   }
 
   return (
     <div className="similar-books-section">
       <div className="section-header">
         <h3 className="section-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
-          </svg>
           🤖 Sách Tương Tự với "{currentTitle}"
         </h3>
-        <span className="ai-badge-small">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
-          </svg>
-          AI Powered
-        </span>
+        <span className="ai-badge-small">AI Powered</span>
       </div>
+
       <div className="similar-books-grid">
         {similarBooks.map((book, index) => (
           <Link
@@ -90,53 +82,45 @@ const SimilarBooks = ({ bookId, currentTitle }) => {
             to={`/books/${book.bookId}`}
             className="similar-book-card"
           >
-            <div className="book-card-content">
-              <div className="book-info">
-                <h4 className="book-title">{book.title}</h4>
-                <p className="book-author">{book.author}</p>
-                {book.category && (
-                  <span className="book-category">{book.category}</span>
-                )}
-                <p className="book-price">
-                  {book.price?.toLocaleString('vi-VN')}đ
-                </p>
+            {/* Book cover image */}
+            <div className="similar-book-image-wrap">
+              {book.imageUrl ? (
+                <img
+                  src={book.imageUrl}
+                  alt={book.title}
+                  className="similar-book-img"
+                  onError={e => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div
+                className="similar-book-img-placeholder"
+                style={{ display: book.imageUrl ? 'none' : 'flex' }}
+              >
+                📚
               </div>
 
-              <div className="similarity-score">
-                <svg className="score-ring" width="60" height="60">
-                  <circle
-                    cx="30"
-                    cy="30"
-                    r="25"
-                    fill="none"
-                    stroke="#e2e8f0"
-                    strokeWidth="4"
-                  />
-                  <circle
-                    cx="30"
-                    cy="30"
-                    r="25"
-                    fill="none"
-                    stroke="url(#gradient)"
-                    strokeWidth="4"
-                    strokeDasharray={`${2 * Math.PI * 25}`}
-                    strokeDashoffset={`${2 * Math.PI * 25 * (1 - book.score)}`}
-                    transform="rotate(-90 30 30)"
-                    strokeLinecap="round"
-                  />
-                  <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#667eea" />
-                      <stop offset="100%" stopColor="#764ba2" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div className="score-text">
-                  {(book.score * 100).toFixed(0)}%
-                </div>
+              {/* Similarity badge */}
+              <div className={`similarity-badge ${getSimilarityLevel(book.score).cls}`}>
+                {getSimilarityLevel(book.score).label}
               </div>
             </div>
 
+            {/* Book info */}
+            <div className="similar-book-info">
+              <h4 className="similar-book-title">{book.title}</h4>
+              <p className="similar-book-author">{book.author}</p>
+              {book.category && (
+                <span className="similar-book-category">{book.category}</span>
+              )}
+              <p className="similar-book-price">
+                {book.price?.toLocaleString('vi-VN')}đ
+              </p>
+            </div>
+
+            {/* Hover overlay */}
             <div className="card-hover-overlay">
               <span className="view-detail-text">Xem chi tiết →</span>
             </div>

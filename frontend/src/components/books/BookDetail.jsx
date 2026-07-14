@@ -252,18 +252,20 @@ const BookDetail = () => {
               )}
             </div>
 
-            <div className="detail-price-section">
-              <span className="detail-meta-label">Giá bán</span>
-              <div className="detail-price-value">
-                {book.price?.toLocaleString('vi-VN')} <span className="currency-symbol">đ</span>
+            <div className="detail-price-stock-row">
+              <div className="detail-price-section">
+                <span className="detail-meta-label">Giá bán</span>
+                <div className="detail-price-value">
+                  {book.price?.toLocaleString('vi-VN')} <span className="currency-symbol">đ</span>
+                </div>
               </div>
-            </div>
 
-            <div className="detail-stock-section">
-              <span className="detail-meta-label">Số lượng còn</span>
-              <span className="detail-stock-value">
-                {book.quantity != null ? `${book.quantity} cuốn` : '0 cuốn'}
-              </span>
+              <div className="detail-stock-section">
+                <span className="detail-meta-label">Số lượng còn</span>
+                <span className="detail-stock-value">
+                  {book.quantity != null ? `${book.quantity} cuốn` : '0 cuốn'}
+                </span>
+              </div>
             </div>
 
             <div className="detail-actions">
@@ -275,7 +277,7 @@ const BookDetail = () => {
                 Quay lại
               </Link>
 
-              {!isAdmin && user && (
+              {!isAdmin && (
                 <form onSubmit={handleAddToCart} className="add-to-cart-form">
                   <div className="qty-picker">
                     <button

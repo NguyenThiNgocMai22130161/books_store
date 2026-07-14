@@ -33,6 +33,7 @@ class BookRecommendation(BaseModel):
     price: float
     category: Optional[str] = None
     score: float = Field(..., description="Relevance score")
+    image_url: Optional[str] = None
     
     class Config:
         json_schema_extra = {
