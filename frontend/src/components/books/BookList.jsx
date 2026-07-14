@@ -350,9 +350,11 @@ const BookList = () => {
 
       <div className="container">
         {/* AI Smart Search Bar */}
-        <div style={{ margin: '2rem 0' }}>
-          <SmartSearchBar />
-        </div>
+        {!isAdmin && (
+          <div style={{ margin: '2rem 0' }}>
+            <SmartSearchBar />
+          </div>
+        )}
 
         {/* Page Header */}
         <div className="page-header" style={{ marginTop: '2rem' }}>
@@ -520,14 +522,37 @@ const BookList = () => {
 
                 <div className="book-body">
                   <h3 className="book-title">{book.title}</h3>
-                  <p className="book-author">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                    <strong>{book.author}</strong>
-                  </p>
-                  <p className="book-price">{formatPrice(book.price)}</p>
+                  <div className="book-meta-row">
+                    <p className="book-author">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                      <strong>{book.author}</strong>
+                    </p>
+                    <p className="book-price">{formatPrice(book.price)}</p>
+                  </div>
+
+                  {/* Star rating */}
+                  <div className="book-rating">
+                    {book.avgRating != null ? (
+                      <>
+                        <div className="book-stars">
+                          {[1,2,3,4,5].map(star => {
+                            const filled = star <= Math.floor(book.avgRating);
+                            const half   = !filled && star === Math.ceil(book.avgRating) && book.avgRating % 1 >= 0.5;
+                            return (
+                              <span key={star} className={`star ${filled ? 'filled' : half ? 'half' : 'empty'}`}>★</span>
+                            );
+                          })}
+                        </div>
+                        <span className="book-rating-value">{book.avgRating.toFixed(1)}</span>
+                        <span className="book-rating-count">({book.totalReviews})</span>
+                      </>
+                    ) : (
+                      <span className="book-rating-none">Chưa có đánh giá</span>
+                    )}
+                  </div>
 
                   {book.description && <div className="book-description">{book.description}</div>}
 
@@ -575,7 +600,7 @@ const BookList = () => {
       </div>
 
       {/* AI Chatbot Widget - General book search assistant */}
-      <ChatbotWidget />
+      {!isAdmin && <ChatbotWidget />}
     </div>
   );
 };
