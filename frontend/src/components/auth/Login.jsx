@@ -62,7 +62,6 @@ const Login = () => {
       formDataEncoded.append('password', formData.password);
 
       const response = await axios.post(
-        'http://localhost:8080/api/auth/login',
         `${API}/api/auth/login`,
         formDataEncoded,
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, withCredentials: true }
@@ -94,7 +93,6 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
     window.location.href = `${API}/oauth2/authorization/google`;
   };
 
