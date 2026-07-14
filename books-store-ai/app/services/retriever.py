@@ -28,6 +28,7 @@ class SearchResult:
         self.avg_rating = float(row[8]) if row[8] else 0.0
         self.total_reviews = row[9] if row[9] else 0
         self.total_orders = row[10] if row[10] else 0
+        self.image_url = row[11] if len(row) > 11 else None
         
         # Final score (will be calculated with hybrid scoring)
         self.score = self.similarity
@@ -45,7 +46,8 @@ class SearchResult:
             'score': round(self.score, 4),
             'avg_rating': self.avg_rating,
             'total_reviews': self.total_reviews,
-            'total_orders': self.total_orders
+            'total_orders': self.total_orders,
+            'image_url': self.image_url
         }
 
 
@@ -105,7 +107,8 @@ class Retriever:
                     1 - (bv.embedding <=> %s::vector) as similarity,
                     bv.avg_rating,
                     bv.total_reviews,
-                    bv.total_orders
+                    bv.total_orders,
+                    b.image_url
                 FROM book_vectors bv
                 JOIN books b ON bv.book_id = b.id
                 WHERE 1=1
@@ -248,7 +251,8 @@ class Retriever:
                     1 - (bv.embedding <=> %s::vector) as similarity,
                     bv.avg_rating,
                     bv.total_reviews,
-                    bv.total_orders
+                    bv.total_orders,
+                    b.image_url
                 FROM book_vectors bv
                 JOIN books b ON bv.book_id = b.id
                 WHERE bv.book_id != %s

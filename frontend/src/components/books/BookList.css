@@ -633,3 +633,28 @@
     min-width: 38px;
   }
 }
+
+/* ─── Out of Stock Overlay ─── */
+.out-of-stock-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.out-of-stock-label {
+  color: #ff3b3b;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 0.45rem 1.1rem;
+  border-radius: 8px;
+  border: 2px solid #ff3b3b;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  pointer-events: none;
+}

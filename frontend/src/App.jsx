@@ -28,11 +28,12 @@ import { UserProfile } from './components/user';
 import { Wishlist } from './components/wishlist';
 
 // Shared Components
-import { Navbar, Footer } from './components/shared';
+import { Navbar, Footer, ScrollToTop } from './components/shared';
 
 function App() {
   return (
     <div className="app">
+      <ScrollToTop />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Navigate to="/books" replace />} />

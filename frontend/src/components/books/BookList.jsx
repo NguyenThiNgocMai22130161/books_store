@@ -500,6 +500,13 @@ const BookList = () => {
                     </div>
                   )}
 
+                  {/* Overlay hết hàng */}
+                  {book.quantity === 0 && (
+                    <div className="out-of-stock-overlay">
+                      <span className="out-of-stock-label">Hết số lượng</span>
+                    </div>
+                  )}
+
                   {/* Nút tim */}
                   {!isAdmin && (
                     <button

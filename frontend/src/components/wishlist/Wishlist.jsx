@@ -47,27 +47,14 @@ const Wishlist = () => {
   // ===============================
 
   const removeWishlist = async (bookId) => {
-
     try {
-
       await axios.delete(
         `http://localhost:8080/api/wishlist/${bookId}`,
-        {
-          withCredentials: true
-        }
+        { withCredentials: true }
       );
-
-      setWishlist(prev =>
-        prev.filter(item => item.bookId !== bookId)
-      );
-
-      alert('Đã xóa khỏi yêu thích');
-
+      setWishlist(prev => prev.filter(item => item.bookId !== bookId));
     } catch (error) {
-
       console.error('Remove wishlist error:', error);
-
-      alert('Xóa thất bại!');
     }
   };
 
@@ -76,30 +63,14 @@ const Wishlist = () => {
   // ===============================
 
   const handleAddToCart = async (bookId) => {
-
     try {
-
       await axios.post(
         'http://localhost:8080/api/cart/add',
-        {
-          bookId: String(bookId),
-          quantity: 1
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          withCredentials: true
-        }
+        { bookId: String(bookId), quantity: 1 },
+        { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
       );
-
-      alert('Đã thêm vào giỏ hàng');
-
     } catch (error) {
-
       console.error('Add cart error:', error);
-
-      alert('Thêm giỏ hàng thất bại!');
     }
   };
 
@@ -157,7 +128,8 @@ const Wishlist = () => {
 
             {wishlist.map(item => (
 
-              <div
+              <Link
+                to={`/books/${item.bookId}`}
                 className="wishlist-card"
                 key={item.bookId}
               >
@@ -176,50 +148,45 @@ const Wishlist = () => {
                     {item.title}
                   </h3>
 
-                  <p className="wishlist-author">
-                    {item.author}
-                  </p>
-
-                  <div className="wishlist-price">
-                    {new Intl.NumberFormat('vi-VN')
-                      .format(item.price)}đ
+                  <div className="wishlist-meta">
+                    <p className="wishlist-author">
+                      {item.author}
+                    </p>
+                    <div className="wishlist-price">
+                      {new Intl.NumberFormat('vi-VN').format(item.price)}đ
+                    </div>
                   </div>
 
                   {/* ACTIONS */}
                   <div className="wishlist-actions">
 
-                    <Link
-                      to={`/books/${item.bookId}`}
-                      className="btn-detail"
-                    >
-                      👀 Chi tiết
-                    </Link>
-
                     <button
                       type="button"
-                      onClick={() =>
-                        handleAddToCart(item.bookId)
-                      }
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleAddToCart(item.bookId);
+                      }}
                       className="btn-cart"
                     >
-                      🛒 Thêm giỏ
+                      Thêm vào giỏ
                     </button>
 
                     <button
                       type="button"
-                      onClick={() =>
-                        removeWishlist(item.bookId)
-                      }
+                      onClick={(e) => {
+                        e.preventDefault();
+                        removeWishlist(item.bookId);
+                      }}
                       className="btn-remove"
                     >
-                      🗑️
+                      Loại bỏ
                     </button>
 
                   </div>
 
                 </div>
 
-              </div>
+              </Link>
 
             ))}
 
