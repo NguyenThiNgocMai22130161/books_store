@@ -347,6 +347,7 @@ const BookDetail = () => {
         )}
 
         {/* AI Quick Questions Section */}
+        {!isAdmin && (
         <div className="ai-quick-questions-section">
           <h3 className="ai-questions-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
@@ -378,16 +379,17 @@ const BookDetail = () => {
             size="medium"
           />
         </div>
+        )}
 
         {/* Reviews Section */}
         {id && <BookReviews bookId={id} user={user} isAdmin={isAdmin} />}
 
         {/* AI Similar Books Section */}
-        {id && <SimilarBooks bookId={parseInt(id)} currentTitle={book?.title} />}
+        {id && !isAdmin && <SimilarBooks bookId={parseInt(id)} currentTitle={book?.title} />}
       </div>
 
       {/* AI Chatbot Widget with book context */}
-      {id && <ChatbotWidget bookId={parseInt(id)} category={book?.category} />}
+      {id && !isAdmin && <ChatbotWidget bookId={parseInt(id)} category={book?.category} />}
     </div>
   );
 };
