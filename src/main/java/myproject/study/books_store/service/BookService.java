@@ -1,7 +1,11 @@
 package myproject.study.books_store.service;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import myproject.study.books_store.event.BookChangedEvent;
+import myproject.study.books_store.event.BookChangeType;
 import myproject.study.books_store.model.Book;
 import myproject.study.books_store.repository.BookRepository;
 
@@ -12,9 +16,11 @@ import java.util.stream.Collectors;
 @Service
 public class BookService {
     private final BookRepository bookRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public BookService(BookRepository bookRepository) {
+    public BookService(BookRepository bookRepository, ApplicationEventPublisher eventPublisher) {
         this.bookRepository = bookRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public List<Book> getAllBooks() {
@@ -26,6 +32,7 @@ public class BookService {
     }
 
     @SuppressWarnings("null")
+    @Transactional
     public Book saveBook(Book book) {
         // Kiểm tra xem đã có sách với cùng tên và tác giả chưa
         List<Book> existingBooks = bookRepository.findByTitleAndAuthor(book.getTitle(), book.getAuthor());
@@ -34,9 +41,15 @@ public class BookService {
             throw new RuntimeException("Sách '" + book.getTitle() + "' của tác giả '" + book.getAuthor() + "' đã tồn tại trong hệ thống!");
         }
         
-        return bookRepository.save(book);
+        Book savedBook = bookRepository.save(book);
+        
+        // Publish CREATED event
+        eventPublisher.publishEvent(new BookChangedEvent(savedBook.getId(), BookChangeType.CREATED));
+        
+        return savedBook;
     }
 
+    @Transactional
     public Book updateBook(String id, Book bookDetails) {
         return bookRepository.findById(Long.parseLong(id)).map(book -> {
             book.setTitle(bookDetails.getTitle());
@@ -52,12 +65,22 @@ public class BookService {
                 book.setImageFilename(bookDetails.getImageFilename());
             }
             
-            return bookRepository.save(book);
+            Book updatedBook = bookRepository.save(book);
+            
+            // Publish UPDATED event
+            eventPublisher.publishEvent(new BookChangedEvent(updatedBook.getId(), BookChangeType.UPDATED));
+            
+            return updatedBook;
         }).orElse(null);
     }
 
+    @Transactional
     public void deleteBook(String id) {
-        bookRepository.deleteById(Long.parseLong(id));
+        Long bookId = Long.parseLong(id);
+        bookRepository.deleteById(bookId);
+        
+        // Publish DELETED event
+        eventPublisher.publishEvent(new BookChangedEvent(bookId, BookChangeType.DELETED));
     }
     
     // ===== SEARCH METHODS =====

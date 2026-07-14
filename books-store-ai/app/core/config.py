@@ -41,6 +41,9 @@ class Settings(BaseSettings):
     CACHE_TTL: int = 3600
     MAX_CHAT_HISTORY: int = 10
     
+    # Webhook Security
+    AI_INTERNAL_API_KEY: str = ""
+    
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

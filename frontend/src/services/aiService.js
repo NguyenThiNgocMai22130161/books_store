@@ -6,8 +6,10 @@
 import axios from 'axios';
 
 // API Base URL - Direct to Python AI service
-// TODO: Change to Spring Boot proxy when ready: http://localhost:8080/api/ai
-const API_BASE_URL = 'https://books-store-ai-production.up.railway.app/api';
+// Development: localhost, Production: Railway
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://books-store-ai-production.up.railway.app/api'
+  : 'http://localhost:8000/api';
 
 /**
  * AI Service API
@@ -82,7 +84,10 @@ export const aiService = {
    */
   checkHealth: async () => {
     try {
-      const response = await axios.get('https://books-store-ai-production.up.railway.app/health');
+      const healthUrl = process.env.NODE_ENV === 'production'
+        ? 'https://books-store-ai-production.up.railway.app/health'
+        : 'http://localhost:8000/health';
+      const response = await axios.get(healthUrl);
       return response.data;
     } catch (error) {
       console.error('AI Health check error:', error);

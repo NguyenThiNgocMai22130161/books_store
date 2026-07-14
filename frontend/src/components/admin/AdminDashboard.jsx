@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import adminOrderService from '../../services/adminOrderService';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -14,6 +15,7 @@ const AdminDashboard = () => {
     booksInStock: 0,
     outOfStockBooks: 0
   });
+  const [orderStats, setOrderStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -58,6 +60,16 @@ const AdminDashboard = () => {
       
       console.log('Dashboard response:', response.data);
       setDashboardData(response.data);
+
+      // Fetch order statistics
+      try {
+        const orderStatsData = await adminOrderService.getStatistics();
+        console.log('Order stats:', orderStatsData);
+        setOrderStats(orderStatsData);
+      } catch (orderErr) {
+        console.error('Order stats error:', orderErr);
+        // Don't fail the whole dashboard if order stats fail
+      }
     } catch (err) {
       console.error('Dashboard error:', err);
       console.error('Error response:', err.response?.data);
@@ -107,6 +119,13 @@ const AdminDashboard = () => {
       </div>
     );
   }
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(price || 0);
+  };
 
   return (
     <div className="container fade-in">
@@ -174,6 +193,37 @@ const AdminDashboard = () => {
           <div className="dashboard-card">
             <div className="card-icon" style={{ color: '#f59e0b', background: 'rgba(245, 158, 11, 0.1)' }}>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 2L3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6l-3-4H6zM3 6h18M16 10a4 4 0 1 1-8 0"/>
+              </svg>
+            </div>
+            <h3>Đơn Hàng</h3>
+            <div className="number">{orderStats ? orderStats.totalOrders || 0 : 0}</div>
+            <div className="sub-stats">
+              <span>Chờ xử lý: {orderStats ? orderStats.pendingOrders || 0 : 0}</span>
+              <span>Đã giao: {orderStats ? orderStats.deliveredOrders || 0 : 0}</span>
+            </div>
+            <Link to="/admin/orders" className="action-link" style={{ color: '#f59e0b' }}>Quản lý đơn hàng →</Link>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="card-icon" style={{ color: '#10b981', background: 'rgba(16, 185, 129, 0.1)' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <h3>Doanh Thu</h3>
+            <div className="number" style={{ fontSize: '1.5rem' }}>
+              {orderStats ? formatPrice(orderStats.totalRevenue || 0) : formatPrice(0)}
+            </div>
+            <div className="sub-stats">
+              <span>Từ đơn đã giao</span>
+            </div>
+            <Link to="/admin/orders?status=DELIVERED" className="action-link" style={{ color: '#10b981' }}>Xem chi tiết →</Link>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="card-icon" style={{ color: '#EE4D2D', background: 'rgba(238, 77, 45, 0.1)' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
             </div>
@@ -182,7 +232,7 @@ const AdminDashboard = () => {
             <div className="sub-stats">
               <span>Thêm nội dung mới</span>
             </div>
-            <Link to="/books/add" className="action-link" style={{ color: '#f59e0b' }}>Thêm sách mới ngay →</Link>
+            <Link to="/books/add" className="action-link">Thêm sách mới ngay →</Link>
           </div>
         </div>
     </div>

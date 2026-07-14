@@ -12,13 +12,15 @@ class ChatRequest(BaseModel):
     book_id: Optional[int] = Field(None, description="Optional book context")
     session_id: Optional[str] = Field(None, description="Session ID for chat history")
     category: Optional[str] = Field(None, description="Filter by category")
+    user_id: Optional[int] = Field(None, description="Optional user ID for order queries")
     
     class Config:
         json_schema_extra = {
             "example": {
                 "message": "Tìm sách về lập trình Python cho người mới bắt đầu",
                 "book_id": None,
-                "category": "Technology"
+                "category": "Technology",
+                "user_id": None
             }
         }
 

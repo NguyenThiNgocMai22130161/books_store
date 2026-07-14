@@ -3,14 +3,22 @@ Ingest Router
 Endpoints for data synchronization
 """
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Header, status
 from pydantic import BaseModel
 import psycopg2
 import logging
 import time
+from typing import Optional
 from app.core.config import settings
 from app.clients.backend_client import backend_client
 from app.services.embedder import embedder
+from app.services.book_ingestion_service import book_ingestion_service
+from app.models.webhook_schemas import (
+    BookChangedWebhookRequest,
+    WebhookResponse,
+    EventType,
+    IngestEventStatus
+)
 from app.utils.text_processing import build_search_text, extract_metadata
 
 logger = logging.getLogger(__name__)
@@ -189,22 +197,11 @@ async def sync_all_books(background_tasks: BackgroundTasks):
 @router.post("/{book_id}", response_model=IngestResponse)
 async def ingest_single_book(book_id: int):
     """
-    Ingest a single book by ID
+    Manually ingest a single book by ID
     """
     try:
-        # Fetch book from backend
-        book_data = await backend_client.get_book_by_id(book_id)
-        
-        if not book_data:
-            raise HTTPException(status_code=404, detail=f"Book {book_id} not found")
-        
-        # Connect to database
-        conn = psycopg2.connect(settings.PG_DSN)
-        
-        # Ingest
-        success = await ingest_book(book_id, book_data, conn)
-        
-        conn.close()
+        # Use centralized service
+        success = await book_ingestion_service.ingest_book(book_id)
         
         if success:
             return IngestResponse(
@@ -257,4 +254,224 @@ async def get_ingest_status():
     
     except Exception as e:
         logger.error(f"Error getting status: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# ==================== WEBHOOK ENDPOINTS ====================
+
+def verify_internal_api_key(x_internal_api_key: Optional[str] = Header(None)):
+    """
+    Verify internal API key for webhook authentication
+    """
+    expected_key = getattr(settings, 'AI_INTERNAL_API_KEY', '')
+    
+    # If no key configured, skip authentication (dev mode)
+    if not expected_key or expected_key == '':
+        logger.warning("[WARN] No internal API key configured, skipping authentication")
+        return
+    
+    # Check key
+    if not x_internal_api_key or x_internal_api_key != expected_key:
+        logger.error("[ERROR] Invalid or missing internal API key")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized"
+        )
+
+
+async def process_book_event_background(event_id: str, book_id: int, event_type: EventType):
+    """
+    Background task to process book change event
+    """
+    try:
+        logger.info(f"[OK] Processing event {event_id}: {event_type} for book {book_id}")
+        
+        # Mark as processing
+        book_ingestion_service.save_event_status(
+            event_id, book_id, event_type.value, IngestEventStatus.PROCESSING.value
+        )
+        
+        # Process based on event type
+        success = False
+        
+        if event_type == EventType.CREATED or event_type == EventType.UPDATED:
+            # Ingest or update book
+            success = await book_ingestion_service.ingest_book(book_id)
+        elif event_type == EventType.DELETED:
+            # Delete vector
+            success = await book_ingestion_service.delete_book_vector(book_id)
+        
+        # Update status
+        if success:
+            book_ingestion_service.save_event_status(
+                event_id, book_id, event_type.value, IngestEventStatus.COMPLETED.value
+            )
+            logger.info(f"[OK] Event {event_id} completed successfully")
+        else:
+            book_ingestion_service.save_event_status(
+                event_id, book_id, event_type.value, IngestEventStatus.FAILED.value,
+                error_message="Processing failed, check logs"
+            )
+            logger.error(f"[ERROR] Event {event_id} failed")
+            
+    except Exception as e:
+        logger.error(f"[ERROR] Exception processing event {event_id}: {str(e)}")
+        book_ingestion_service.save_event_status(
+            event_id, book_id, event_type.value, IngestEventStatus.FAILED.value,
+            error_message=str(e)
+        )
+
+
+@router.post("/events/book-changed", response_model=WebhookResponse)
+async def handle_book_changed_webhook(
+    event: BookChangedWebhookRequest,
+    background_tasks: BackgroundTasks,
+    x_internal_api_key: Optional[str] = Header(None)
+):
+    """
+    Webhook endpoint for book change events from Spring Boot
+    
+    Authenticates request, checks idempotency, and processes event in background
+    """
+    # Verify authentication
+    verify_internal_api_key(x_internal_api_key)
+    
+    logger.info(f"[OK] Received webhook: {event.dict()}")
+    
+    # Check idempotency - has this event been processed?
+    if book_ingestion_service.check_event_processed(event.event_id):
+        logger.info(f"[OK] Event {event.event_id} already processed, skipping")
+        return WebhookResponse(
+            accepted=True,
+            event_id=event.event_id,
+            book_id=event.book_id,
+            message="Event already processed"
+        )
+    
+    # Validate event type
+    try:
+        event_type = EventType(event.event_type)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid event type: {event.event_type}"
+        )
+    
+    # Save as pending
+    book_ingestion_service.save_event_status(
+        event.event_id, event.book_id, event_type.value, IngestEventStatus.PENDING.value
+    )
+    
+    # Process in background
+    background_tasks.add_task(
+        process_book_event_background,
+        event.event_id,
+        event.book_id,
+        event_type
+    )
+    
+    return WebhookResponse(
+        accepted=True,
+        event_id=event.event_id,
+        book_id=event.book_id,
+        message="Event processing started in background"
+    )
+
+
+@router.delete("/{book_id}", status_code=status.HTTP_200_OK)
+async def delete_book_vector(book_id: int):
+    """
+    Manually delete vector for a book
+    """
+    try:
+        success = await book_ingestion_service.delete_book_vector(book_id)
+        
+        if success:
+            return {"success": True, "message": f"Vector for book {book_id} deleted"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to delete vector")
+            
+    except Exception as e:
+        logger.error(f"Error deleting vector for book {book_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/events/status")
+async def get_event_status():
+    """
+    Get summary of event processing status
+    """
+    try:
+        conn = psycopg2.connect(settings.PG_DSN)
+        cursor = conn.cursor()
+        
+        # Check if table exists
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = 'ingest_events'
+            )
+        """)
+        table_exists = cursor.fetchone()[0]
+        
+        if not table_exists:
+            cursor.close()
+            conn.close()
+            return {
+                "events_tracked": 0,
+                "pending": 0,
+                "processing": 0,
+                "completed": 0,
+                "failed": 0,
+                "message": "No events tracked yet"
+            }
+        
+        # Get counts by status
+        cursor.execute("""
+            SELECT status, COUNT(*) as count
+            FROM ingest_events
+            GROUP BY status
+        """)
+        
+        status_counts = {row[0]: row[1] for row in cursor.fetchall()}
+        
+        # Get total
+        cursor.execute("SELECT COUNT(*) FROM ingest_events")
+        total = cursor.fetchone()[0]
+        
+        # Get recent failures
+        cursor.execute("""
+            SELECT event_id, book_id, event_type, error_message, updated_at
+            FROM ingest_events
+            WHERE status = 'FAILED'
+            ORDER BY updated_at DESC
+            LIMIT 5
+        """)
+        
+        recent_failures = [
+            {
+                "event_id": row[0],
+                "book_id": row[1],
+                "event_type": row[2],
+                "error_message": row[3],
+                "updated_at": row[4].isoformat() if row[4] else None
+            }
+            for row in cursor.fetchall()
+        ]
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            "events_tracked": total,
+            "pending": status_counts.get("PENDING", 0),
+            "processing": status_counts.get("PROCESSING", 0),
+            "completed": status_counts.get("COMPLETED", 0),
+            "failed": status_counts.get("FAILED", 0),
+            "recent_failures": recent_failures
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting event status: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

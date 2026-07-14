@@ -118,6 +118,64 @@ class BackendClient:
                     return response.status_code < 500
             except:
                 return False
+    
+    async def get_user_orders(self, user_id: int) -> List[Dict]:
+        """
+        Get orders for a user
+        
+        Note: This requires authentication. In production, user_id should
+        be extracted from JWT token, not trusted from client.
+        
+        Args:
+            user_id: User ID
+            
+        Returns:
+            List of orders
+        """
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.get(
+                    f"{self.base_url}/api/orders",
+                    headers=self.headers
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    # Handle different response formats
+                    if isinstance(data, list):
+                        return data
+                    elif isinstance(data, dict) and 'orders' in data:
+                        return data['orders']
+                    else:
+                        return []
+                else:
+                    logger.warning(f"Cannot fetch orders: {response.status_code}")
+                    return []
+        except Exception as e:
+            logger.error(f"Error fetching orders: {str(e)}")
+            return []
+    
+    async def cancel_order(self, order_id: str) -> bool:
+        """
+        Cancel an order
+        
+        Args:
+            order_id: Order ID
+            
+        Returns:
+            True if cancelled successfully
+        """
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.post(
+                    f"{self.base_url}/api/orders/{order_id}/cancel",
+                    headers=self.headers
+                )
+                
+                return response.status_code == 200
+        except Exception as e:
+            logger.error(f"Error cancelling order: {str(e)}")
+            return False
 
 
 # Global backend client instance
